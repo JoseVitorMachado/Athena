@@ -1,4 +1,4 @@
-# ATHENA
+Inteligência e estratégia para prever o impacto das mudanças em requisitos.
 
 <img width="1920" height="1080" alt="Apresentação projeto ATHENA" src="https://github.com/user-attachments/assets/35d84113-8416-4ba6-ac1d-442b18c37deb" />
 
@@ -10,13 +10,15 @@ A ATHENA é uma proposta de plataforma voltada à **gestão inteligente de requi
 
 O objetivo é apoiar equipes de software na compreensão das relações existentes entre requisitos, regras de negócio, critérios de aceitação, testes, documentos e demais artefatos associados ao desenvolvimento de um sistema.
 
-## Nome dos integrantes
+## Integrantes do Grupo
 
-- Ana Clara Rocha Gomes
-- Bárbara Oliveira Fonseca
-- Fernando Chaves Scarabeli
-- Jhennifer Hellen Campos Silva
-- José Vítor Machado de Oliveira
+| Integrante | GitHub |
+|---|---|
+| Ana Clara Rocha Gomes | @clararochag |
+| Bárbara Oliveira Fonseca | @babifonsec |
+| Fernando Chaves Scarabeli | @FernandoScarabeli |
+| Jhennifer Hellen Campos Silva | @jhennifer-silva |
+| José Vítor Machado de Oliveira | JoseVitorMachado |
 
 **Disciplina:** Sistemas Distribuídos  
 **Professor:** André de Lima Salgado
@@ -24,6 +26,8 @@ O objetivo é apoiar equipes de software na compreensão das relações existent
 ---
 
 ## Problema e motivação
+
+<img width="1027" height="793" alt="image" src="https://github.com/user-attachments/assets/37e3ed94-e7de-431b-a018-8488b298b654" />
 
 Requisitos de software não permanecem estáticos durante todo o desenvolvimento de um sistema. Eles evoluem conforme surgem novas necessidades, alterações de negócio, decisões de projeto e mudanças no próprio produto.
 
@@ -43,6 +47,7 @@ Nesse cenário, parte do contexto do projeto pode se perder, principalmente quan
 2. parte do conhecimento depende de pessoas específicas;
 3. mudanças são revisadas de forma incompleta;
 4. inconsistências são percebidas apenas posteriormente, gerando retrabalho.
+
 
 A ATHENA surge a partir desse problema: **tornar visíveis as relações entre os elementos de um projeto para que a equipe consiga compreender melhor o impacto provocado por uma mudança em um requisito**.
 
@@ -91,6 +96,8 @@ A ferramenta não pretende substituir a análise realizada pelos profissionais r
 ---
 
 ## Esboço da solução
+<img width="1255" height="688" alt="image" src="https://github.com/user-attachments/assets/f598176b-c898-43d0-8ec7-52d095c97862" />
+
 
 A ATHENA deverá apoiar o fluxo de análise de requisitos por meio de cinco ações principais.
 
@@ -214,4 +221,4 @@ Essas métricas permitem avaliar se a ferramenta está contribuindo para tornar 
 
 3. PEREIRA, G.; COSTA, H.; PARREIRA JÚNIOR, P. **A comparative study of tools for anomaly detection in software requirements.** SBQS, 2024.
 
-4. TABARSI, A. et al. **LLMs’ reshaping of people, processes, products, and society in software development.** *Empirical Software Engineering*,  2026.
+4. TABARSI, A. et al. **LLMs’ reshaping of people, processes, products, and society in software development.** *Empirical Software Engineering*, 2026.

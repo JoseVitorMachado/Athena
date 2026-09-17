@@ -214,4 +214,4 @@ Essas métricas permitem avaliar se a ferramenta está contribuindo para tornar 
 
 3. PEREIRA, G.; COSTA, H.; PARREIRA JÚNIOR, P. **A comparative study of tools for anomaly detection in software requirements.** SBQS, 2024.
 
-4. TABARSI, A. et al. **LLMs’ reshaping of people, processes, products, and society in software development.** *Empirical Software Engineering*, 2026.
+4. TABARSI, A. et al. **LLMs’ reshaping of people, processes, products, and society in software development.** *Empirical Software Engineering*,  2026.

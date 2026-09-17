@@ -18,7 +18,7 @@ O objetivo é apoiar equipes de software na compreensão das relações existent
 | Bárbara Oliveira Fonseca | @babifonsec |
 | Fernando Chaves Scarabeli | @FernandoScarabeli |
 | Jhennifer Hellen Campos Silva | @jhennifer-silva |
-| José Vítor Machado de Oliveira | JoseVitorMachado |
+| José Vítor Machado de Oliveira | @JoseVitorMachado |
 
 **Disciplina:** Sistemas Distribuídos  
 **Professor:** André de Lima Salgado

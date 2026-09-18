@@ -10,19 +10,6 @@ A ATHENA é uma proposta de plataforma voltada à **gestão inteligente de requi
 
 O objetivo é apoiar equipes de software na compreensão das relações existentes entre requisitos, regras de negócio, critérios de aceitação, testes, documentos e demais artefatos associados ao desenvolvimento de um sistema.
 
-## Integrantes do Grupo
-
-| Integrante | GitHub |
-|---|---|
-| Ana Clara Rocha Gomes | @clararochag |
-| Bárbara Oliveira Fonseca | @babifonsec |
-| Fernando Chaves Scarabeli | @FernandoScarabeli |
-| Jhennifer Hellen Campos Silva | @jhennifer-silva |
-| José Vítor Machado de Oliveira | @JoseVitorMachado |
-
-**Disciplina:** Sistemas Distribuídos  
-**Professor:** André de Lima Salgado
-
 ---
 
 ## Problema e motivação

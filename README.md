@@ -1,6 +1,6 @@
 Inteligência e estratégia para prever o impacto das mudanças em requisitos.
 
-<img width="1920" height="1080" alt="Apresentação projeto ATHENA" src="https://github.com/user-attachments/assets/35d84113-8416-4ba6-ac1d-442b18c37deb" />
+<img width="1516" height="267" alt="image" src="https://github.com/user-attachments/assets/fc2e4c6b-97cb-435f-abfe-b1563c8bf251" />
 
 ## Nome da Startup
 
@@ -14,7 +14,7 @@ O objetivo é apoiar equipes de software na compreensão das relações existent
 
 ## Problema e motivação
 
-<img width="1027" height="793" alt="image" src="https://github.com/user-attachments/assets/37e3ed94-e7de-431b-a018-8488b298b654" />
+<img width="559" height="454" alt="image" src="https://github.com/user-attachments/assets/9714ecc6-c3ba-469d-9fda-3d5f65574e91" />
 
 Requisitos de software não permanecem estáticos durante todo o desenvolvimento de um sistema. Eles evoluem conforme surgem novas necessidades, alterações de negócio, decisões de projeto e mudanças no próprio produto.
 
@@ -83,7 +83,8 @@ A ferramenta não pretende substituir a análise realizada pelos profissionais r
 ---
 
 ## Esboço da solução
-<img width="1255" height="688" alt="image" src="https://github.com/user-attachments/assets/f598176b-c898-43d0-8ec7-52d095c97862" />
+<img width="1492" height="573" alt="image" src="https://github.com/user-attachments/assets/13d9f614-9128-4446-a34e-32a9000f0afb" />
+
 
 
 A ATHENA deverá apoiar o fluxo de análise de requisitos por meio de cinco ações principais.

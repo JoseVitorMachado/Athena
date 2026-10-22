@@ -1,0 +1,12 @@
+# Validação local; sem envio de telemetria.
+telemetry: off
+extends: [recommended]
+rules:
+  info-license: off
+  no-unused-components: off
+  operation-4xx-response: error
+  no-invalid-media-type-examples: error
+  no-invalid-schema-examples: error
+  security-defined: error
+  # OAuth authorize responde 302 conforme RFC 6749, sem inventar 200.
+  operation-2xx-response: off

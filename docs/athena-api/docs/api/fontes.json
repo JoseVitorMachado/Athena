@@ -1,0 +1,31 @@
+{
+  "fonteDeVerdade": "Arquitetura v1.0",
+  "especificacaoDaTarefa": "Texto colado.txt",
+  "precedencia": "Seção 7.5 prevalece no contrato de delegação MCP.",
+  "arquivosRecebidos": [
+    {
+      "arquivo": "Arquitetura v1.0",
+      "sha256": "0ef91ad60afb6a0950a589c7ffdae3f3e7edf764c902223a89c224e0ea44e32a"
+    },
+    {
+      "arquivo": "Texto colado.txt",
+      "sha256": "27ab7e1cc125aa60398e17cc0e5f5fe42ac645bf7d89239aa40cc47edbf7f6b7"
+    },
+    {
+      "arquivo": "athena-componentes-e-persistencia.png",
+      "sha256": "070f4bc0800c2bcb00e3c0535389d9a448fdbdf67cdf9b183e3c5d7118b11d44"
+    },
+    {
+      "arquivo": "athena-comunicacao-entre-servicos.png",
+      "sha256": "c324a85c3eeb7394c30b1e967537546d18b451d3a864144f7fac3fcf4beb84a0"
+    },
+    {
+      "arquivo": "athena-saga-compensacao.png",
+      "sha256": "f94c22677777aaedefd97b0df21e6e5c39c1ea1573e3b0900556b972b7a483c6"
+    },
+    {
+      "arquivo": "athena-saga-sucesso.png",
+      "sha256": "039d40de1acdeb0f4820b18c1e95b78d26b00571bbdba221ec3f3a95c4402412"
+    }
+  ]
+}

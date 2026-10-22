@@ -1,0 +1,25 @@
+extends: [spectral:oas]
+functionsDir: ./.spectral/functions
+functions: [athena]
+rules:
+  info-contact: off
+  info-description: error
+  info-license: off
+  oas3-api-servers: error
+  operation-success-response: off
+  operation-description: error
+  operation-operationId-unique: error
+  operation-tag-defined: error
+  oas3-valid-media-example: error
+  athena-contract:
+    description: Convenções ATHENA, inventário congelado e exemplos JSON Schema 2020-12.
+    severity: error
+    given: $
+    then:
+      function: athena
+overrides:
+  - files:
+      - docs/api/_shared/components.yaml
+    rules:
+      # Biblioteca exporta componentes para outros arquivos, sem paths próprios.
+      oas3-unused-component: off

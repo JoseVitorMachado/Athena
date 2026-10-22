@@ -1,0 +1,498 @@
+openapi: 3.1.0
+info:
+  title: ATHENA — componentes compartilhados
+  version: 1.0.0
+  description: Componentes reutilizáveis, §§5–7. Não é uma API implantável.
+paths: {}
+components:
+  parameters:
+    ProjetoId:
+      name: projetoId
+      in: path
+      required: true
+      description: UUID estável (§5.1).
+      schema:
+        type: string
+        example: 22222222-2222-4222-8222-222222222222
+        format: uuid
+    RequisitoId:
+      name: requisitoId
+      in: path
+      required: true
+      description: UUID estável (§5.1).
+      schema:
+        type: string
+        example: 11111111-1111-4111-8111-111111111111
+        format: uuid
+    Page:
+      name: page
+      in: query
+      description: Página inicial zero (§6.2).
+      schema:
+        type: integer
+        example: 0
+        default: 0
+        minimum: 0
+    Size:
+      name: size
+      in: query
+      description: Quantidade por página (§6.2).
+      schema:
+        type: integer
+        example: 20
+        default: 20
+        minimum: 1
+        maximum: 100
+    Sort:
+      name: sort
+      in: query
+      description: '§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum.'
+      schema:
+        type: string
+        example: atualizadoEm,desc
+        default: atualizadoEm,desc
+        enum:
+        - atualizadoEm,desc
+        - atualizadoEm,asc
+        - id,asc
+        - id,desc
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      description: §6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente
+        412. A revisão técnica não é a versão do conteúdo.
+      schema:
+        type: string
+        example: '"rev-7"'
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: '§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação
+        e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match;
+        pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva,
+        efeito e resultado são transacionais.'
+      schema:
+        type: string
+        example: tentativa-20261021-001
+        minLength: 1
+  headers:
+    ETag:
+      description: §6.3. Revisão técnica forte do recurso.
+      schema:
+        type: string
+        example: '"rev-7"'
+    Location:
+      description: §6.2. URI do recurso criado ou de acompanhamento.
+      schema:
+        type: string
+        example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    RetryAfter:
+      description: §6.1. Segundos até nova tentativa.
+      schema:
+        type: string
+        example: '30'
+  schemas:
+    Papel:
+      type: string
+      example: Leitor
+      enum:
+      - Leitor
+      - Repórter
+      - Editor
+      - Aprovador
+      - Mantenedor
+      - Owner
+    EstadoVersao:
+      type: string
+      example: RASCUNHO
+      enum:
+      - RASCUNHO
+      - EM_SUBMISSAO
+      - AGUARDANDO_REVISAO
+      - APROVADA
+      - PUBLICADA
+    SituacaoRequisito:
+      type: string
+      example: ATIVO
+      enum:
+      - ATIVO
+      - CANCELADO
+    TipoRelacao:
+      type: string
+      example: DEPENDE_DE
+      enum:
+      - DEPENDE_DE
+      - BLOQUEIA
+      - RELACIONADO_A
+    EstadoSaga:
+      type: string
+      example: EM_ANDAMENTO
+      enum:
+      - EM_ANDAMENTO
+      - CONCLUIDA
+      - COMPENSANDO
+      - COMPENSACAO_PENDENTE
+      - COMPENSADA
+    EtapaSaga:
+      type: string
+      example: AGUARDANDO_RETRATO
+      enum:
+      - AGUARDANDO_RETRATO
+      - AGUARDANDO_LOTE
+      - CANCELANDO_LOTE
+      - CANCELANDO_RETRATO
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+      additionalProperties: false
+      required:
+      - href
+      example:
+        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+      example: &id003
+        self:
+          href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    Action:
+      type: object
+      properties:
+        href:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/publicacoes
+          format: uri-reference
+        method:
+          type: string
+          example: GET
+          enum:
+          - GET
+          - POST
+          - PATCH
+          - DELETE
+        contentType:
+          type: string
+          example: application/json
+        campos:
+          type: array
+          items:
+            type: string
+            example: versaoId
+          example: &id001
+          - versaoId
+        precondicoes:
+          type: array
+          items:
+            type: string
+            example: If-Match
+          example: &id002
+          - If-Match
+          - Idempotency-Key
+      additionalProperties: false
+      required:
+      - href
+      - method
+      - contentType
+      - campos
+      - precondicoes
+      example:
+        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/publicacoes
+        method: GET
+        contentType: application/json
+        campos: *id001
+        precondicoes: *id002
+    Actions:
+      type: object
+      description: Formato próprio inspirado em HAL-FORMS (§6.4). Ações ausentes não são permitidas. O backend revalida
+        estado, versão e acesso em toda chamada.
+      additionalProperties:
+        $ref: '#/components/schemas/Action'
+      example: {}
+    PageMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: *id003
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          example: urn:athena:problema:requisicao-invalida
+          format: uri
+          pattern: ^urn:athena:problema:[a-z0-9]+(?:-[a-z0-9]+)*$
+        title:
+          type: string
+          example: Requisição inválida
+        status:
+          type: integer
+          example: 400
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          example: Verifique os campos enviados.
+        instance:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+        codigo:
+          type: string
+          example: REQUISICAO_INVALIDA
+        traceId:
+          type: string
+          example: a3d9b24f670c48bca701d5f893ed45af
+      additionalProperties: false
+      required:
+      - type
+      - title
+      - status
+      - detail
+      - instance
+      - codigo
+      - traceId
+      example:
+        type: urn:athena:problema:requisicao-invalida
+        title: Requisição inválida
+        status: 400
+        detail: Verifique os campos enviados.
+        instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+        codigo: REQUISICAO_INVALIDA
+        traceId: a3d9b24f670c48bca701d5f893ed45af
+    ComprovanteHumano:
+      type: string
+      example: comprovante-opaco
+      description: §7.5. Somente emitido pelo serviço responsável após confirmação em tela autenticada ATHENA; uso
+        único, 5 minutos, vinculado a usuário/projeto/ação/versão e hash da ação. Validar e consumir na transação
+        do efeito. Obrigatório apenas para decisão/publicação delegada; declaração do agente não vale como confirmação.
+    Operacao:
+      type: object
+      properties:
+        operacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+      - operacaoId
+      - projetoId
+      - atualizadoEm
+      - _links
+      example:
+        operacaoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        atualizadoEm: '2026-10-21T15:00:00Z'
+        _links: *id003
+  responses:
+    Erro400:
+      description: Requisição inválida (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:requisicao-invalida
+            title: Requisição inválida
+            status: 400
+            detail: Requisição inválida.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: REQUISICAO_INVALIDA
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro401:
+      description: Credencial ou sessão inválida (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-autenticado
+            title: Credencial ou sessão inválida
+            status: 401
+            detail: Credencial ou sessão inválida.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_AUTENTICADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro403:
+      description: Acesso negado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:acesso-negado
+            title: Acesso negado
+            status: 403
+            detail: Acesso negado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: ACESSO_NEGADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro404:
+      description: Recurso não encontrado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-encontrado
+            title: Recurso não encontrado
+            status: 404
+            detail: Recurso não encontrado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_ENCONTRADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro409:
+      description: Conflito com estado atual (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:conflito
+            title: Conflito com estado atual
+            status: 409
+            detail: Conflito com estado atual.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: CONFLITO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro412:
+      description: ETag desatualizada (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:revisao-divergente
+            title: ETag desatualizada
+            status: 412
+            detail: ETag desatualizada.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: REVISAO_DIVERGENTE
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro428:
+      description: If-Match obrigatório (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:precondicao-obrigatoria
+            title: If-Match obrigatório
+            status: 428
+            detail: If-Match obrigatório.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: PRECONDICAO_OBRIGATORIA
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro429:
+      description: Limite de requisições excedido (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:limite-excedido
+            title: Limite de requisições excedido
+            status: 429
+            detail: Limite de requisições excedido.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: LIMITE_EXCEDIDO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+    Erro503:
+      description: Serviço indisponível (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:servico-indisponivel
+            title: Serviço indisponível
+            status: 503
+            detail: Serviço indisponível.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: SERVICO_INDISPONIVEL
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+  securitySchemes:
+    bearerJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT RS256
+      description: §7.1–7.2. RS256, kid/JWKS; validar iss, aud, exp e sessão/autorização atual a cada chamada. Escopos
+        só se aplicam à delegação; x-escopo-mcp declara o mapeamento.
+    serviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT RS256
+      description: §7.1. Identidade de serviço ou token trocado, aud igual ao serviço chamado; preserva usuário,
+        projeto e delegação, reduz escopos. Nunca repassar token MCP bruto.
+    cookieRefresh:
+      type: apiKey
+      in: cookie
+      name: athenaRefresh
+      description: §7.2–7.3. Nome proposto; Secure, HttpOnly, SameSite=Lax, sem Domain, Path=/api/v1/autenticacao;
+        rotação e validade absoluta da família.
+    csrf:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: §7.3. Nome proposto. Token vinculado à sessão; validar também Origin.
+    oauthClient:
+      type: http
+      scheme: basic
+      description: Autenticação de cliente confidencial OAuth; método final depende da compatibilidade §7.1. Cliente
+        público usa client_id e PKCE S256.
+servers:
+- url: https://athena.example.invalid
+  description: Origem ilustrativa; componentes não são API implantável.

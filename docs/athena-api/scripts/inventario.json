@@ -1,0 +1,1960 @@
+[
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/documentos",
+    "operationId": "listarDocumentos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/documentos",
+    "operationId": "criarDocumento",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/documentos/{documentoId}",
+    "operationId": "obterDocumento",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/documentos/{documentoId}",
+    "operationId": "editarDocumento",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/epicos",
+    "operationId": "listarEpicos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/epicos",
+    "operationId": "criarEpico",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+    "operationId": "editarEpico",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos",
+    "operationId": "listarRequisitos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos",
+    "operationId": "criarRequisito",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}",
+    "operationId": "obterRequisito",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}",
+    "operationId": "editarRequisito",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+    "operationId": "obterCandidata",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+    "operationId": "editarCandidata",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes",
+    "operationId": "listarVersoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}",
+    "operationId": "obterVersao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+    "operationId": "listarSubmissoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+    "operationId": "criarSubmissao",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes/{submissaoId}",
+    "operationId": "obterSubmissao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+    "operationId": "listarPublicacoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+    "operationId": "criarPublicacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes/{publicacaoId}",
+    "operationId": "obterPublicacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/historico",
+    "operationId": "listarHistoricoRequisito",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos",
+    "operationId": "criarCancelamento",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes",
+    "operationId": "criarReativacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+    "operationId": "listarComentarios",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+    "operationId": "criarComentario",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId}",
+    "operationId": "editarComentario",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/baselines",
+    "operationId": "listarBaselines",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/baselines",
+    "operationId": "criarBaseline",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/baselines/{baselineId}",
+    "operationId": "obterBaseline",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao",
+    "operationId": "criarConfirmacaoPublicacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/relacoes",
+    "operationId": "listarRelacoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/relacoes",
+    "operationId": "criarRelacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+    "operationId": "obterRelacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+    "operationId": "editarRelacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+    "operationId": "removerRelacao",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/mapa",
+    "operationId": "obterMapa",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/cobertura",
+    "operationId": "obterCobertura",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/retratos/{retratoId}",
+    "operationId": "obterRetrato",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "rastreabilidade.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/mapa/reconstrucoes",
+    "operationId": "criarReconstrucaoMapa",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "revisoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/lotes",
+    "operationId": "listarLotes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "revisoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/lotes/{loteId}",
+    "operationId": "obterLote",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "revisoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias",
+    "operationId": "listarPendencias",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "revisoes.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias/{pendenciaId}",
+    "operationId": "editarPendencia",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "revisoes.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/lotes/{loteId}/decisoes",
+    "operationId": "criarDecisao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "revisoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/lotes/{loteId}/decisoes",
+    "operationId": "listarDecisoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "revisoes.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/lotes/{loteId}/confirmacoes-decisao",
+    "operationId": "criarConfirmacaoDecisao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/autenticacao/cadastro",
+    "operationId": "criarCadastro",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/autenticacao/login",
+    "operationId": "criarLogin",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/autenticacao/recuperacao",
+    "operationId": "criarRecuperacao",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/autenticacao/recuperacao/conclusao",
+    "operationId": "concluirRecuperacao",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/autenticacao/renovacao",
+    "operationId": "renovarSessao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "Origin"
+    ]
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/autenticacao/logout",
+    "operationId": "encerrarSessao",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": [
+      "Origin"
+    ]
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/usuarios/me",
+    "operationId": "obterUsuarioAtual",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/autorizacoes-agente",
+    "operationId": "listarAutorizacoesAgente",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/autorizacoes-agente/{autorizacaoId}",
+    "operationId": "revogarAutorizacaoAgente",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/workspaces",
+    "operationId": "listarWorkspaces",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/workspaces",
+    "operationId": "criarWorkspace",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/workspaces/{workspaceId}",
+    "operationId": "obterWorkspace",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/workspaces/{workspaceId}",
+    "operationId": "editarWorkspace",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos",
+    "operationId": "listarProjetos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos",
+    "operationId": "criarProjeto",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}",
+    "operationId": "obterProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}",
+    "operationId": "editarProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/workspaces/{workspaceId}/exclusoes",
+    "operationId": "criarExclusaoWorkspace",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/workspaces/{workspaceId}/membros",
+    "operationId": "listarMembrosWorkspace",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/workspaces/{workspaceId}/membros",
+    "operationId": "criarMembroWorkspace",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/workspaces/{workspaceId}/membros/{membroId}",
+    "operationId": "editarMembroWorkspace",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/workspaces/{workspaceId}/membros/{membroId}",
+    "operationId": "removerMembroWorkspace",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/arquivamentos",
+    "operationId": "criarArquivamento",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/restauracoes",
+    "operationId": "criarRestauracao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/exclusoes",
+    "operationId": "criarExclusaoProjeto",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/exclusoes/{exclusaoId}",
+    "operationId": "obterExclusaoProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/membros",
+    "operationId": "listarMembrosProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/membros/{membroId}",
+    "operationId": "editarMembroProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/projetos/{projetoId}/membros/{membroId}",
+    "operationId": "removerMembroProjeto",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/historico-membros",
+    "operationId": "listarHistoricoMembros",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/convites",
+    "operationId": "listarConvites",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/convites",
+    "operationId": "criarConvite",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/projetos/{projetoId}/convites/{conviteId}",
+    "operationId": "removerConvite",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/convites/{conviteId}/aceite",
+    "operationId": "aceitarConvite",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/transferencias-propriedade",
+    "operationId": "criarTransferenciaPropriedade",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/transferencias-propriedade/{transferenciaId}/aceite",
+    "operationId": "aceitarTransferenciaPropriedade",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/notificacoes",
+    "operationId": "listarNotificacoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/notificacoes/{notificacaoId}",
+    "operationId": "editarNotificacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/internal/sessoes/validacao",
+    "operationId": "validarSessaoInterna",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/internal/projetos/{projetoId}/acesso",
+    "operationId": "obterAcessoProjetoInterno",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/oauth2/jwks",
+    "operationId": "obterJwks",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/.well-known/oauth-authorization-server",
+    "operationId": "obterMetadadosOAuth",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/.well-known/oauth-protected-resource",
+    "operationId": "obterMetadadosMcp",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/oauth2/authorize",
+    "operationId": "autorizarAgente",
+    "sucesso": [
+      302
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/oauth2/token",
+    "operationId": "emitirTokenOAuth",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "post",
+    "caminho": "/oauth2/revoke",
+    "operationId": "revogarTokenOAuth",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/conexoes",
+    "operationId": "listarConexoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/conexoes",
+    "operationId": "criarConexao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+    "operationId": "obterConexao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+    "operationId": "editarConexao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+    "operationId": "removerConexao",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/vinculos",
+    "operationId": "listarVinculos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/vinculos",
+    "operationId": "criarVinculo",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/projetos/{projetoId}/vinculos/{vinculoId}",
+    "operationId": "removerVinculo",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/sincronizacoes",
+    "operationId": "criarSincronizacao",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": [
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/sincronizacoes",
+    "operationId": "listarSincronizacoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}",
+    "operationId": "obterSincronizacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}/resolucoes",
+    "operationId": "criarResolucaoSincronizacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "integracoes.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/tarefas-externas",
+    "operationId": "criarTarefaExterna",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/analises",
+    "operationId": "criarAnalise",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/analises",
+    "operationId": "listarAnalises",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/analises/{analiseId}",
+    "operationId": "obterAnalise",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes/{sugestaoId}/avaliacoes",
+    "operationId": "criarAvaliacaoSugestao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/contexto/buscas",
+    "operationId": "buscarContexto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/indice",
+    "operationId": "obterIndice",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/operacoes",
+    "operationId": "listarOperacoesImpacto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/operacoes/{operacaoId}",
+    "operationId": "obterOperacaoImpacto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/reindexacoes",
+    "operationId": "criarReindexacao",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "impacto-mcp.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes",
+    "operationId": "criarSugestaoAnalise",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos",
+    "operationId": "gestaoListarRequisitos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos",
+    "operationId": "gestaoCriarRequisito",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}",
+    "operationId": "gestaoObterRequisito",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}",
+    "operationId": "gestaoEditarRequisito",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+    "operationId": "gestaoObterCandidata",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+    "operationId": "gestaoEditarCandidata",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+    "operationId": "gestaoListarSubmissoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+    "operationId": "gestaoCriarSubmissao",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/submissoes/{submissaoId}",
+    "operationId": "gestaoObterSubmissao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+    "operationId": "gestaoListarPublicacoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+    "operationId": "gestaoCriarPublicacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos",
+    "operationId": "gestaoCriarCancelamento",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes",
+    "operationId": "gestaoCriarReativacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao",
+    "operationId": "gestaoCriarConfirmacaoPublicacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/relacoes",
+    "operationId": "gestaoListarRelacoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/relacoes",
+    "operationId": "gestaoCriarRelacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId}",
+    "operationId": "gestaoObterRelacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId}",
+    "operationId": "gestaoEditarRelacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId}",
+    "operationId": "gestaoRemoverRelacao",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/mapa",
+    "operationId": "gestaoObterMapa",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/revisoes",
+    "operationId": "gestaoListarLotes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}",
+    "operationId": "gestaoObterLote",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/decisoes",
+    "operationId": "gestaoCriarDecisao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/decisoes",
+    "operationId": "gestaoListarDecisoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/confirmacoes-decisao",
+    "operationId": "gestaoCriarConfirmacaoDecisao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/workspaces",
+    "operationId": "gestaoListarWorkspaces",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/workspaces",
+    "operationId": "gestaoCriarWorkspace",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/workspaces/{workspaceId}",
+    "operationId": "gestaoObterWorkspace",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/workspaces/{workspaceId}",
+    "operationId": "gestaoEditarWorkspace",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos",
+    "operationId": "gestaoListarProjetos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos",
+    "operationId": "gestaoCriarProjeto",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}",
+    "operationId": "gestaoObterProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}",
+    "operationId": "gestaoEditarProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/workspaces/{workspaceId}/exclusoes",
+    "operationId": "gestaoCriarExclusaoWorkspace",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/workspaces/{workspaceId}/membros",
+    "operationId": "gestaoListarMembrosWorkspace",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/workspaces/{workspaceId}/membros",
+    "operationId": "gestaoCriarMembroWorkspace",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/workspaces/{workspaceId}/membros/{membroId}",
+    "operationId": "gestaoEditarMembroWorkspace",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/gestao/workspaces/{workspaceId}/membros/{membroId}",
+    "operationId": "gestaoRemoverMembroWorkspace",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/arquivamentos",
+    "operationId": "gestaoCriarArquivamento",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/restauracoes",
+    "operationId": "gestaoCriarRestauracao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/exclusoes",
+    "operationId": "gestaoCriarExclusaoProjeto",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": [
+      "IfMatch",
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/exclusoes/{exclusaoId}",
+    "operationId": "gestaoObterExclusaoProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/membros",
+    "operationId": "gestaoListarMembrosProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/membros/{membroId}",
+    "operationId": "gestaoEditarMembroProjeto",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/membros/{membroId}",
+    "operationId": "gestaoRemoverMembroProjeto",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/historico-membros",
+    "operationId": "gestaoListarHistoricoMembros",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/convites",
+    "operationId": "gestaoListarConvites",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/convites",
+    "operationId": "gestaoCriarConvite",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/convites/{conviteId}",
+    "operationId": "gestaoRemoverConvite",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/convites/{conviteId}/aceite",
+    "operationId": "gestaoAceitarConvite",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/transferencias-propriedade",
+    "operationId": "gestaoCriarTransferenciaPropriedade",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/transferencias-propriedade/{transferenciaId}/aceite",
+    "operationId": "gestaoAceitarTransferenciaPropriedade",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/notificacoes",
+    "operationId": "gestaoListarNotificacoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/notificacoes/{notificacaoId}",
+    "operationId": "gestaoEditarNotificacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/conexoes",
+    "operationId": "gestaoListarConexoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/conexoes",
+    "operationId": "gestaoCriarConexao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/conexoes/{conexaoId}",
+    "operationId": "gestaoObterConexao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/conexoes/{conexaoId}",
+    "operationId": "gestaoEditarConexao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/conexoes/{conexaoId}",
+    "operationId": "gestaoRemoverConexao",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/vinculos",
+    "operationId": "gestaoListarVinculos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/vinculos",
+    "operationId": "gestaoCriarVinculo",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/vinculos/{vinculoId}",
+    "operationId": "gestaoRemoverVinculo",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/sincronizacoes",
+    "operationId": "gestaoCriarSincronizacao",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": [
+      "IdempotencyKey"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/sincronizacoes",
+    "operationId": "gestaoListarSincronizacoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}",
+    "operationId": "gestaoObterSincronizacao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}/resolucoes",
+    "operationId": "gestaoCriarResolucaoSincronizacao",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/tarefas-externas",
+    "operationId": "gestaoCriarTarefaExterna",
+    "sucesso": [
+      202
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes",
+    "operationId": "gestaoListarVersoes",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}",
+    "operationId": "gestaoObterVersao",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-livro.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/livro/projetos/{projetoId}/livro",
+    "operationId": "obterLivro",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-livro.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/livro/projetos/{projetoId}/livro/requisitos",
+    "operationId": "listarRequisitosLivro",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-livro.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/livro/projetos/{projetoId}/livro/requisitos/{requisitoId}",
+    "operationId": "obterRequisitoLivro",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-livro.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/livro/projetos/{projetoId}/livro/requisitos/{requisitoId}/versoes",
+    "operationId": "listarVersoesPublicadasLivro",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  }
+]

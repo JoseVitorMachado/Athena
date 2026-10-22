@@ -1,0 +1,22 @@
+{
+  "name": "athena-api-contracts",
+  "version": "1.0.0",
+  "description": "Contratos OpenAPI 3.1 contract-first ATHENA",
+  "scripts": {
+    "validar": "node scripts/validar.mjs",
+    "matriz": "node scripts/matriz.mjs",
+    "catalogo-mcp": "node scripts/catalogo-mcp.mjs",
+    "testar-regras": "node scripts/testar-regras.cjs"
+  },
+  "keywords": [],
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "devDependencies": {
+    "@redocly/cli": "2.67.1",
+    "@stoplight/spectral-cli": "6.17.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.1"
+  },
+  "private": true
+}

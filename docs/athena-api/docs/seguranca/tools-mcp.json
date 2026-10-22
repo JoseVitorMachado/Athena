@@ -1,0 +1,4546 @@
+{
+  "versao": "1.0.0",
+  "tools": [
+    {
+      "name": "listarDocumentos",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarDocumentos",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/documentos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarDocumento",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "titulo": {
+                "type": "string",
+                "example": "Especificação funcional"
+              },
+              "descricao": {
+                "type": "string",
+                "example": "Escopo do produto"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "titulo"
+            ],
+            "example": {
+              "titulo": "Especificação funcional"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarDocumento",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/documentos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "obterDocumento",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "documentoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como documentoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "documentoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "obterDocumento",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/documentos/{documentoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "editarDocumento",
+      "description": "§§5.2, 6.3, 7.4. PATCH de requisito altera somente responsavelId, epicoId e tipo; metadados não contornam bloqueios. Organização de documentos/épicos conforme inventário; confirmar fronteira com Mantenedor.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "documentoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como documentoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "titulo": {
+                "type": "string",
+                "example": "Especificação revisada"
+              },
+              "descricao": {
+                "type": "string",
+                "example": "Escopo atualizado"
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "titulo": "Documentação"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "documentoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "editarDocumento",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/documentos/{documentoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "listarEpicos",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarEpicos",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/epicos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarEpico",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "titulo": {
+                "type": "string",
+                "example": "Documentação"
+              },
+              "descricao": {
+                "type": "string",
+                "example": "Organizar requisitos"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "titulo"
+            ],
+            "example": {
+              "titulo": "Documentação"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarEpico",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/epicos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "editarEpico",
+      "description": "§§5.2, 6.3, 7.4. PATCH de requisito altera somente responsavelId, epicoId e tipo; metadados não contornam bloqueios. Organização de documentos/épicos conforme inventário; confirmar fronteira com Mantenedor.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "epicoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como epicoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "titulo": {
+                "type": "string",
+                "example": "Documentação"
+              },
+              "descricao": {
+                "type": "string",
+                "example": "Organizar requisitos"
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "titulo": "Documentação"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "epicoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "editarEpico",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "listarRequisitos",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          },
+          "q": {
+            "type": "string",
+            "example": "exportar",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como q."
+          },
+          "situacao": {
+            "type": "string",
+            "example": "ATIVO",
+            "enum": [
+              "ATIVO",
+              "CANCELADO"
+            ],
+            "default": "ATIVO",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como situacao."
+          },
+          "estadoVersao": {
+            "type": "string",
+            "example": "RASCUNHO",
+            "enum": [
+              "RASCUNHO",
+              "EM_SUBMISSAO",
+              "AGUARDANDO_REVISAO",
+              "APROVADA",
+              "PUBLICADA"
+            ],
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como estadoVersao."
+          },
+          "tipo": {
+            "type": "string",
+            "example": "FUNCIONAL",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como tipo."
+          },
+          "epicoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como epicoId."
+          },
+          "responsavelId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como responsavelId."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarRequisitos",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read",
+      "x-decidir": "Qual catálogo de tipos de requisito?"
+    },
+    {
+      "name": "criarRequisito",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "documentoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "epicoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "responsavelId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "tipo": {
+                "type": "string",
+                "example": "FUNCIONAL",
+                "description": "Catálogo não definido: x-decidir da operação."
+              },
+              "titulo": {
+                "type": "string",
+                "example": "Exportar documento de requisitos."
+              },
+              "conteudo": {
+                "type": "string",
+                "example": "O sistema deve permitir exportar o documento."
+              },
+              "criteriosAceite": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "Exportação preserva requisitos."
+                },
+                "example": [
+                  "Exportação preserva requisitos."
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "documentoId",
+              "titulo",
+              "conteudo",
+              "criteriosAceite"
+            ],
+            "example": {
+              "documentoId": "11111111-1111-4111-8111-111111111111",
+              "titulo": "Exportar documento de requisitos.",
+              "conteudo": "O sistema deve permitir exportar o documento.",
+              "criteriosAceite": [
+                "Exportação preserva requisitos."
+              ]
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarRequisito",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Qual catálogo de tipos de requisito?"
+    },
+    {
+      "name": "obterRequisito",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "obterRequisito",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "editarRequisito",
+      "description": "§§5.2, 6.3, 7.4. Apenas metadados responsavelId, epicoId e tipo; não altera conteúdo nem contorna bloqueios.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "responsavelId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "epicoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "tipo": {
+                "type": "string",
+                "example": "FUNCIONAL"
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "responsavelId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "ifMatch",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "editarRequisito",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "obterCandidata",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "obterCandidata",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "editarCandidata",
+      "description": "§§5.2, 6.3. If-Match da candidata. EM_SUBMISSAO ou AGUARDANDO_REVISAO: 409. Editar APROVADA retorna RASCUNHO e invalida elegibilidade; PUBLICADA é imutável. Após publicação inicia outra candidata; cancelado/arquivado bloqueia escrita.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "titulo": {
+                "type": "string",
+                "example": "Exportar documento de requisitos."
+              },
+              "conteudo": {
+                "type": "string",
+                "example": "O sistema deve permitir exportar o documento."
+              },
+              "criteriosAceite": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "Exportação preserva requisitos."
+                },
+                "example": [
+                  "Exportação preserva requisitos."
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "conteudo": "Conteúdo atualizado."
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "ifMatch",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "editarCandidata",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "listarVersoes",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarVersoes",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "obterVersao",
+      "description": "§§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "versaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como versaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "versaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "obterVersao",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "listarSubmissoes",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarSubmissoes",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarSubmissao",
+      "description": "§§5.2, 6.3, 6.5–6.9. If-Match da candidata. Apenas RASCUNHO; submissão ativa ou estado divergente retorna 409. 202 após transação local; SAGA independe da IA, conclui ao preparar revisão. Ativação do lote é posterior. Prazo inicial 90 s; compensação confirmada antes de liberar candidata.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "chaveIdempotencia": {
+            "type": "string",
+            "example": "tentativa-20261021-001",
+            "minLength": 1,
+            "description": "§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match; pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva, efeito e resultado são transacionais. Encaminhar em header como Idempotency-Key."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "versaoId": {
+                "type": "string",
+                "example": "33333333-3333-4333-8333-333333333333",
+                "format": "uuid"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "versaoId"
+            ],
+            "example": {
+              "versaoId": "33333333-3333-4333-8333-333333333333"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "ifMatch",
+          "chaveIdempotencia",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarSubmissao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "obterSubmissao",
+      "description": "§§5.2, 6.5–6.9. Acompanhamento persistido; etapa só durante fase correspondente. Compensação pendente não libera candidata.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "submissaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como submissaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "submissaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "obterSubmissao",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes/{submissaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "listarPublicacoes",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarPublicacoes",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarPublicacao",
+      "description": "§§4.3, 6.3, 6.9, 7.5. If-Match da candidata. Exige APROVADA já aplicada em Requisitos e versão/tentativa correspondentes; divergência 409. Registro imutável vincula o retrato aprovado. MCP exige comprovante humano consumido atomicamente; publicar não é aprovar.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "chaveIdempotencia": {
+            "type": "string",
+            "example": "tentativa-20261021-001",
+            "minLength": 1,
+            "description": "§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match; pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva, efeito e resultado são transacionais. Encaminhar em header como Idempotency-Key."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "versaoId": {
+                "type": "string",
+                "example": "33333333-3333-4333-8333-333333333333",
+                "format": "uuid"
+              },
+              "submissaoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "comprovanteHumano": {
+                "type": "string",
+                "example": "comprovante-opaco",
+                "description": "§7.5. Somente emitido pelo serviço responsável após confirmação em tela autenticada ATHENA; uso único, 5 minutos, vinculado a usuário/projeto/ação/versão e hash da ação. Validar e consumir na transação do efeito. Obrigatório apenas para decisão/publicação delegada; declaração do agente não vale como confirmação."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "versaoId",
+              "submissaoId",
+              "comprovanteHumano"
+            ],
+            "example": {
+              "versaoId": "33333333-3333-4333-8333-333333333333",
+              "submissaoId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "ifMatch",
+          "chaveIdempotencia",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarPublicacao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Aprovador",
+      "x-escopo": "athena:publish"
+    },
+    {
+      "name": "obterPublicacao",
+      "description": "§§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "publicacaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como publicacaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "publicacaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "obterPublicacao",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes/{publicacaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "listarHistoricoRequisito",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarHistoricoRequisito",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/historico",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarCancelamento",
+      "description": "§§5.3, 6.3. If-Match do requisito. Confirmação true obrigatória; SAGA ou revisão ativa retorna 409. Preserva histórico e remove do Livro corrente.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "chaveIdempotencia": {
+            "type": "string",
+            "example": "tentativa-20261021-001",
+            "minLength": 1,
+            "description": "§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match; pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva, efeito e resultado são transacionais. Encaminhar em header como Idempotency-Key."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "confirmacao": {
+                "type": "boolean",
+                "const": true,
+                "example": true
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "confirmacao"
+            ],
+            "example": {
+              "confirmacao": true
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "ifMatch",
+          "chaveIdempotencia",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarCancelamento",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "criarReativacao",
+      "description": "§§5.3, 6.3. If-Match do requisito. Retorna ATIVO com nova candidata RASCUNHO baseada no último conteúdo; exige nova aprovação/publicação para voltar ao Livro.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "chaveIdempotencia": {
+            "type": "string",
+            "example": "tentativa-20261021-001",
+            "minLength": 1,
+            "description": "§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match; pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva, efeito e resultado são transacionais. Encaminhar em header como Idempotency-Key."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false,
+            "example": {}
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "ifMatch",
+          "chaveIdempotencia",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarReativacao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "listarComentarios",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarComentarios",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Repórter",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarComentario",
+      "description": "§7.4. Vincula versão e menções; âncora perdida fica NAO_LOCALIZADA, nunca reassociada silenciosamente.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "versaoId": {
+                "type": "string",
+                "example": "33333333-3333-4333-8333-333333333333",
+                "format": "uuid"
+              },
+              "texto": {
+                "type": "string",
+                "example": "Rever este critério."
+              },
+              "ancora": {
+                "type": "object",
+                "properties": {
+                  "selecao": {
+                    "type": "string",
+                    "example": "Texto selecionado"
+                  },
+                  "situacao": {
+                    "type": "string",
+                    "example": "LOCALIZADA",
+                    "enum": [
+                      "LOCALIZADA",
+                      "NAO_LOCALIZADA"
+                    ]
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "selecao",
+                  "situacao"
+                ],
+                "example": {
+                  "selecao": "Texto selecionado",
+                  "situacao": "LOCALIZADA"
+                }
+              },
+              "mencoes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "11111111-1111-4111-8111-111111111111",
+                  "format": "uuid"
+                },
+                "example": [
+                  "11111111-1111-4111-8111-111111111111"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "versaoId",
+              "texto"
+            ],
+            "example": {
+              "versaoId": "33333333-3333-4333-8333-333333333333",
+              "texto": "Rever este critério."
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarComentario",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Repórter",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "editarComentario",
+      "description": "§7.4. Repórter edita/resolve apenas comentário próprio; Editor resolve no conteúdo que administra. Preserva histórico. Âncora NAO_LOCALIZADA não é reassociada silenciosamente.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "comentarioId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como comentarioId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "texto": {
+                "type": "string",
+                "example": "Critério esclarecido."
+              },
+              "resolvido": {
+                "type": "boolean",
+                "example": true
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "texto": "Critério esclarecido."
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "comentarioId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "editarComentario",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Repórter",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "listarBaselines",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "listarBaselines",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/baselines",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarBaseline",
+      "description": "§§5.1, 7.4. Conjunto imutável de versões e retratos autorizados.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "nome": {
+                "type": "string",
+                "example": "Entrega 1"
+              },
+              "versoes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "requisitoId": {
+                      "type": "string",
+                      "example": "11111111-1111-4111-8111-111111111111",
+                      "format": "uuid"
+                    },
+                    "versaoId": {
+                      "type": "string",
+                      "example": "33333333-3333-4333-8333-333333333333",
+                      "format": "uuid"
+                    },
+                    "retratoId": {
+                      "type": "string",
+                      "example": "11111111-1111-4111-8111-111111111111",
+                      "format": "uuid"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "requisitoId",
+                    "versaoId",
+                    "retratoId"
+                  ],
+                  "example": {
+                    "requisitoId": "11111111-1111-4111-8111-111111111111",
+                    "versaoId": "33333333-3333-4333-8333-333333333333",
+                    "retratoId": "11111111-1111-4111-8111-111111111111"
+                  }
+                },
+                "example": [
+                  {
+                    "requisitoId": "11111111-1111-4111-8111-111111111111",
+                    "versaoId": "33333333-3333-4333-8333-333333333333",
+                    "retratoId": "11111111-1111-4111-8111-111111111111"
+                  }
+                ],
+                "minItems": 1
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "nome",
+              "versoes"
+            ],
+            "example": {
+              "nome": "Entrega 1",
+              "versoes": [
+                {
+                  "requisitoId": "11111111-1111-4111-8111-111111111111",
+                  "versaoId": "33333333-3333-4333-8333-333333333333",
+                  "retratoId": "11111111-1111-4111-8111-111111111111"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "criarBaseline",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/baselines",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "obterBaseline",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "baselineId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como baselineId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "baselineId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "obterBaseline",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/baselines/{baselineId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "listarRelacoes",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como requisitoId."
+          },
+          "tipo": {
+            "type": "string",
+            "example": "DEPENDE_DE",
+            "enum": [
+              "DEPENDE_DE",
+              "BLOQUEIA",
+              "RELACIONADO_A"
+            ],
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como tipo."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "rastreabilidade",
+      "x-operacao-dominio": "listarRelacoes",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/relacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarRelacao",
+      "description": "§5.4. Trava transacional por projeto em toda mutação; normalizar RELACIONADO_A. Proibir autorrelação, entre projetos, duplicação e ciclos por tipo e grafo combinado: DEPENDE_DE A→B implica precedência B→A; BLOQUEIA A→B implica A→B. RELACIONADO_A não participa de ciclos. Proposta: duplicação 409 RELACAO_DUPLICADA; ciclo 409 RELACAO_CICLICA; autorrelação/entre projetos 400.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "origemId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "destinoId": {
+                "type": "string",
+                "example": "33333333-3333-4333-8333-333333333333",
+                "format": "uuid"
+              },
+              "tipo": {
+                "type": "string",
+                "example": "DEPENDE_DE",
+                "enum": [
+                  "DEPENDE_DE",
+                  "BLOQUEIA",
+                  "RELACIONADO_A"
+                ]
+              },
+              "justificativa": {
+                "type": "string",
+                "example": "Dependência funcional"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "origemId",
+              "destinoId",
+              "tipo"
+            ],
+            "example": {
+              "origemId": "11111111-1111-4111-8111-111111111111",
+              "destinoId": "33333333-3333-4333-8333-333333333333",
+              "tipo": "DEPENDE_DE"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "rastreabilidade",
+      "x-operacao-dominio": "criarRelacao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/relacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Confirmar 409 para ciclo/duplicação e 400 para autorrelação/relação entre projetos."
+    },
+    {
+      "name": "obterRelacao",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "relacaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como relacaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "relacaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "rastreabilidade",
+      "x-operacao-dominio": "obterRelacao",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "editarRelacao",
+      "description": "§5.4. Trava transacional por projeto em toda mutação; normalizar RELACIONADO_A. Proibir autorrelação, entre projetos, duplicação e ciclos por tipo e grafo combinado: DEPENDE_DE A→B implica precedência B→A; BLOQUEIA A→B implica A→B. RELACIONADO_A não participa de ciclos. Proposta: duplicação 409 RELACAO_DUPLICADA; ciclo 409 RELACAO_CICLICA; autorrelação/entre projetos 400.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "relacaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como relacaoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "origemId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "destinoId": {
+                "type": "string",
+                "example": "33333333-3333-4333-8333-333333333333",
+                "format": "uuid"
+              },
+              "tipo": {
+                "type": "string",
+                "example": "DEPENDE_DE",
+                "enum": [
+                  "DEPENDE_DE",
+                  "BLOQUEIA",
+                  "RELACIONADO_A"
+                ]
+              },
+              "justificativa": {
+                "type": "string",
+                "example": "Dependência funcional"
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "justificativa": "Dependência esclarecida."
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "relacaoId",
+          "ifMatch",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "rastreabilidade",
+      "x-operacao-dominio": "editarRelacao",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Confirmar status dos conflitos de relações."
+    },
+    {
+      "name": "removerRelacao",
+      "description": "§5.4. Trava transacional por projeto em toda mutação; normalizar RELACIONADO_A. Proibir autorrelação, entre projetos, duplicação e ciclos por tipo e grafo combinado: DEPENDE_DE A→B implica precedência B→A; BLOQUEIA A→B implica A→B. RELACIONADO_A não participa de ciclos. Proposta: duplicação 409 RELACAO_DUPLICADA; ciclo 409 RELACAO_CICLICA; autorrelação/entre projetos 400.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "relacaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como relacaoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          }
+        },
+        "required": [
+          "projetoId",
+          "relacaoId",
+          "ifMatch"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "rastreabilidade",
+      "x-operacao-dominio": "removerRelacao",
+      "x-metodo": "DELETE",
+      "x-rota": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "obterMapa",
+      "description": "§5.5. Máximo 500 nós/1.000 arestas; truncamento explícito. Reconstrução mantém geração anterior sinalizada; sem anterior retorna 503 com Retry-After. Último consumo não comprova atualização.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "rastreabilidade",
+      "x-operacao-dominio": "obterMapa",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/mapa",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "obterCobertura",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "rastreabilidade",
+      "x-operacao-dominio": "obterCobertura",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/cobertura",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read",
+      "x-decidir": "Quais indicadores e fórmulas compõem a cobertura?"
+    },
+    {
+      "name": "obterRetrato",
+      "description": "§5.4. Criado exclusivamente por mensageria; não existe POST REST. Publicado é imutável; compensação cancela retrato sem apagar relações oficiais.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "retratoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como retratoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "retratoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "rastreabilidade",
+      "x-operacao-dominio": "obterRetrato",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/retratos/{retratoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "listarLotes",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          },
+          "estado": {
+            "type": "string",
+            "example": "PREPARADO",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como estado."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como requisitoId."
+          },
+          "responsavelId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "Filtro autorizado (§6.2); valor inválido retorna 400. Encaminhar em query como responsavelId."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "revisoes",
+      "x-operacao-dominio": "listarLotes",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/lotes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read",
+      "x-decidir": "Quais são os estados do lote além de PREPARADO e a nomenclatura da ativação?"
+    },
+    {
+      "name": "obterLote",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "loteId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como loteId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "loteId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "revisoes",
+      "x-operacao-dominio": "obterLote",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read",
+      "x-decidir": "Quais são os valores finais do enum de estado do lote?"
+    },
+    {
+      "name": "listarPendencias",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "loteId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como loteId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId",
+          "loteId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "revisoes",
+      "x-operacao-dominio": "listarPendencias",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "editarPendencia",
+      "description": "§6.9. If-Match da pendência. Política de resolver/atribuir não definida; contrato não concede essa permissão. Retornar 403 até decisão documentada.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "loteId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como loteId."
+          },
+          "pendenciaId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como pendenciaId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "resolvida": {
+                "type": "boolean",
+                "example": true
+              },
+              "responsavelId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "resolvida": true
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "loteId",
+          "pendenciaId",
+          "ifMatch",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "revisoes",
+      "x-operacao-dominio": "editarPendencia",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias/{pendenciaId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Quem pode resolver ou atribuir pendências? x-papel-minimo Leitor é apenas piso autenticado, NÃO autorização de escrita; operação bloqueada até definir política."
+    },
+    {
+      "name": "criarDecisao",
+      "description": "§§6.3, 6.9, 7.5. If-Match do lote. Primeira decisão final válida vence; 409 se já decidido, PREPARADO ou pendências bloqueantes abertas. Rejeição/correções exigem justificativa. Evento por outbox; aplicação em Requisitos pode ficar PENDENTE, inclusive DLQ. MCP exige comprovante humano consumido na transação; autoaprovação permitida com decisão explícita.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "loteId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como loteId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "chaveIdempotencia": {
+            "type": "string",
+            "example": "tentativa-20261021-001",
+            "minLength": 1,
+            "description": "§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match; pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva, efeito e resultado são transacionais. Encaminhar em header como Idempotency-Key."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "decisao": {
+                "type": "string",
+                "example": "APROVAR",
+                "enum": [
+                  "APROVAR",
+                  "REJEITAR",
+                  "SOLICITAR_CORRECOES"
+                ]
+              },
+              "justificativa": {
+                "type": "string",
+                "example": "Critérios atendidos."
+              },
+              "submissaoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "versaoId": {
+                "type": "string",
+                "example": "33333333-3333-4333-8333-333333333333",
+                "format": "uuid"
+              },
+              "hashConteudo": {
+                "type": "string",
+                "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "comprovanteHumano": {
+                "type": "string",
+                "example": "comprovante-opaco",
+                "description": "§7.5. Somente emitido pelo serviço responsável após confirmação em tela autenticada ATHENA; uso único, 5 minutos, vinculado a usuário/projeto/ação/versão e hash da ação. Validar e consumir na transação do efeito. Obrigatório apenas para decisão/publicação delegada; declaração do agente não vale como confirmação."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "decisao",
+              "submissaoId",
+              "versaoId",
+              "hashConteudo",
+              "comprovanteHumano"
+            ],
+            "example": {
+              "decisao": "APROVAR",
+              "submissaoId": "11111111-1111-4111-8111-111111111111",
+              "versaoId": "33333333-3333-4333-8333-333333333333",
+              "hashConteudo": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decisao": {
+                      "enum": [
+                        "REJEITAR",
+                        "SOLICITAR_CORRECOES"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "decisao"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "justificativa"
+                  ],
+                  "properties": {
+                    "justificativa": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "projetoId",
+          "loteId",
+          "ifMatch",
+          "chaveIdempotencia",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "revisoes",
+      "x-operacao-dominio": "criarDecisao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/decisoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Aprovador",
+      "x-escopo": "athena:approve"
+    },
+    {
+      "name": "listarDecisoes",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "loteId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como loteId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId",
+          "loteId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "revisoes",
+      "x-operacao-dominio": "listarDecisoes",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/decisoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "obterProjeto",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "obterProjeto",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "editarProjeto",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "nome": {
+                "type": "string",
+                "example": "ATHENA"
+              },
+              "descricao": {
+                "type": "string",
+                "example": "Descrição atualizada"
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "descricao": "Descrição atualizada"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "editarProjeto",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin"
+    },
+    {
+      "name": "criarArquivamento",
+      "description": "§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false,
+            "example": {}
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "criarArquivamento",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/arquivamentos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin",
+      "x-decidir": "Arquivamento assíncrono exige recurso de acompanhamento? 201 só após quiescência confirmada."
+    },
+    {
+      "name": "criarRestauracao",
+      "description": "§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false,
+            "example": {}
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "criarRestauracao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/restauracoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin",
+      "x-decidir": "Arquivamento assíncrono exige recurso de acompanhamento? 201 só após quiescência confirmada."
+    },
+    {
+      "name": "criarExclusaoProjeto",
+      "description": "§§5.6, 9.2. If-Match do projeto arquivado. Owner confirma nome; 409 com SAGA/revisão/sincronização ativa. FECHANDO bloqueia admissões, exige barreira local e quiescência dos domínios; depois EXCLUINDO e limpeza idempotente. Só CONCLUIDA após todas as confirmações. Preserva marcas técnicas, não apaga arquivos externos.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          },
+          "chaveIdempotencia": {
+            "type": "string",
+            "example": "tentativa-20261021-001",
+            "minLength": 1,
+            "description": "§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match; pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva, efeito e resultado são transacionais. Encaminhar em header como Idempotency-Key."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "confirmacaoNome": {
+                "type": "string",
+                "example": "ATHENA"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "confirmacaoNome"
+            ],
+            "example": {
+              "confirmacaoNome": "ATHENA"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "ifMatch",
+          "chaveIdempotencia",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "criarExclusaoProjeto",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/exclusoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Owner",
+      "x-escopo": "athena:delete-project"
+    },
+    {
+      "name": "obterExclusaoProjeto",
+      "description": "§5.6. Durante exclusão, somente Owner admitido para acompanhamento; não devolver conteúdo excluído.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "exclusaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como exclusaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "exclusaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "obterExclusaoProjeto",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/exclusoes/{exclusaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Owner",
+      "x-escopo": "athena:read",
+      "x-decidir": "Como autorizar acompanhamento do Owner quando o acesso ao projeto estiver bloqueado por exclusão?"
+    },
+    {
+      "name": "listarMembrosProjeto",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "listarMembrosProjeto",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/membros",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "editarMembroProjeto",
+      "description": "§7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo não amplia papel. Workspace não concede acesso implícito a projeto.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "membroId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como membroId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "papel": {
+                "type": "string",
+                "example": "Leitor",
+                "enum": [
+                  "Leitor",
+                  "Repórter",
+                  "Editor",
+                  "Aprovador",
+                  "Mantenedor",
+                  "Owner"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "papel"
+            ],
+            "example": {
+              "papel": "Editor"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "membroId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "editarMembroProjeto",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/membros/{membroId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin"
+    },
+    {
+      "name": "removerMembroProjeto",
+      "description": "§7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo não amplia papel. Workspace não concede acesso implícito a projeto.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "membroId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como membroId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "membroId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "removerMembroProjeto",
+      "x-metodo": "DELETE",
+      "x-rota": "/api/v1/projetos/{projetoId}/membros/{membroId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin"
+    },
+    {
+      "name": "listarHistoricoMembros",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "listarHistoricoMembros",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/historico-membros",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "listarConvites",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "listarConvites",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/convites",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarConvite",
+      "description": "§7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo não amplia papel. Workspace não concede acesso implícito a projeto. Owner nunca por convite; aceite pela conta destinatária e revalidação do papel na entrada.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "example": "destinatario@example.invalid",
+                "format": "email"
+              },
+              "papel": {
+                "type": "string",
+                "example": "Leitor",
+                "enum": [
+                  "Leitor",
+                  "Repórter",
+                  "Editor",
+                  "Aprovador",
+                  "Mantenedor"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "email",
+              "papel"
+            ],
+            "example": {
+              "email": "destinatario@example.invalid",
+              "papel": "Leitor"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "criarConvite",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/convites",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin"
+    },
+    {
+      "name": "removerConvite",
+      "description": "§7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo não amplia papel. Workspace não concede acesso implícito a projeto.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "conviteId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como conviteId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "conviteId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "removerConvite",
+      "x-metodo": "DELETE",
+      "x-rota": "/api/v1/projetos/{projetoId}/convites/{conviteId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin"
+    },
+    {
+      "name": "criarTransferenciaPropriedade",
+      "description": "§7.4. Owner atual confirma destinatário membro ativo; conclusão depende do aceite.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "destinatarioId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "confirmacao": {
+                "type": "boolean",
+                "const": true,
+                "example": true
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "destinatarioId",
+              "confirmacao"
+            ],
+            "example": {
+              "destinatarioId": "11111111-1111-4111-8111-111111111111",
+              "confirmacao": true
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "projetos-acesso",
+      "x-operacao-dominio": "criarTransferenciaPropriedade",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/transferencias-propriedade",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Owner",
+      "x-escopo": "athena:admin"
+    },
+    {
+      "name": "listarConexoes",
+      "description": "§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "listarConexoes",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/conexoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarConexao",
+      "description": "§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "provedor": {
+                "type": "string",
+                "example": "GOOGLE",
+                "enum": [
+                  "GOOGLE",
+                  "OPENPROJECT",
+                  "GITHUB"
+                ]
+              },
+              "nome": {
+                "type": "string",
+                "example": "Documentos do projeto"
+              },
+              "configuracao": {
+                "type": "object",
+                "properties": {
+                  "urlBase": {
+                    "type": "string",
+                    "example": "https://openproject.example.invalid",
+                    "format": "uri"
+                  },
+                  "projetoExternoId": {
+                    "type": "string",
+                    "example": "42"
+                  }
+                },
+                "additionalProperties": false,
+                "example": {}
+              },
+              "credenciais": {
+                "type": "object",
+                "properties": {
+                  "segredo": {
+                    "type": "string",
+                    "example": "segredo-ilustrativo",
+                    "writeOnly": true
+                  }
+                },
+                "additionalProperties": false,
+                "writeOnly": true,
+                "required": [
+                  "segredo"
+                ],
+                "example": {
+                  "segredo": "segredo-ilustrativo"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "provedor",
+              "nome"
+            ],
+            "example": {
+              "provedor": "GOOGLE",
+              "nome": "Documentos do projeto"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "criarConexao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/conexoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin",
+      "x-decidir": "Como autorizar conectores Google/OpenProject e quais operações são suportadas?"
+    },
+    {
+      "name": "obterConexao",
+      "description": "§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "conexaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como conexaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "conexaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "obterConexao",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "editarConexao",
+      "description": "§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "conexaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como conexaoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "provedor": {
+                "type": "string",
+                "example": "GOOGLE",
+                "enum": [
+                  "GOOGLE",
+                  "OPENPROJECT",
+                  "GITHUB"
+                ]
+              },
+              "nome": {
+                "type": "string",
+                "example": "Documentos do projeto"
+              },
+              "configuracao": {
+                "type": "object",
+                "properties": {
+                  "urlBase": {
+                    "type": "string",
+                    "example": "https://openproject.example.invalid",
+                    "format": "uri"
+                  },
+                  "projetoExternoId": {
+                    "type": "string",
+                    "example": "42"
+                  }
+                },
+                "additionalProperties": false,
+                "example": {}
+              },
+              "credenciais": {
+                "type": "object",
+                "properties": {
+                  "segredo": {
+                    "type": "string",
+                    "example": "segredo-ilustrativo",
+                    "writeOnly": true
+                  }
+                },
+                "additionalProperties": false,
+                "writeOnly": true,
+                "required": [
+                  "segredo"
+                ],
+                "example": {
+                  "segredo": "segredo-ilustrativo"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "example": {
+              "nome": "Documentação do projeto"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "conexaoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "editarConexao",
+      "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin",
+      "x-decidir": "Qual fluxo de autorização dos conectores?"
+    },
+    {
+      "name": "removerConexao",
+      "description": "§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "conexaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como conexaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "conexaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "removerConexao",
+      "x-metodo": "DELETE",
+      "x-rota": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin"
+    },
+    {
+      "name": "listarVinculos",
+      "description": "§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "listarVinculos",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/vinculos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarVinculo",
+      "description": "§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "conexaoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "requisitoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "identificadorExterno": {
+                "type": "string",
+                "example": "artefato-42"
+              },
+              "urlExterna": {
+                "type": "string",
+                "example": "https://example.invalid/artefatos/42",
+                "format": "uri"
+              },
+              "versaoExternaConhecida": {
+                "type": "string",
+                "example": "etag-7"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "conexaoId",
+              "requisitoId",
+              "identificadorExterno"
+            ],
+            "example": {
+              "conexaoId": "11111111-1111-4111-8111-111111111111",
+              "requisitoId": "11111111-1111-4111-8111-111111111111",
+              "identificadorExterno": "artefato-42"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "criarVinculo",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/vinculos",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Como autorizar conectores Google/OpenProject e quais operações são suportadas?"
+    },
+    {
+      "name": "removerVinculo",
+      "description": "§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "vinculoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como vinculoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "vinculoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "removerVinculo",
+      "x-metodo": "DELETE",
+      "x-rota": "/api/v1/projetos/{projetoId}/vinculos/{vinculoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "criarSincronizacao",
+      "description": "§6.10. Operação e intenção persistidas atomicamente; compara versão externa e revisão local. Timeout consulta/reconcilia antes de repetir; sem prova do efeito fica RESULTADO_DESCONHECIDO com resolução humana e sem nova criação automática. 429 externo respeita Retry-After. §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "chaveIdempotencia": {
+            "type": "string",
+            "example": "tentativa-20261021-001",
+            "minLength": 1,
+            "description": "§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match; pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva, efeito e resultado são transacionais. Encaminhar em header como Idempotency-Key."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "vinculoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "vinculoId"
+            ],
+            "example": {
+              "vinculoId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "chaveIdempotencia",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "criarSincronizacao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/sincronizacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Confirmar Idempotency-Key obrigatória na sincronização e catálogo completo de estados."
+    },
+    {
+      "name": "listarSincronizacoes",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "listarSincronizacoes",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/sincronizacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:read",
+      "x-decidir": "Qual catálogo completo de estados da sincronização?"
+    },
+    {
+      "name": "obterSincronizacao",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "sincronizacaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como sincronizacaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "sincronizacaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "obterSincronizacao",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarResolucaoSincronizacao",
+      "description": "§6.10. Registra evidência humana; não aceita comando genérico de sobrescrever versão publicada ou recriar automaticamente efeito desconhecido.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "sincronizacaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como sincronizacaoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "justificativa": {
+                "type": "string",
+                "example": "Efeito externo conferido manualmente."
+              },
+              "resultadoVerificado": {
+                "type": "string",
+                "example": "A tarefa já existe no provedor."
+              },
+              "identificadorExterno": {
+                "type": "string",
+                "example": "artefato-42"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "justificativa",
+              "resultadoVerificado"
+            ],
+            "example": {
+              "justificativa": "Efeito externo conferido manualmente.",
+              "resultadoVerificado": "A tarefa já existe no provedor."
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "sincronizacaoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "criarResolucaoSincronizacao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}/resolucoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Quais comandos e efeitos são permitidos na resolução humana de conflito/resultado desconhecido?"
+    },
+    {
+      "name": "criarTarefaExterna",
+      "description": "§6.10. Criação OpenProject com operação persistida; resultado desconhecido exige reconciliação sem duplicar tarefa.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "conexaoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "requisitoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "titulo": {
+                "type": "string",
+                "example": "Implementar exportação"
+              },
+              "descricao": {
+                "type": "string",
+                "example": "Criar exportação do documento."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "conexaoId",
+              "requisitoId",
+              "titulo"
+            ],
+            "example": {
+              "conexaoId": "11111111-1111-4111-8111-111111111111",
+              "requisitoId": "11111111-1111-4111-8111-111111111111",
+              "titulo": "Implementar exportação"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "integracoes",
+      "x-operacao-dominio": "criarTarefaExterna",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/tarefas-externas",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Quais campos OpenProject são obrigatórios e qual recurso acompanha criação de tarefa externa?"
+    },
+    {
+      "name": "criarAnalise",
+      "description": "§6.11. Persiste preparação de contexto; agente externo executa LLM e devolve sugestões não confiáveis. Backend gera apenas embeddings locais; falha LLM permite referências e fluxo manual.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "requisitoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "versaoId": {
+                "type": "string",
+                "example": "33333333-3333-4333-8333-333333333333",
+                "format": "uuid"
+              },
+              "objetivo": {
+                "type": "string",
+                "example": "Identificar impactos da alteração"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "requisitoId",
+              "versaoId"
+            ],
+            "example": {
+              "requisitoId": "11111111-1111-4111-8111-111111111111",
+              "versaoId": "33333333-3333-4333-8333-333333333333"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "criarAnalise",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/analises",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read",
+      "x-decidir": "Qual protocolo para agente registrar resultado da análise, estados e timeout sem agente conectado?"
+    },
+    {
+      "name": "listarAnalises",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "listarAnalises",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/analises",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "obterAnalise",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "analiseId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como analiseId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "analiseId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "obterAnalise",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/analises/{analiseId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read",
+      "x-decidir": "Definir catálogo de status da análise e estadoValidacao/tipo de sugestão."
+    },
+    {
+      "name": "criarAvaliacaoSugestao",
+      "description": "§§6.11, 7.4–7.5. Revalida versão/hash e acesso oficial, inclusive rascunhos; 409 se desatualizados. Sugestão jamais se torna relação oficial sozinha; aplicação exige ação autorizada no domínio.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "analiseId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como analiseId."
+          },
+          "sugestaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como sugestaoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "avaliacao": {
+                "type": "string",
+                "example": "ACEITAR"
+              },
+              "versoesUtilizadas": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "requisitoId": {
+                      "type": "string",
+                      "example": "11111111-1111-4111-8111-111111111111",
+                      "format": "uuid"
+                    },
+                    "versaoId": {
+                      "type": "string",
+                      "example": "33333333-3333-4333-8333-333333333333",
+                      "format": "uuid"
+                    },
+                    "hashConteudo": {
+                      "type": "string",
+                      "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "requisitoId",
+                    "versaoId",
+                    "hashConteudo"
+                  ],
+                  "example": {
+                    "requisitoId": "11111111-1111-4111-8111-111111111111",
+                    "versaoId": "33333333-3333-4333-8333-333333333333",
+                    "hashConteudo": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                  }
+                },
+                "example": []
+              },
+              "justificativa": {
+                "type": "string",
+                "example": "Evidências conferidas"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "avaliacao",
+              "versoesUtilizadas",
+              "justificativa"
+            ],
+            "example": {
+              "avaliacao": "ACEITAR",
+              "versoesUtilizadas": [],
+              "justificativa": "Evidências conferidas"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "analiseId",
+          "sugestaoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "criarAvaliacaoSugestao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes/{sugestaoId}/avaliacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Quais valores/efeitos da avaliação? Aceite cria relação na mesma chamada ou exige criação explícita no domínio?"
+    },
+    {
+      "name": "buscarContexto",
+      "description": "§6.11. Busca híbrida textual/vetorial, cinco trechos padrão, remove duplicatas com referências. Filtra acesso antes de entregar e revalida nas fontes oficiais inclusive rascunhos/revogação. Similaridade não é probabilidade. Chunks 300–400 tokens, ~50 sobreposição, e5-small até 512, query:/passage:, vetores normalizados.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "q": {
+                "type": "string",
+                "example": "Quais requisitos dependem da exportação?"
+              },
+              "limite": {
+                "type": "integer",
+                "example": 5,
+                "default": 5,
+                "minimum": 1
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "q"
+            ],
+            "example": {
+              "q": "Quais requisitos dependem da exportação?"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "buscarContexto",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/contexto/buscas",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "obterIndice",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "obterIndice",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/indice",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read",
+      "x-decidir": "Quais situações do índice e unidade final do atraso?"
+    },
+    {
+      "name": "listarOperacoesImpacto",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "page": {
+            "type": "integer",
+            "example": 0,
+            "default": 0,
+            "minimum": 0,
+            "description": "Página inicial zero (§6.2). Encaminhar em query como page."
+          },
+          "size": {
+            "type": "integer",
+            "example": 20,
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Quantidade por página (§6.2). Encaminhar em query como size."
+          },
+          "sort": {
+            "type": "string",
+            "example": "atualizadoEm,desc",
+            "default": "atualizadoEm,desc",
+            "enum": [
+              "atualizadoEm,desc",
+              "atualizadoEm,asc",
+              "id,asc",
+              "id,desc"
+            ],
+            "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          }
+        },
+        "required": [
+          "projetoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "listarOperacoesImpacto",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/operacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "obterOperacaoImpacto",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "operacaoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como operacaoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "operacaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "obterOperacaoImpacto",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/operacoes/{operacaoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "criarReindexacao",
+      "description": "§§6.8, 6.11. Trabalho persistido, revalida versão/exclusão antes de ativar chunks; troca atômica preserva anterior; trabalho atrasado não reativa dados excluídos.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false,
+            "example": {}
+          }
+        },
+        "required": [
+          "projetoId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "criarReindexacao",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/reindexacoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Mantenedor",
+      "x-escopo": "athena:admin"
+    },
+    {
+      "name": "criarSugestaoAnalise",
+      "description": "§§6.11, 7.4–7.5. Proposta de rota de registro da saída externa não confiável; valida esquema, versões, evidências e acesso, sem criar relação oficial. Escopo athena:write e papel não substituem avaliação.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "analiseId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como analiseId."
+          },
+          "corpo": {
+            "type": "object",
+            "properties": {
+              "sugestaoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "tipo": {
+                "type": "string",
+                "example": "RELACAO"
+              },
+              "requisitoAnalisadoId": {
+                "type": "string",
+                "example": "11111111-1111-4111-8111-111111111111",
+                "format": "uuid"
+              },
+              "alvos": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "11111111-1111-4111-8111-111111111111",
+                  "format": "uuid"
+                },
+                "example": [
+                  "33333333-3333-4333-8333-333333333333"
+                ]
+              },
+              "versoesUtilizadas": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "requisitoId": {
+                      "type": "string",
+                      "example": "11111111-1111-4111-8111-111111111111",
+                      "format": "uuid"
+                    },
+                    "versaoId": {
+                      "type": "string",
+                      "example": "33333333-3333-4333-8333-333333333333",
+                      "format": "uuid"
+                    },
+                    "hashConteudo": {
+                      "type": "string",
+                      "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "requisitoId",
+                    "versaoId",
+                    "hashConteudo"
+                  ],
+                  "example": {
+                    "requisitoId": "11111111-1111-4111-8111-111111111111",
+                    "versaoId": "33333333-3333-4333-8333-333333333333",
+                    "hashConteudo": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                  }
+                },
+                "example": []
+              },
+              "evidencias": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "origemId": {
+                      "type": "string",
+                      "example": "11111111-1111-4111-8111-111111111111",
+                      "format": "uuid"
+                    },
+                    "versaoId": {
+                      "type": "string",
+                      "example": "33333333-3333-4333-8333-333333333333",
+                      "format": "uuid"
+                    },
+                    "trecho": {
+                      "type": "string",
+                      "example": "O documento deve ser exportável."
+                    },
+                    "referencia": {
+                      "type": "string",
+                      "example": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+                      "format": "uri-reference"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "origemId",
+                    "versaoId",
+                    "trecho",
+                    "referencia"
+                  ],
+                  "example": {
+                    "origemId": "11111111-1111-4111-8111-111111111111",
+                    "versaoId": "33333333-3333-4333-8333-333333333333",
+                    "trecho": "O documento deve ser exportável.",
+                    "referencia": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111"
+                  }
+                },
+                "example": []
+              },
+              "justificativa": {
+                "type": "string",
+                "example": "A alteração afeta requisito relacionado."
+              },
+              "estadoValidacao": {
+                "type": "string",
+                "example": "PENDENTE"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "sugestaoId",
+              "tipo",
+              "requisitoAnalisadoId",
+              "alvos",
+              "versoesUtilizadas",
+              "evidencias",
+              "justificativa",
+              "estadoValidacao"
+            ],
+            "example": {
+              "sugestaoId": "11111111-1111-4111-8111-111111111111",
+              "tipo": "RELACAO",
+              "requisitoAnalisadoId": "11111111-1111-4111-8111-111111111111",
+              "alvos": [
+                "33333333-3333-4333-8333-333333333333"
+              ],
+              "versoesUtilizadas": [],
+              "evidencias": [],
+              "justificativa": "A alteração afeta requisito relacionado.",
+              "estadoValidacao": "PENDENTE"
+            }
+          }
+        },
+        "required": [
+          "projetoId",
+          "analiseId",
+          "corpo"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "impacto-mcp",
+      "x-operacao-dominio": "criarSugestaoAnalise",
+      "x-metodo": "POST",
+      "x-rota": "/api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write",
+      "x-decidir": "Confirmar fluxo/identificador para registrar sugestões do agente e papel de Repórter versus Editor."
+    }
+  ]
+}

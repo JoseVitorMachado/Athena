@@ -1,0 +1,861 @@
+openapi: 3.1.0
+info:
+  title: ATHENA — BFF Livro
+  version: 1.0.0
+  description: 'Versionamento por URI (§6.2): /api/v1 para mudanças compatíveis, /api/v2 para quebra. Gateway roteia por prefixo; versão aparece nos logs; clientes Angular migram sem negociar cabeçalho. Versão da API independe da versão do requisito. Fonte de verdade: Arquitetura v1.0, §§4.3, 5.3, 6.4 e 7.4. APIs de domínio são internas; só BFFs, MCP e serviços com troca de token as chamam. Nenhuma leitura é pública por compartilhar URL. Escopos x-escopo-mcp só são exigidos em contexto delegado; nunca substituem papel/acesso. x-proposta identifica formas de representação não especificadas pelo livro.'
+  contact:
+    name: Equipe ATHENA
+servers:
+  - url: https://athena.example.invalid
+    description: Origem HTTPS ilustrativa; substituir no ambiente.
+security:
+  - bearerJwt: []
+tags:
+  - name: livro
+    description: Recursos livro; §§5–7.
+  - name: requisitos
+    description: Recursos requisitos; §§5–7.
+  - name: versoes
+    description: Recursos versoes; §§5–7.
+paths:
+  /api/v1/livro/projetos/{projetoId}/livro:
+    get:
+      operationId: obterLivro
+      summary: Obter livro
+      description: '§§4.3, 5.3, 6.4. Consulta Requisitos para conteúdo publicado e situação/acesso atual; Rastreabilidade fornece relações do RETRATO DA PUBLICAÇÃO, não mapa atual. Se Requisitos/acesso falhar: 503. Se somente relações falharem: conteúdo com avisos[]. Apenas PUBLICADA e requisito ATIVO; cancelados fora. Referência sem autorização retorna só disponivel:false (ou omite se revelar existência), sem id/código/título/conteúdo. Referência autorizada a cancelado vem sinalizada. Nenhuma ação de escrita.'
+      tags:
+        - livro
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SumarioLivro'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/livro/projetos/{projetoId}/livro/requisitos:
+    get:
+      operationId: listarRequisitosLivro
+      summary: Listar requisitos livro
+      description: '§§4.3, 5.3, 6.4. Consulta Requisitos para conteúdo publicado e situação/acesso atual; Rastreabilidade fornece relações do RETRATO DA PUBLICAÇÃO, não mapa atual. Se Requisitos/acesso falhar: 503. Se somente relações falharem: conteúdo com avisos[]. Apenas PUBLICADA e requisito ATIVO; cancelados fora. Referência sem autorização retorna só disponivel:false (ou omite se revelar existência), sem id/código/título/conteúdo. Referência autorizada a cancelado vem sinalizada. Nenhuma ação de escrita.'
+      tags:
+        - requisitos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaRequisitosLivro'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/livro/projetos/{projetoId}/livro/requisitos/{requisitoId}:
+    get:
+      operationId: obterRequisitoLivro
+      summary: Obter requisito livro
+      description: '§§4.3, 5.3, 6.4. Consulta Requisitos para conteúdo publicado e situação/acesso atual; Rastreabilidade fornece relações do RETRATO DA PUBLICAÇÃO, não mapa atual. Se Requisitos/acesso falhar: 503. Se somente relações falharem: conteúdo com avisos[]. Apenas PUBLICADA e requisito ATIVO; cancelados fora. Referência sem autorização retorna só disponivel:false (ou omite se revelar existência), sem id/código/título/conteúdo. Referência autorizada a cancelado vem sinalizada. Nenhuma ação de escrita.'
+      tags:
+        - requisitos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/RequisitoId'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequisitoLivro'
+              examples:
+                leitor-publicado:
+                  value:
+                    requisitoId: 11111111-1111-4111-8111-111111111111
+                    projetoId: 22222222-2222-4222-8222-222222222222
+                    codigo: REQ-42
+                    titulo: Exportar documento de requisitos.
+                    versaoPublicada: 3
+                    publicacaoId: 11111111-1111-4111-8111-111111111111
+                    versaoId: 44444444-4444-4444-8444-444444444444
+                    retratoId: 11111111-1111-4111-8111-111111111111
+                    conteudo: O sistema deve permitir exportar o documento.
+                    criteriosAceite:
+                      - Exportação preserva requisitos.
+                    referencias:
+                      - disponivel: false
+                    avisos: []
+                    _links:
+                      self:
+                        href: /api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos/11111111-1111-4111-8111-111111111111
+                      colecao:
+                        href: /api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos
+                      versoes:
+                        href: /api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos/11111111-1111-4111-8111-111111111111/versoes
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/livro/projetos/{projetoId}/livro/requisitos/{requisitoId}/versoes:
+    get:
+      operationId: listarVersoesPublicadasLivro
+      summary: Listar versoes publicadas livro
+      description: '§§4.3, 5.3, 6.4. Consulta Requisitos para conteúdo publicado e situação/acesso atual; Rastreabilidade fornece relações do RETRATO DA PUBLICAÇÃO, não mapa atual. Se Requisitos/acesso falhar: 503. Se somente relações falharem: conteúdo com avisos[]. Apenas PUBLICADA e requisito ATIVO; cancelados fora. Referência sem autorização retorna só disponivel:false (ou omite se revelar existência), sem id/código/título/conteúdo. Referência autorizada a cancelado vem sinalizada. Nenhuma ação de escrita. Histórico somente com versões PUBLICADA; enum de estado no domínio não amplia o filtro desta operação.'
+      tags:
+        - versoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/RequisitoId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaVersoesPublicadas'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+components:
+  schemas:
+    ReferenciaIndisponivel:
+      type: object
+      properties:
+        disponivel:
+          type: boolean
+          const: false
+          example: false
+      additionalProperties: false
+      required:
+        - disponivel
+      example:
+        disponivel: false
+    ReferenciaDisponivel:
+      type: object
+      properties:
+        disponivel:
+          type: boolean
+          const: true
+          example: true
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        codigo:
+          type: string
+          example: REQ-43
+          pattern: ^REQ-[0-9]+$
+        titulo:
+          type: string
+          example: Gerar relatório
+        cancelado:
+          type: boolean
+          example: false
+        tipo:
+          $ref: '#/components/schemas/TipoRelacao'
+      additionalProperties: false
+      required:
+        - disponivel
+        - requisitoId
+        - codigo
+        - titulo
+        - cancelado
+        - tipo
+      example:
+        disponivel: true
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        codigo: REQ-43
+        titulo: Gerar relatório
+        cancelado: false
+        tipo: RELACIONADO_A
+    Referencia:
+      oneOf:
+        - $ref: '#/components/schemas/ReferenciaDisponivel'
+        - $ref: '#/components/schemas/ReferenciaIndisponivel'
+      example:
+        disponivel: false
+    RequisitoLivro:
+      type: object
+      properties:
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        codigo:
+          type: string
+          example: REQ-42
+          pattern: ^REQ-[0-9]+$
+        titulo:
+          type: string
+          example: Exportar documento de requisitos.
+        versaoPublicada:
+          type: integer
+          example: 3
+          minimum: 1
+        publicacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        retratoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        conteudo:
+          type: string
+          example: O sistema deve permitir exportar o documento.
+        criteriosAceite:
+          type: array
+          items:
+            type: string
+            example: Exportação preserva requisitos.
+          example:
+            - Exportação preserva requisitos.
+        referencias:
+          type: array
+          items:
+            $ref: '#/components/schemas/Referencia'
+          example: []
+        avisos:
+          type: array
+          items:
+            type: string
+            example: Relações indisponíveis temporariamente.
+          example: []
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - requisitoId
+        - projetoId
+        - codigo
+        - titulo
+        - versaoPublicada
+        - publicacaoId
+        - versaoId
+        - retratoId
+        - conteudo
+        - criteriosAceite
+        - referencias
+        - avisos
+        - _links
+      example:
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        codigo: REQ-42
+        titulo: Exportar documento de requisitos.
+        versaoPublicada: 3
+        publicacaoId: 11111111-1111-4111-8111-111111111111
+        versaoId: 44444444-4444-4444-8444-444444444444
+        retratoId: 11111111-1111-4111-8111-111111111111
+        conteudo: O sistema deve permitir exportar o documento.
+        criteriosAceite:
+          - Exportação preserva requisitos.
+        referencias:
+          - disponivel: false
+        avisos: []
+        _links:
+          self:
+            href: /api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos/11111111-1111-4111-8111-111111111111
+          colecao:
+            href: /api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos
+          versoes:
+            href: /api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos/11111111-1111-4111-8111-111111111111/versoes
+    EntradaSumario:
+      type: object
+      properties:
+        documentoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tituloDocumento:
+          type: string
+          example: Especificação funcional
+        epicos:
+          type: array
+          items:
+            type: object
+            properties:
+              epicoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+              titulo:
+                type: string
+                example: Documentação
+              requisitos:
+                type: array
+                items:
+                  type: string
+                  example: 11111111-1111-4111-8111-111111111111
+                  format: uuid
+                example:
+                  - 11111111-1111-4111-8111-111111111111
+            additionalProperties: false
+            required:
+              - epicoId
+              - titulo
+              - requisitos
+            example:
+              epicoId: 11111111-1111-4111-8111-111111111111
+              titulo: Documentação
+              requisitos:
+                - 11111111-1111-4111-8111-111111111111
+          example: []
+      additionalProperties: false
+      required:
+        - documentoId
+        - tituloDocumento
+        - epicos
+      example:
+        documentoId: 11111111-1111-4111-8111-111111111111
+        tituloDocumento: Especificação funcional
+        epicos: []
+    SumarioLivro:
+      type: object
+      properties:
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        documentos:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntradaSumario'
+          example: []
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - projetoId
+        - documentos
+        - _links
+      example:
+        projetoId: 22222222-2222-4222-8222-222222222222
+        documentos: []
+        _links:
+          self:
+            href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    PaginaRequisitosLivro:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequisitoLivro'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaVersoesPublicadas:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Versao'
+              - type: object
+                properties:
+                  estadoVersao:
+                    type: string
+                    const: PUBLICADA
+                    example: PUBLICADA
+            example:
+              versaoId: 44444444-4444-4444-8444-444444444444
+              requisitoId: 11111111-1111-4111-8111-111111111111
+              numero: 3
+              estadoVersao: PUBLICADA
+              titulo: Exportar documento de requisitos.
+              conteudo: O sistema deve permitir exportar o documento.
+              criteriosAceite:
+                - Exportação preserva requisitos.
+              hashConteudo: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              atualizadoEm: '2026-10-21T15:00:00Z'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+      additionalProperties: false
+      required:
+        - href
+      example:
+        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+      example:
+        self:
+          href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          example: urn:athena:problema:requisicao-invalida
+          format: uri
+          pattern: ^urn:athena:problema:[a-z0-9]+(?:-[a-z0-9]+)*$
+        title:
+          type: string
+          example: Requisição inválida
+        status:
+          type: integer
+          example: 400
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          example: Verifique os campos enviados.
+        instance:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+        codigo:
+          type: string
+          example: REQUISICAO_INVALIDA
+        traceId:
+          type: string
+          example: a3d9b24f670c48bca701d5f893ed45af
+      additionalProperties: false
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+        - codigo
+        - traceId
+      example:
+        type: urn:athena:problema:requisicao-invalida
+        title: Requisição inválida
+        status: 400
+        detail: Verifique os campos enviados.
+        instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+        codigo: REQUISICAO_INVALIDA
+        traceId: a3d9b24f670c48bca701d5f893ed45af
+    TipoRelacao:
+      type: string
+      example: DEPENDE_DE
+      enum:
+        - DEPENDE_DE
+        - BLOQUEIA
+        - RELACIONADO_A
+    EstadoVersao:
+      type: string
+      example: RASCUNHO
+      enum:
+        - RASCUNHO
+        - EM_SUBMISSAO
+        - AGUARDANDO_REVISAO
+        - APROVADA
+        - PUBLICADA
+    Versao:
+      type: object
+      properties:
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        numero:
+          type: integer
+          example: 4
+          minimum: 1
+        estadoVersao:
+          $ref: '#/components/schemas/EstadoVersao'
+        titulo:
+          type: string
+          example: Exportar documento de requisitos.
+        conteudo:
+          type: string
+          example: O sistema deve permitir exportar o documento.
+        criteriosAceite:
+          type: array
+          items:
+            type: string
+            example: Exportação preserva requisitos.
+          example:
+            - Exportação preserva requisitos.
+        hashConteudo:
+          type: string
+          example: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          pattern: ^[a-f0-9]{64}$
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - versaoId
+        - requisitoId
+        - numero
+        - estadoVersao
+        - titulo
+        - conteudo
+        - criteriosAceite
+        - hashConteudo
+        - atualizadoEm
+      example:
+        versaoId: 33333333-3333-4333-8333-333333333333
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        numero: 4
+        estadoVersao: RASCUNHO
+        titulo: Exportar documento de requisitos.
+        conteudo: O sistema deve permitir exportar o documento.
+        criteriosAceite:
+          - Exportação preserva requisitos.
+        hashConteudo: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        atualizadoEm: '2026-10-21T15:00:00Z'
+  securitySchemes:
+    bearerJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT RS256
+      description: §7.1–7.2. RS256, kid/JWKS; validar iss, aud, exp e sessão/autorização atual a cada chamada. Escopos só se aplicam à delegação; x-escopo-mcp declara o mapeamento.
+    serviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT RS256
+      description: §7.1. Identidade de serviço ou token trocado, aud igual ao serviço chamado; preserva usuário, projeto e delegação, reduz escopos. Nunca repassar token MCP bruto.
+    cookieRefresh:
+      type: apiKey
+      in: cookie
+      name: athenaRefresh
+      description: §7.2–7.3. Nome proposto; Secure, HttpOnly, SameSite=Lax, sem Domain, Path=/api/v1/autenticacao; rotação e validade absoluta da família.
+    csrf:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: §7.3. Nome proposto. Token vinculado à sessão; validar também Origin.
+    oauthClient:
+      type: http
+      scheme: basic
+      description: Autenticação de cliente confidencial OAuth; método final depende da compatibilidade §7.1. Cliente público usa client_id e PKCE S256.
+  parameters:
+    ProjetoId:
+      name: projetoId
+      in: path
+      required: true
+      description: UUID estável (§5.1).
+      schema:
+        type: string
+        example: 22222222-2222-4222-8222-222222222222
+        format: uuid
+    Page:
+      name: page
+      in: query
+      description: Página inicial zero (§6.2).
+      schema:
+        type: integer
+        example: 0
+        default: 0
+        minimum: 0
+    Size:
+      name: size
+      in: query
+      description: Quantidade por página (§6.2).
+      schema:
+        type: integer
+        example: 20
+        default: 20
+        minimum: 1
+        maximum: 100
+    Sort:
+      name: sort
+      in: query
+      description: '§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum.'
+      schema:
+        type: string
+        example: atualizadoEm,desc
+        default: atualizadoEm,desc
+        enum:
+          - atualizadoEm,desc
+          - atualizadoEm,asc
+          - id,asc
+          - id,desc
+    RequisitoId:
+      name: requisitoId
+      in: path
+      required: true
+      description: UUID estável (§5.1).
+      schema:
+        type: string
+        example: 11111111-1111-4111-8111-111111111111
+        format: uuid
+  headers:
+    ETag:
+      description: §6.3. Revisão técnica forte do recurso.
+      schema:
+        type: string
+        example: '"rev-7"'
+    RetryAfter:
+      description: §6.1. Segundos até nova tentativa.
+      schema:
+        type: string
+        example: '30'
+  responses:
+    Erro400:
+      description: Requisição inválida (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:requisicao-invalida
+            title: Requisição inválida
+            status: 400
+            detail: Requisição inválida.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: REQUISICAO_INVALIDA
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro401:
+      description: Credencial ou sessão inválida (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-autenticado
+            title: Credencial ou sessão inválida
+            status: 401
+            detail: Credencial ou sessão inválida.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_AUTENTICADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro403:
+      description: Acesso negado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:acesso-negado
+            title: Acesso negado
+            status: 403
+            detail: Acesso negado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: ACESSO_NEGADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro404:
+      description: Recurso não encontrado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-encontrado
+            title: Recurso não encontrado
+            status: 404
+            detail: Recurso não encontrado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_ENCONTRADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro409:
+      description: Conflito com estado atual (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:conflito
+            title: Conflito com estado atual
+            status: 409
+            detail: Conflito com estado atual.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: CONFLITO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro429:
+      description: Limite de requisições excedido (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:limite-excedido
+            title: Limite de requisições excedido
+            status: 429
+            detail: Limite de requisições excedido.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: LIMITE_EXCEDIDO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+    Erro503:
+      description: Serviço indisponível (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:servico-indisponivel
+            title: Serviço indisponível
+            status: 503
+            detail: Serviço indisponível.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: SERVICO_INDISPONIVEL
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'

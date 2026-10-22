@@ -1,0 +1,57 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> athena-api-contracts@1.0.0 validar
+> node scripts/validar.mjs
+
+81 tools com entrada JSON Schema expandida e mapeamento de autorização.
+81 esquemas de tools válidos; projeto explícito e confirmação humana em decisão/publicação.
+13 mutações indevidas detectadas pelas regras; baseline sem erro.
+3 exemplos HATEOAS coerentes; referência restrita sem identificadores e Livro sem ações de escrita.
+189 operações na matriz; operationIds únicos globalmente.
+validating docs/api/bff-gestao.yaml...
+docs/api/bff-gestao.yaml: validated in 374ms
+
+validating docs/api/bff-livro.yaml...
+docs/api/bff-livro.yaml: validated in 76ms
+
+validating docs/api/impacto-mcp.yaml...
+docs/api/impacto-mcp.yaml: validated in 51ms
+
+validating docs/api/integracoes.yaml...
+docs/api/integracoes.yaml: validated in 51ms
+
+validating docs/api/projetos-acesso.yaml...
+docs/api/projetos-acesso.yaml: validated in 122ms
+
+validating docs/api/rastreabilidade.yaml...
+docs/api/rastreabilidade.yaml: validated in 39ms
+
+validating docs/api/requisitos.yaml...
+docs/api/requisitos.yaml: validated in 104ms
+
+validating docs/api/revisoes.yaml...
+docs/api/revisoes.yaml: validated in 40ms
+
+validating docs/api/_shared/components.yaml...
+docs/api/_shared/components.yaml: validated in 22ms
+
+Woohoo! Your API descriptions are valid. 🎉
+
+bundling docs/api/bff-gestao.yaml...
+📦 Created a bundle for docs/api/bff-gestao.yaml at docs/api/dist/bff-gestao.bundled.yaml 122ms.
+bundling docs/api/bff-livro.yaml...
+📦 Created a bundle for docs/api/bff-livro.yaml at docs/api/dist/bff-livro.bundled.yaml 45ms.
+bundling docs/api/impacto-mcp.yaml...
+📦 Created a bundle for docs/api/impacto-mcp.yaml at docs/api/dist/impacto-mcp.bundled.yaml 43ms.
+bundling docs/api/integracoes.yaml...
+📦 Created a bundle for docs/api/integracoes.yaml at docs/api/dist/integracoes.bundled.yaml 45ms.
+bundling docs/api/projetos-acesso.yaml...
+📦 Created a bundle for docs/api/projetos-acesso.yaml at docs/api/dist/projetos-acesso.bundled.yaml 76ms.
+bundling docs/api/rastreabilidade.yaml...
+📦 Created a bundle for docs/api/rastreabilidade.yaml at docs/api/dist/rastreabilidade.bundled.yaml 38ms.
+bundling docs/api/requisitos.yaml...
+📦 Created a bundle for docs/api/requisitos.yaml at docs/api/dist/requisitos.bundled.yaml 75ms.
+bundling docs/api/revisoes.yaml...
+📦 Created a bundle for docs/api/revisoes.yaml at docs/api/dist/revisoes.bundled.yaml 44ms.
+No results with a severity of 'warn' or higher found!
+Contratos, bundles, matriz e exemplos validados.

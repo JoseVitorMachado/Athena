@@ -1,0 +1,1895 @@
+{
+  "versao": "1.0.0",
+  "operacoes": [
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos",
+      "operacaoDominio": "gestaoListarRequisitos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos",
+      "operacaoDominio": "gestaoCriarRequisito",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}",
+      "operacaoDominio": "gestaoObterRequisito",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}",
+      "operacaoDominio": "gestaoEditarRequisito",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+      "operacaoDominio": "gestaoObterCandidata",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+      "operacaoDominio": "gestaoEditarCandidata",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+      "operacaoDominio": "gestaoListarSubmissoes",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+      "operacaoDominio": "gestaoCriarSubmissao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/submissoes/{submissaoId}",
+      "operacaoDominio": "gestaoObterSubmissao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+      "operacaoDominio": "gestaoListarPublicacoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+      "operacaoDominio": "gestaoCriarPublicacao",
+      "papelMinimo": "Aprovador",
+      "escopo": "athena:publish",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos",
+      "operacaoDominio": "gestaoCriarCancelamento",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes",
+      "operacaoDominio": "gestaoCriarReativacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao",
+      "operacaoDominio": "gestaoCriarConfirmacaoPublicacao",
+      "papelMinimo": "Aprovador",
+      "escopo": "athena:publish",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/relacoes",
+      "operacaoDominio": "gestaoListarRelacoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/relacoes",
+      "operacaoDominio": "gestaoCriarRelacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId}",
+      "operacaoDominio": "gestaoObterRelacao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId}",
+      "operacaoDominio": "gestaoEditarRelacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId}",
+      "operacaoDominio": "gestaoRemoverRelacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/mapa",
+      "operacaoDominio": "gestaoObterMapa",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/revisoes",
+      "operacaoDominio": "gestaoListarLotes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}",
+      "operacaoDominio": "gestaoObterLote",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/decisoes",
+      "operacaoDominio": "gestaoListarDecisoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/decisoes",
+      "operacaoDominio": "gestaoCriarDecisao",
+      "papelMinimo": "Aprovador",
+      "escopo": "athena:approve",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/confirmacoes-decisao",
+      "operacaoDominio": "gestaoCriarConfirmacaoDecisao",
+      "papelMinimo": "Aprovador",
+      "escopo": "athena:approve",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/workspaces",
+      "operacaoDominio": "gestaoListarWorkspaces",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/workspaces",
+      "operacaoDominio": "gestaoCriarWorkspace",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/workspaces/{workspaceId}",
+      "operacaoDominio": "gestaoObterWorkspace",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/workspaces/{workspaceId}",
+      "operacaoDominio": "gestaoEditarWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos",
+      "operacaoDominio": "gestaoListarProjetos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos",
+      "operacaoDominio": "gestaoCriarProjeto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}",
+      "operacaoDominio": "gestaoObterProjeto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/projetos/{projetoId}",
+      "operacaoDominio": "gestaoEditarProjeto",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/workspaces/{workspaceId}/exclusoes",
+      "operacaoDominio": "gestaoCriarExclusaoWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/workspaces/{workspaceId}/membros",
+      "operacaoDominio": "gestaoListarMembrosWorkspace",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/workspaces/{workspaceId}/membros",
+      "operacaoDominio": "gestaoCriarMembroWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/workspaces/{workspaceId}/membros/{membroId}",
+      "operacaoDominio": "gestaoEditarMembroWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/gestao/workspaces/{workspaceId}/membros/{membroId}",
+      "operacaoDominio": "gestaoRemoverMembroWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/arquivamentos",
+      "operacaoDominio": "gestaoCriarArquivamento",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/restauracoes",
+      "operacaoDominio": "gestaoCriarRestauracao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/exclusoes",
+      "operacaoDominio": "gestaoCriarExclusaoProjeto",
+      "papelMinimo": "Owner",
+      "escopo": "athena:delete-project",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/exclusoes/{exclusaoId}",
+      "operacaoDominio": "gestaoObterExclusaoProjeto",
+      "papelMinimo": "Owner",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/membros",
+      "operacaoDominio": "gestaoListarMembrosProjeto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/membros/{membroId}",
+      "operacaoDominio": "gestaoEditarMembroProjeto",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/membros/{membroId}",
+      "operacaoDominio": "gestaoRemoverMembroProjeto",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/historico-membros",
+      "operacaoDominio": "gestaoListarHistoricoMembros",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/convites",
+      "operacaoDominio": "gestaoListarConvites",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/convites",
+      "operacaoDominio": "gestaoCriarConvite",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/convites/{conviteId}",
+      "operacaoDominio": "gestaoRemoverConvite",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/convites/{conviteId}/aceite",
+      "operacaoDominio": "gestaoAceitarConvite",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/transferencias-propriedade",
+      "operacaoDominio": "gestaoCriarTransferenciaPropriedade",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/transferencias-propriedade/{transferenciaId}/aceite",
+      "operacaoDominio": "gestaoAceitarTransferenciaPropriedade",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/notificacoes",
+      "operacaoDominio": "gestaoListarNotificacoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/notificacoes/{notificacaoId}",
+      "operacaoDominio": "gestaoEditarNotificacao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/conexoes",
+      "operacaoDominio": "gestaoListarConexoes",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/conexoes",
+      "operacaoDominio": "gestaoCriarConexao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/conexoes/{conexaoId}",
+      "operacaoDominio": "gestaoObterConexao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/conexoes/{conexaoId}",
+      "operacaoDominio": "gestaoEditarConexao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/conexoes/{conexaoId}",
+      "operacaoDominio": "gestaoRemoverConexao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/vinculos",
+      "operacaoDominio": "gestaoListarVinculos",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/vinculos",
+      "operacaoDominio": "gestaoCriarVinculo",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/vinculos/{vinculoId}",
+      "operacaoDominio": "gestaoRemoverVinculo",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/sincronizacoes",
+      "operacaoDominio": "gestaoListarSincronizacoes",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/sincronizacoes",
+      "operacaoDominio": "gestaoCriarSincronizacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}",
+      "operacaoDominio": "gestaoObterSincronizacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}/resolucoes",
+      "operacaoDominio": "gestaoCriarResolucaoSincronizacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/tarefas-externas",
+      "operacaoDominio": "gestaoCriarTarefaExterna",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes",
+      "operacaoDominio": "gestaoListarVersoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}",
+      "operacaoDominio": "gestaoObterVersao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-livro.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/livro/projetos/{projetoId}/livro",
+      "operacaoDominio": "obterLivro",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-livro.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/livro/projetos/{projetoId}/livro/requisitos",
+      "operacaoDominio": "listarRequisitosLivro",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-livro.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/livro/projetos/{projetoId}/livro/requisitos/{requisitoId}",
+      "operacaoDominio": "obterRequisitoLivro",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-livro.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/livro/projetos/{projetoId}/livro/requisitos/{requisitoId}/versoes",
+      "operacaoDominio": "listarVersoesPublicadasLivro",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/analises",
+      "operacaoDominio": "listarAnalises",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/analises",
+      "operacaoDominio": "criarAnalise",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/analises/{analiseId}",
+      "operacaoDominio": "obterAnalise",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes/{sugestaoId}/avaliacoes",
+      "operacaoDominio": "criarAvaliacaoSugestao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/contexto/buscas",
+      "operacaoDominio": "buscarContexto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/indice",
+      "operacaoDominio": "obterIndice",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/operacoes",
+      "operacaoDominio": "listarOperacoesImpacto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/operacoes/{operacaoId}",
+      "operacaoDominio": "obterOperacaoImpacto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/reindexacoes",
+      "operacaoDominio": "criarReindexacao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "impacto-mcp.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes",
+      "operacaoDominio": "criarSugestaoAnalise",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/conexoes",
+      "operacaoDominio": "listarConexoes",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/conexoes",
+      "operacaoDominio": "criarConexao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+      "operacaoDominio": "obterConexao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+      "operacaoDominio": "editarConexao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/projetos/{projetoId}/conexoes/{conexaoId}",
+      "operacaoDominio": "removerConexao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/vinculos",
+      "operacaoDominio": "listarVinculos",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/vinculos",
+      "operacaoDominio": "criarVinculo",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/projetos/{projetoId}/vinculos/{vinculoId}",
+      "operacaoDominio": "removerVinculo",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/sincronizacoes",
+      "operacaoDominio": "listarSincronizacoes",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/sincronizacoes",
+      "operacaoDominio": "criarSincronizacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}",
+      "operacaoDominio": "obterSincronizacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}/resolucoes",
+      "operacaoDominio": "criarResolucaoSincronizacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "integracoes.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/tarefas-externas",
+      "operacaoDominio": "criarTarefaExterna",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/autenticacao/cadastro",
+      "operacaoDominio": "criarCadastro",
+      "papelMinimo": "Pública",
+      "escopo": "—",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/autenticacao/login",
+      "operacaoDominio": "criarLogin",
+      "papelMinimo": "Pública",
+      "escopo": "—",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/autenticacao/recuperacao",
+      "operacaoDominio": "criarRecuperacao",
+      "papelMinimo": "Pública",
+      "escopo": "—",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/autenticacao/recuperacao/conclusao",
+      "operacaoDominio": "concluirRecuperacao",
+      "papelMinimo": "Pública",
+      "escopo": "—",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/autenticacao/renovacao",
+      "operacaoDominio": "renovarSessao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/autenticacao/logout",
+      "operacaoDominio": "encerrarSessao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/usuarios/me",
+      "operacaoDominio": "obterUsuarioAtual",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/autorizacoes-agente",
+      "operacaoDominio": "listarAutorizacoesAgente",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/autorizacoes-agente/{autorizacaoId}",
+      "operacaoDominio": "revogarAutorizacaoAgente",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/workspaces",
+      "operacaoDominio": "listarWorkspaces",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/workspaces",
+      "operacaoDominio": "criarWorkspace",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/workspaces/{workspaceId}",
+      "operacaoDominio": "obterWorkspace",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/workspaces/{workspaceId}",
+      "operacaoDominio": "editarWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos",
+      "operacaoDominio": "listarProjetos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos",
+      "operacaoDominio": "criarProjeto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}",
+      "operacaoDominio": "obterProjeto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}",
+      "operacaoDominio": "editarProjeto",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/workspaces/{workspaceId}/exclusoes",
+      "operacaoDominio": "criarExclusaoWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/workspaces/{workspaceId}/membros",
+      "operacaoDominio": "listarMembrosWorkspace",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/workspaces/{workspaceId}/membros",
+      "operacaoDominio": "criarMembroWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/workspaces/{workspaceId}/membros/{membroId}",
+      "operacaoDominio": "editarMembroWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/workspaces/{workspaceId}/membros/{membroId}",
+      "operacaoDominio": "removerMembroWorkspace",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/arquivamentos",
+      "operacaoDominio": "criarArquivamento",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/restauracoes",
+      "operacaoDominio": "criarRestauracao",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/exclusoes",
+      "operacaoDominio": "criarExclusaoProjeto",
+      "papelMinimo": "Owner",
+      "escopo": "athena:delete-project",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/exclusoes/{exclusaoId}",
+      "operacaoDominio": "obterExclusaoProjeto",
+      "papelMinimo": "Owner",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/membros",
+      "operacaoDominio": "listarMembrosProjeto",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/membros/{membroId}",
+      "operacaoDominio": "editarMembroProjeto",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/projetos/{projetoId}/membros/{membroId}",
+      "operacaoDominio": "removerMembroProjeto",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/historico-membros",
+      "operacaoDominio": "listarHistoricoMembros",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/convites",
+      "operacaoDominio": "listarConvites",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/convites",
+      "operacaoDominio": "criarConvite",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/projetos/{projetoId}/convites/{conviteId}",
+      "operacaoDominio": "removerConvite",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/convites/{conviteId}/aceite",
+      "operacaoDominio": "aceitarConvite",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/transferencias-propriedade",
+      "operacaoDominio": "criarTransferenciaPropriedade",
+      "papelMinimo": "Owner",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/transferencias-propriedade/{transferenciaId}/aceite",
+      "operacaoDominio": "aceitarTransferenciaPropriedade",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/notificacoes",
+      "operacaoDominio": "listarNotificacoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/notificacoes/{notificacaoId}",
+      "operacaoDominio": "editarNotificacao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/internal/sessoes/validacao",
+      "operacaoDominio": "validarSessaoInterna",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:write",
+      "interno": "Sim",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/internal/projetos/{projetoId}/acesso",
+      "operacaoDominio": "obterAcessoProjetoInterno",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Sim",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/oauth2/jwks",
+      "operacaoDominio": "obterJwks",
+      "papelMinimo": "Pública",
+      "escopo": "—",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/.well-known/oauth-authorization-server",
+      "operacaoDominio": "obterMetadadosOAuth",
+      "papelMinimo": "Pública",
+      "escopo": "—",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/.well-known/oauth-protected-resource",
+      "operacaoDominio": "obterMetadadosMcp",
+      "papelMinimo": "Pública",
+      "escopo": "—",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/oauth2/authorize",
+      "operacaoDominio": "autorizarAgente",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/oauth2/token",
+      "operacaoDominio": "emitirTokenOAuth",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "POST",
+      "rota": "/oauth2/revoke",
+      "operacaoDominio": "revogarTokenOAuth",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:admin",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/relacoes",
+      "operacaoDominio": "listarRelacoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/relacoes",
+      "operacaoDominio": "criarRelacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+      "operacaoDominio": "obterRelacao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+      "operacaoDominio": "editarRelacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/projetos/{projetoId}/relacoes/{relacaoId}",
+      "operacaoDominio": "removerRelacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/mapa",
+      "operacaoDominio": "obterMapa",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/cobertura",
+      "operacaoDominio": "obterCobertura",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/retratos/{retratoId}",
+      "operacaoDominio": "obterRetrato",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "rastreabilidade.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/mapa/reconstrucoes",
+      "operacaoDominio": "criarReconstrucaoMapa",
+      "papelMinimo": "Mantenedor",
+      "escopo": "athena:admin",
+      "interno": "Sim",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/documentos",
+      "operacaoDominio": "listarDocumentos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/documentos",
+      "operacaoDominio": "criarDocumento",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/documentos/{documentoId}",
+      "operacaoDominio": "obterDocumento",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/documentos/{documentoId}",
+      "operacaoDominio": "editarDocumento",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/epicos",
+      "operacaoDominio": "listarEpicos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/epicos",
+      "operacaoDominio": "criarEpico",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+      "operacaoDominio": "editarEpico",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos",
+      "operacaoDominio": "listarRequisitos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos",
+      "operacaoDominio": "criarRequisito",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}",
+      "operacaoDominio": "obterRequisito",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}",
+      "operacaoDominio": "editarRequisito",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+      "operacaoDominio": "obterCandidata",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/candidata",
+      "operacaoDominio": "editarCandidata",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes",
+      "operacaoDominio": "listarVersoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}",
+      "operacaoDominio": "obterVersao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+      "operacaoDominio": "listarSubmissoes",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes",
+      "operacaoDominio": "criarSubmissao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes/{submissaoId}",
+      "operacaoDominio": "obterSubmissao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+      "operacaoDominio": "listarPublicacoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes",
+      "operacaoDominio": "criarPublicacao",
+      "papelMinimo": "Aprovador",
+      "escopo": "athena:publish",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes/{publicacaoId}",
+      "operacaoDominio": "obterPublicacao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/historico",
+      "operacaoDominio": "listarHistoricoRequisito",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos",
+      "operacaoDominio": "criarCancelamento",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes",
+      "operacaoDominio": "criarReativacao",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+      "operacaoDominio": "listarComentarios",
+      "papelMinimo": "Repórter",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+      "operacaoDominio": "criarComentario",
+      "papelMinimo": "Repórter",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId}",
+      "operacaoDominio": "editarComentario",
+      "papelMinimo": "Repórter",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/baselines",
+      "operacaoDominio": "listarBaselines",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/baselines",
+      "operacaoDominio": "criarBaseline",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/baselines/{baselineId}",
+      "operacaoDominio": "obterBaseline",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao",
+      "operacaoDominio": "criarConfirmacaoPublicacao",
+      "papelMinimo": "Aprovador",
+      "escopo": "athena:publish",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "revisoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/lotes",
+      "operacaoDominio": "listarLotes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "revisoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}",
+      "operacaoDominio": "obterLote",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "revisoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias",
+      "operacaoDominio": "listarPendencias",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "revisoes.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias/{pendenciaId}",
+      "operacaoDominio": "editarPendencia",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Pendente"
+    },
+    {
+      "contrato": "revisoes.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/decisoes",
+      "operacaoDominio": "listarDecisoes",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "revisoes.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/decisoes",
+      "operacaoDominio": "criarDecisao",
+      "papelMinimo": "Aprovador",
+      "escopo": "athena:approve",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "revisoes.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/projetos/{projetoId}/lotes/{loteId}/confirmacoes-decisao",
+      "operacaoDominio": "criarConfirmacaoDecisao",
+      "papelMinimo": "Aprovador",
+      "escopo": "athena:approve",
+      "interno": "Não",
+      "politica": "Pendente"
+    }
+  ]
+}

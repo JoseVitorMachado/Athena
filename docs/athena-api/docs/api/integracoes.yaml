@@ -1,0 +1,1143 @@
+openapi: 3.1.0
+info:
+  title: ATHENA — Integrações
+  version: 1.0.0
+  description: 'Versionamento por URI (§6.2): /api/v1 para mudanças compatíveis, /api/v2 para quebra. Gateway roteia
+    por prefixo; versão aparece nos logs; clientes Angular migram sem negociar cabeçalho. Versão da API independe
+    da versão do requisito. Fonte de verdade: Arquitetura v1.0, §§6.10, 7.4 e 7.5. APIs de domínio são internas;
+    só BFFs, MCP e serviços com troca de token as chamam. Nenhuma leitura é pública por compartilhar URL. Escopos
+    x-escopo-mcp só são exigidos em contexto delegado; nunca substituem papel/acesso. x-proposta identifica formas
+    de representação não especificadas pelo livro.'
+  contact:
+    name: Equipe ATHENA
+servers:
+- url: https://athena.example.invalid
+  description: Origem HTTPS ilustrativa; substituir no ambiente.
+security:
+- serviceToken: []
+tags:
+- name: conexoes
+  description: Recursos conexoes; §§5–7.
+- name: vinculos
+  description: Recursos vinculos; §§5–7.
+- name: sincronizacoes
+  description: Recursos sincronizacoes; §§5–7.
+- name: resolucoes
+  description: Recursos resolucoes; §§5–7.
+- name: tarefas-externas
+  description: Recursos tarefas-externas; §§5–7.
+paths:
+  /api/v1/projetos/{projetoId}/conexoes:
+    get:
+      operationId: listarConexoes
+      summary: Listar conexoes
+      description: §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaConexoes'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarConexao
+      summary: Criar conexao
+      description: §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-decidir: Como autorizar conectores Google/OpenProject e quais operações são suportadas?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConexaoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/conexoes/{conexaoId}:
+    get:
+      operationId: obterConexao
+      summary: Obter conexao
+      description: §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: conexaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: editarConexao
+      summary: Editar conexao
+      description: §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-decidir: Qual fluxo de autorização dos conectores?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: conexaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConexaoPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    delete:
+      operationId: removerConexao
+      summary: Remover conexao
+      description: §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: conexaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/vinculos:
+    get:
+      operationId: listarVinculos
+      summary: Listar vinculos
+      description: §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - vinculos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaVinculos'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarVinculo
+      summary: Criar vinculo
+      description: §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - vinculos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Como autorizar conectores Google/OpenProject e quais operações são suportadas?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VinculoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vinculo'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/vinculos/{vinculoId}:
+    delete:
+      operationId: removerVinculo
+      summary: Remover vinculo
+      description: §6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - vinculos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: vinculoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/sincronizacoes:
+    post:
+      operationId: criarSincronizacao
+      summary: Criar sincronizacao
+      description: §6.10. Operação e intenção persistidas atomicamente; compara versão externa e revisão local.
+        Timeout consulta/reconcilia antes de repetir; sem prova do efeito fica RESULTADO_DESCONHECIDO com resolução
+        humana e sem nova criação automática. 429 externo respeita Retry-After. §6.10. Credenciais só writeOnly
+        no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso
+        ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve
+        publicada. Fluxo de autorização de conectores não definido.
+      tags:
+      - sincronizacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Confirmar Idempotency-Key obrigatória na sincronização e catálogo completo de estados.
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SincronizacaoEntrada'
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sincronizacao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    get:
+      operationId: listarSincronizacoes
+      summary: Listar sincronizacoes
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - sincronizacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Qual catálogo completo de estados da sincronização?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaSincronizacoes'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}:
+    get:
+      operationId: obterSincronizacao
+      summary: Obter sincronizacao
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - sincronizacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: sincronizacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sincronizacao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}/resolucoes:
+    post:
+      operationId: criarResolucaoSincronizacao
+      summary: Criar resolucao sincronizacao
+      description: §6.10. Registra evidência humana; não aceita comando genérico de sobrescrever versão publicada
+        ou recriar automaticamente efeito desconhecido.
+      tags:
+      - resolucoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Quais comandos e efeitos são permitidos na resolução humana de conflito/resultado desconhecido?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: sincronizacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolucaoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resolucao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/tarefas-externas:
+    post:
+      operationId: criarTarefaExterna
+      summary: Criar tarefa externa
+      description: §6.10. Criação OpenProject com operação persistida; resultado desconhecido exige reconciliação
+        sem duplicar tarefa.
+      tags:
+      - tarefas-externas
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Quais campos OpenProject são obrigatórios e qual recurso acompanha criação de tarefa externa?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TarefaExternaEntrada'
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/Operacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+components:
+  schemas:
+    ConexaoEntrada:
+      type: object
+      properties:
+        provedor:
+          type: string
+          example: GOOGLE
+          enum:
+          - GOOGLE
+          - OPENPROJECT
+          - GITHUB
+        nome:
+          type: string
+          example: Documentos do projeto
+        configuracao:
+          type: object
+          properties:
+            urlBase:
+              type: string
+              example: https://openproject.example.invalid
+              format: uri
+            projetoExternoId:
+              type: string
+              example: '42'
+          additionalProperties: false
+          example: {}
+        credenciais:
+          type: object
+          properties:
+            segredo:
+              type: string
+              example: segredo-ilustrativo
+              writeOnly: true
+          additionalProperties: false
+          writeOnly: true
+          required:
+          - segredo
+          example:
+            segredo: segredo-ilustrativo
+      additionalProperties: false
+      required:
+      - provedor
+      - nome
+      example:
+        provedor: GOOGLE
+        nome: Documentos do projeto
+    ConexaoPatch:
+      type: object
+      properties:
+        provedor:
+          type: string
+          example: GOOGLE
+          enum:
+          - GOOGLE
+          - OPENPROJECT
+          - GITHUB
+        nome:
+          type: string
+          example: Documentos do projeto
+        configuracao:
+          type: object
+          properties:
+            urlBase:
+              type: string
+              example: https://openproject.example.invalid
+              format: uri
+            projetoExternoId:
+              type: string
+              example: '42'
+          additionalProperties: false
+          example: {}
+        credenciais:
+          type: object
+          properties:
+            segredo:
+              type: string
+              example: segredo-ilustrativo
+              writeOnly: true
+          additionalProperties: false
+          writeOnly: true
+          required:
+          - segredo
+          example:
+            segredo: segredo-ilustrativo
+      additionalProperties: false
+      minProperties: 1
+      example:
+        nome: Documentação do projeto
+    Conexao:
+      type: object
+      properties:
+        conexaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        provedor:
+          type: string
+          example: GOOGLE
+          enum:
+          - GOOGLE
+          - OPENPROJECT
+          - GITHUB
+        nome:
+          type: string
+          example: Documentos do projeto
+        configuracao:
+          type: object
+          properties:
+            urlBase:
+              type: string
+              example: https://openproject.example.invalid
+              format: uri
+            projetoExternoId:
+              type: string
+              example: '42'
+          additionalProperties: false
+          example: {}
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - conexaoId
+      - projetoId
+      - provedor
+      - nome
+      - atualizadoEm
+      example:
+        conexaoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        provedor: GOOGLE
+        nome: Documentos do projeto
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    VinculoEntrada:
+      type: object
+      properties:
+        conexaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        identificadorExterno:
+          type: string
+          example: artefato-42
+        urlExterna:
+          type: string
+          example: https://example.invalid/artefatos/42
+          format: uri
+        versaoExternaConhecida:
+          type: string
+          example: etag-7
+      additionalProperties: false
+      required:
+      - conexaoId
+      - requisitoId
+      - identificadorExterno
+      example:
+        conexaoId: 11111111-1111-4111-8111-111111111111
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        identificadorExterno: artefato-42
+    Vinculo:
+      type: object
+      properties:
+        vinculoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        conexaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        identificadorExterno:
+          type: string
+          example: artefato-42
+        urlExterna:
+          type: string
+          example: https://example.invalid/artefatos/42
+          format: uri
+        versaoExternaConhecida:
+          type: string
+          example: etag-7
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - vinculoId
+      - projetoId
+      - conexaoId
+      - requisitoId
+      - identificadorExterno
+      - atualizadoEm
+      example:
+        vinculoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        conexaoId: 11111111-1111-4111-8111-111111111111
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        identificadorExterno: artefato-42
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    SincronizacaoEntrada:
+      type: object
+      properties:
+        vinculoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      additionalProperties: false
+      required:
+      - vinculoId
+      example:
+        vinculoId: 11111111-1111-4111-8111-111111111111
+    Conflito:
+      type: object
+      properties:
+        versaoExternaEsperada:
+          type: string
+          example: etag-7
+        versaoExternaAtual:
+          type: string
+          example: etag-8
+        revisaoLocalEsperada:
+          type: string
+          example: rev-2
+        revisaoLocalAtual:
+          type: string
+          example: rev-3
+        descricao:
+          type: string
+          example: Versões divergentes
+      additionalProperties: false
+      required:
+      - descricao
+      example:
+        descricao: Versões divergentes
+    Sincronizacao:
+      type: object
+      properties:
+        sincronizacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        operacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        vinculoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        estado:
+          type: string
+          example: RESULTADO_DESCONHECIDO
+          description: Inclui RESULTADO_DESCONHECIDO; demais estados dependem da decisão documentada.
+        versaoExternaConhecida:
+          type: string
+          example: etag-7
+        conflito:
+          $ref: '#/components/schemas/Conflito'
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - sincronizacaoId
+      - operacaoId
+      - vinculoId
+      - estado
+      - atualizadoEm
+      example:
+        sincronizacaoId: 11111111-1111-4111-8111-111111111111
+        operacaoId: 11111111-1111-4111-8111-111111111111
+        vinculoId: 11111111-1111-4111-8111-111111111111
+        estado: RESULTADO_DESCONHECIDO
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    ResolucaoEntrada:
+      type: object
+      properties:
+        justificativa:
+          type: string
+          example: Efeito externo conferido manualmente.
+        resultadoVerificado:
+          type: string
+          example: A tarefa já existe no provedor.
+        identificadorExterno:
+          type: string
+          example: artefato-42
+      additionalProperties: false
+      required:
+      - justificativa
+      - resultadoVerificado
+      example:
+        justificativa: Efeito externo conferido manualmente.
+        resultadoVerificado: A tarefa já existe no provedor.
+    Resolucao:
+      type: object
+      properties:
+        resolucaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        sincronizacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        data:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+        justificativa:
+          type: string
+          example: Efeito externo conferido manualmente.
+      additionalProperties: false
+      required:
+      - resolucaoId
+      - sincronizacaoId
+      - autor
+      - data
+      - justificativa
+      example:
+        resolucaoId: 11111111-1111-4111-8111-111111111111
+        sincronizacaoId: 11111111-1111-4111-8111-111111111111
+        autor: 11111111-1111-4111-8111-111111111111
+        data: '2026-10-21T15:00:00Z'
+        justificativa: Efeito externo conferido manualmente.
+    TarefaExternaEntrada:
+      type: object
+      properties:
+        conexaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        titulo:
+          type: string
+          example: Implementar exportação
+        descricao:
+          type: string
+          example: Criar exportação do documento.
+      additionalProperties: false
+      required:
+      - conexaoId
+      - requisitoId
+      - titulo
+      example:
+        conexaoId: 11111111-1111-4111-8111-111111111111
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        titulo: Implementar exportação
+    PaginaConexoes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conexao'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaVinculos:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vinculo'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaSincronizacoes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sincronizacao'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+  securitySchemes:
+    bearerJwt:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/bearerJwt
+    serviceToken:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/serviceToken
+    cookieRefresh:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/cookieRefresh
+    csrf:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/csrf
+    oauthClient:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/oauthClient

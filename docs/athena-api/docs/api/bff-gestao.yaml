@@ -1,0 +1,4010 @@
+openapi: 3.1.0
+info:
+  title: ATHENA — BFF Gestão
+  version: 1.0.0
+  description: 'Versionamento por URI (§6.2): /api/v1 para mudanças compatíveis, /api/v2 para quebra. Gateway roteia
+    por prefixo; versão aparece nos logs; clientes Angular migram sem negociar cabeçalho. Versão da API independe
+    da versão do requisito. Fonte de verdade: Arquitetura v1.0, §§4.1–4.2, 6.1–6.4 e 7.4. APIs de domínio são internas;
+    só BFFs, MCP e serviços com troca de token as chamam. Nenhuma leitura é pública por compartilhar URL. Escopos
+    x-escopo-mcp só são exigidos em contexto delegado; nunca substituem papel/acesso. x-proposta identifica formas
+    de representação não especificadas pelo livro.'
+  contact:
+    name: Equipe ATHENA
+servers:
+- url: https://athena.example.invalid
+  description: Origem HTTPS ilustrativa; substituir no ambiente.
+security:
+- bearerJwt: []
+tags:
+- name: requisitos
+  description: Repasse de requisitos
+- name: candidata
+  description: Repasse de requisitos
+- name: submissoes
+  description: Repasse de requisitos
+- name: publicacoes
+  description: Repasse de requisitos
+- name: cancelamentos
+  description: Repasse de requisitos
+- name: reativacoes
+  description: Repasse de requisitos
+- name: confirmacoes-publicacao
+  description: Repasse de requisitos
+- name: relacoes
+  description: Repasse de rastreabilidade
+- name: mapa
+  description: Repasse de rastreabilidade
+- name: lotes
+  description: Repasse de revisoes
+- name: decisoes
+  description: Repasse de revisoes
+- name: confirmacoes-decisao
+  description: Repasse de revisoes
+- name: workspaces
+  description: Repasse de projetos-acesso
+- name: projetos
+  description: Repasse de projetos-acesso
+- name: exclusoes
+  description: Repasse de projetos-acesso
+- name: membros
+  description: Repasse de projetos-acesso
+- name: arquivamentos
+  description: Repasse de projetos-acesso
+- name: restauracoes
+  description: Repasse de projetos-acesso
+- name: historico-membros
+  description: Repasse de projetos-acesso
+- name: convites
+  description: Repasse de projetos-acesso
+- name: aceite
+  description: Repasse de projetos-acesso
+- name: transferencias-propriedade
+  description: Repasse de projetos-acesso
+- name: notificacoes
+  description: Repasse de projetos-acesso
+- name: conexoes
+  description: Repasse de integracoes
+- name: vinculos
+  description: Repasse de integracoes
+- name: sincronizacoes
+  description: Repasse de integracoes
+- name: resolucoes
+  description: Repasse de integracoes
+- name: tarefas-externas
+  description: Repasse de integracoes
+- name: versoes
+  description: Repasse de requisitos
+paths:
+  /api/v1/gestao/projetos/{projetoId}/requisitos:
+    get:
+      operationId: gestaoListarRequisitos
+      summary: Listar requisitos
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - requisitos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Qual catálogo de tipos de requisito?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      - name: q
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: exportar
+      - name: situacao
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          $ref: ./_shared/components.yaml#/components/schemas/SituacaoRequisito
+          default: ATIVO
+      - name: estadoVersao
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          $ref: ./_shared/components.yaml#/components/schemas/EstadoVersao
+      - name: tipo
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: FUNCIONAL
+      - name: epicoId
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - name: responsavelId
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/PaginaRequisitos
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarRequisito
+      summary: Criar requisito
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - requisitos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Qual catálogo de tipos de requisito?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./requisitos.yaml#/components/schemas/RequisitoEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Requisito
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}:
+    get:
+      operationId: gestaoObterRequisito
+      summary: Obter requisito
+      description: '§§4.2, 6.4. Compõe Requisitos e Revisões após acesso atual em Projetos e acesso. Requisitos/acesso
+        indisponíveis: 503; Revisões indisponível: 200 com avisos e sem ações dependentes da revisão. Nunca inventa
+        estado aprovado. _actions próprio inspirado em HAL-FORMS; ação ausente se não autorizada, backend revalida
+        inclusive links antigos. ETag deste GET pertence ao requisito; ações sobre candidata exigem obter ETag em
+        GET /candidata. O BFF preserva os dois alvos sem intercambiar revisões.'
+      tags:
+      - requisitos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequisitoGestao'
+              examples:
+                editor-aguardando-revisao:
+                  value:
+                    requisitoId: 11111111-1111-4111-8111-111111111111
+                    projetoId: 22222222-2222-4222-8222-222222222222
+                    codigo: REQ-42
+                    titulo: Exportar documento de requisitos.
+                    situacao: ATIVO
+                    versaoEmEdicao: 4
+                    versaoId: 33333333-3333-4333-8333-333333333333
+                    estadoVersao: AGUARDANDO_REVISAO
+                    loteId: 11111111-1111-4111-8111-111111111111
+                    pendenciasAbertas: 2
+                    atualizadoEm: '2026-10-21T15:00:00Z'
+                    _links:
+                      self:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111
+                      colecao:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos
+                      versoes:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes
+                      submissao:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/submissoes/11111111-1111-4111-8111-111111111111
+                      revisao:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/revisoes/11111111-1111-4111-8111-111111111111
+                    _actions:
+                      consultar-revisao:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/revisoes/11111111-1111-4111-8111-111111111111
+                        method: GET
+                        contentType: application/json
+                        campos: []
+                        precondicoes: []
+                    avisos: []
+                aprovador-aprovada:
+                  value:
+                    requisitoId: 11111111-1111-4111-8111-111111111111
+                    projetoId: 22222222-2222-4222-8222-222222222222
+                    codigo: REQ-42
+                    titulo: Exportar documento de requisitos.
+                    situacao: ATIVO
+                    versaoEmEdicao: 4
+                    versaoId: 33333333-3333-4333-8333-333333333333
+                    estadoVersao: APROVADA
+                    loteId: 11111111-1111-4111-8111-111111111111
+                    pendenciasAbertas: 0
+                    atualizadoEm: '2026-10-21T15:00:00Z'
+                    _links:
+                      self:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111
+                      colecao:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos
+                      versoes:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes
+                      submissao:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/submissoes/11111111-1111-4111-8111-111111111111
+                      revisao:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/revisoes/11111111-1111-4111-8111-111111111111
+                    _actions:
+                      publicar:
+                        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/publicacoes
+                        method: POST
+                        contentType: application/json
+                        campos:
+                        - versaoId
+                        - submissaoId
+                        - comprovanteHumano
+                        precondicoes:
+                        - If-Match
+                        - Idempotency-Key
+                        - Candidata APROVADA
+                        - Papel Aprovador ou superior
+                        - 'MCP: confirmação humana específica; comprovante único válido por 5 minutos'
+                    avisos: []
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-etag-alvo: requisito
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: gestaoEditarRequisito
+      summary: Editar requisito
+      description: '§§5.2, 6.3, 7.4. Apenas metadados responsavelId, epicoId e tipo; não altera conteúdo nem contorna
+        bloqueios. BFF Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação
+        em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e
+        Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - requisitos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./requisitos.yaml#/components/schemas/MetadadosPatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Requisito
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/candidata:
+    get:
+      operationId: gestaoObterCandidata
+      summary: Obter candidata
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - candidata
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Versao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: gestaoEditarCandidata
+      summary: Editar candidata
+      description: '§§5.2, 6.3. If-Match da candidata. EM_SUBMISSAO ou AGUARDANDO_REVISAO: 409. Editar APROVADA
+        retorna RASCUNHO e invalida elegibilidade; PUBLICADA é imutável. Após publicação inicia outra candidata;
+        cancelado/arquivado bloqueia escrita. BFF Gestão (§4.2): consulta requisitos por troca de token, sem banco
+        próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente.
+        Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço
+        interno.'
+      tags:
+      - candidata
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./requisitos.yaml#/components/schemas/CandidataPatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Versao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/submissoes:
+    get:
+      operationId: gestaoListarSubmissoes
+      summary: Listar submissoes
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - submissoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/PaginaSubmissoes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarSubmissao
+      summary: Criar submissao
+      description: '§§5.2, 6.3, 6.5–6.9. If-Match da candidata. Apenas RASCUNHO; submissão ativa ou estado divergente
+        retorna 409. 202 após transação local; SAGA independe da IA, conclui ao preparar revisão. Ativação do lote
+        é posterior. Prazo inicial 90 s; compensação confirmada antes de liberar candidata. BFF Gestão (§4.2): consulta
+        requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna
+        503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - submissoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./requisitos.yaml#/components/schemas/SubmissaoEntrada
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Submissao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          description: Conflitos de negócio, conforme §§5.2–5.4 e 6.9. Códigos propostos estão em PROPOSTAS.md.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+              examples:
+                submissao-ativa:
+                  value:
+                    type: urn:athena:problema:submissao-ativa
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: submissao ativa.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: SUBMISSAO_ATIVA
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+                candidata-fora-de-rascunho:
+                  value:
+                    type: urn:athena:problema:candidata-fora-de-rascunho
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: candidata fora de rascunho.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: CANDIDATA_FORA_DE_RASCUNHO
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/submissoes/{submissaoId}:
+    get:
+      operationId: gestaoObterSubmissao
+      summary: Obter submissao
+      description: '§§5.2, 6.5–6.9. Acompanhamento persistido; etapa só durante fase correspondente. Compensação
+        pendente não libera candidata. BFF Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio;
+        se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha
+        ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - submissoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - name: submissaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Submissao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes:
+    get:
+      operationId: gestaoListarPublicacoes
+      summary: Listar publicacoes
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - publicacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/PaginaPublicacoes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarPublicacao
+      summary: Criar publicacao
+      description: '§§4.3, 6.3, 6.9, 7.5. If-Match da candidata. Exige APROVADA já aplicada em Requisitos e versão/tentativa
+        correspondentes; divergência 409. Registro imutável vincula o retrato aprovado. MCP exige comprovante humano
+        consumido atomicamente; publicar não é aprovar. BFF Gestão (§4.2): consulta requisitos por troca de token,
+        sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita
+        automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao,
+        sem revelar endereço interno.'
+      tags:
+      - publicacoes
+      x-papel-minimo: Aprovador
+      x-escopo-mcp: athena:publish
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./requisitos.yaml#/components/schemas/PublicacaoEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Publicacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          description: Conflitos de negócio, conforme §§5.2–5.4 e 6.9. Códigos propostos estão em PROPOSTAS.md.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+              examples:
+                candidata-nao-aprovada:
+                  value:
+                    type: urn:athena:problema:candidata-nao-aprovada
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: candidata nao aprovada.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: CANDIDATA_NAO_APROVADA
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+                versao-divergente:
+                  value:
+                    type: urn:athena:problema:versao-divergente
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: versao divergente.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: VERSAO_DIVERGENTE
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos:
+    post:
+      operationId: gestaoCriarCancelamento
+      summary: Criar cancelamento
+      description: '§§5.3, 6.3. If-Match do requisito. Confirmação true obrigatória; SAGA ou revisão ativa retorna
+        409. Preserva histórico e remove do Livro corrente. BFF Gestão (§4.2): consulta requisitos por troca de
+        token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita
+        automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao,
+        sem revelar endereço interno.'
+      tags:
+      - cancelamentos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./requisitos.yaml#/components/schemas/Confirmacao
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/AlteracaoSituacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes:
+    post:
+      operationId: gestaoCriarReativacao
+      summary: Criar reativacao
+      description: '§§5.3, 6.3. If-Match do requisito. Retorna ATIVO com nova candidata RASCUNHO baseada no último
+        conteúdo; exige nova aprovação/publicação para voltar ao Livro. BFF Gestão (§4.2): consulta requisitos por
+        troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não
+        repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam
+        /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - reativacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/AlteracaoSituacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao:
+    post:
+      operationId: gestaoCriarConfirmacaoPublicacao
+      summary: Criar confirmacao publicacao
+      description: '§7.5. Rota proposta para tela ATHENA autenticada; recusa identidade delegada MCP. Mostrar ação
+        e conteúdo/versão, vincular usuário/projeto/ação/versão/hash. Serviço proprietário emite comprovante único
+        por 5 min. Sem política de prova implementada, negar emissão. Não há tool MCP de emissão. BFF Gestão (§4.2):
+        consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso
+        falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links
+        externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - confirmacoes-publicacao
+      x-papel-minimo: Aprovador
+      x-escopo-mcp: athena:publish
+      x-projeto: projetoId
+      x-decidir: Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente.
+        Token delegado sozinho NÃO pode emitir comprovante.
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./requisitos.yaml#/components/schemas/ConfirmacaoHumanaEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/ConfirmacaoHumana
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/relacoes:
+    get:
+      operationId: gestaoListarRelacoes
+      summary: Listar relacoes
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta rastreabilidade por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - relacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      - name: requisitoId
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - name: tipo
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          $ref: ./_shared/components.yaml#/components/schemas/TipoRelacao
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./rastreabilidade.yaml#/components/schemas/PaginaRelacoes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarRelacao
+      summary: Criar relacao
+      description: '§5.4. Trava transacional por projeto em toda mutação; normalizar RELACIONADO_A. Proibir autorrelação,
+        entre projetos, duplicação e ciclos por tipo e grafo combinado: DEPENDE_DE A→B implica precedência B→A;
+        BLOQUEIA A→B implica A→B. RELACIONADO_A não participa de ciclos. Proposta: duplicação 409 RELACAO_DUPLICADA;
+        ciclo 409 RELACAO_CICLICA; autorrelação/entre projetos 400. BFF Gestão (§4.2): consulta rastreabilidade
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - relacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Confirmar 409 para ciclo/duplicação e 400 para autorrelação/relação entre projetos.
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./rastreabilidade.yaml#/components/schemas/RelacaoEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./rastreabilidade.yaml#/components/schemas/Relacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          description: Conflitos de negócio, conforme §§5.2–5.4 e 6.9. Códigos propostos estão em PROPOSTAS.md.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+              examples:
+                relacao-ciclica:
+                  value:
+                    type: urn:athena:problema:relacao-ciclica
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: relacao ciclica.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: RELACAO_CICLICA
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+                relacao-duplicada:
+                  value:
+                    type: urn:athena:problema:relacao-duplicada
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: relacao duplicada.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: RELACAO_DUPLICADA
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId}:
+    get:
+      operationId: gestaoObterRelacao
+      summary: Obter relacao
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta rastreabilidade por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - relacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: relacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./rastreabilidade.yaml#/components/schemas/Relacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: gestaoEditarRelacao
+      summary: Editar relacao
+      description: '§5.4. Trava transacional por projeto em toda mutação; normalizar RELACIONADO_A. Proibir autorrelação,
+        entre projetos, duplicação e ciclos por tipo e grafo combinado: DEPENDE_DE A→B implica precedência B→A;
+        BLOQUEIA A→B implica A→B. RELACIONADO_A não participa de ciclos. Proposta: duplicação 409 RELACAO_DUPLICADA;
+        ciclo 409 RELACAO_CICLICA; autorrelação/entre projetos 400. BFF Gestão (§4.2): consulta rastreabilidade
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - relacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Confirmar status dos conflitos de relações.
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: relacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./rastreabilidade.yaml#/components/schemas/RelacaoPatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./rastreabilidade.yaml#/components/schemas/Relacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          description: Conflitos de negócio, conforme §§5.2–5.4 e 6.9. Códigos propostos estão em PROPOSTAS.md.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+              examples:
+                relacao-ciclica:
+                  value:
+                    type: urn:athena:problema:relacao-ciclica
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: relacao ciclica.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: RELACAO_CICLICA
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+                relacao-duplicada:
+                  value:
+                    type: urn:athena:problema:relacao-duplicada
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: relacao duplicada.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: RELACAO_DUPLICADA
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    delete:
+      operationId: gestaoRemoverRelacao
+      summary: Remover relacao
+      description: '§5.4. Trava transacional por projeto em toda mutação; normalizar RELACIONADO_A. Proibir autorrelação,
+        entre projetos, duplicação e ciclos por tipo e grafo combinado: DEPENDE_DE A→B implica precedência B→A;
+        BLOQUEIA A→B implica A→B. RELACIONADO_A não participa de ciclos. Proposta: duplicação 409 RELACAO_DUPLICADA;
+        ciclo 409 RELACAO_CICLICA; autorrelação/entre projetos 400. BFF Gestão (§4.2): consulta rastreabilidade
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - relacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: relacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/mapa:
+    get:
+      operationId: gestaoObterMapa
+      summary: Obter mapa
+      description: '§5.5. Máximo 500 nós/1.000 arestas; truncamento explícito. Reconstrução mantém geração anterior
+        sinalizada; sem anterior retorna 503 com Retry-After. Último consumo não comprova atualização. BFF Gestão
+        (§4.2): consulta rastreabilidade por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - mapa
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./rastreabilidade.yaml#/components/schemas/Mapa
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/revisoes:
+    get:
+      operationId: gestaoListarLotes
+      summary: Listar lotes
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta revisoes por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - lotes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Quais são os estados do lote além de PREPARADO e a nomenclatura da ativação?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      - name: estado
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: PREPARADO
+      - name: requisitoId
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - name: responsavelId
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./revisoes.yaml#/components/schemas/PaginaLotes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}:
+    get:
+      operationId: gestaoObterLote
+      summary: Obter lote
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta revisoes por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - lotes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Quais são os valores finais do enum de estado do lote?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: loteId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./revisoes.yaml#/components/schemas/Lote
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/decisoes:
+    post:
+      operationId: gestaoCriarDecisao
+      summary: Criar decisao
+      description: '§§6.3, 6.9, 7.5. If-Match do lote. Primeira decisão final válida vence; 409 se já decidido,
+        PREPARADO ou pendências bloqueantes abertas. Rejeição/correções exigem justificativa. Evento por outbox;
+        aplicação em Requisitos pode ficar PENDENTE, inclusive DLQ. MCP exige comprovante humano consumido na transação;
+        autoaprovação permitida com decisão explícita. BFF Gestão (§4.2): consulta revisoes por troca de token,
+        sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita
+        automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao,
+        sem revelar endereço interno.'
+      tags:
+      - decisoes
+      x-papel-minimo: Aprovador
+      x-escopo-mcp: athena:approve
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: loteId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./revisoes.yaml#/components/schemas/DecisaoEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./revisoes.yaml#/components/schemas/Decisao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          description: Conflitos de negócio, conforme §§5.2–5.4 e 6.9. Códigos propostos estão em PROPOSTAS.md.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+              examples:
+                lote-ja-decidido:
+                  value:
+                    type: urn:athena:problema:lote-ja-decidido
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: lote ja decidido.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: LOTE_JA_DECIDIDO
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+                lote-preparado:
+                  value:
+                    type: urn:athena:problema:lote-preparado
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: lote preparado.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: LOTE_PREPARADO
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+                pendencias-bloqueantes:
+                  value:
+                    type: urn:athena:problema:pendencias-bloqueantes
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: pendencias bloqueantes.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: PENDENCIAS_BLOQUEANTES
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    get:
+      operationId: gestaoListarDecisoes
+      summary: Listar decisoes
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta revisoes por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - decisoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: loteId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./revisoes.yaml#/components/schemas/PaginaDecisoes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/confirmacoes-decisao:
+    post:
+      operationId: gestaoCriarConfirmacaoDecisao
+      summary: Criar confirmacao decisao
+      description: '§7.5. Rota proposta para tela ATHENA autenticada; recusa identidade delegada MCP. Mostrar ação
+        e conteúdo/versão, vincular usuário/projeto/ação/versão/hash. Serviço proprietário emite comprovante único
+        por 5 min. Sem política de prova implementada, negar emissão. Não há tool MCP de emissão. BFF Gestão (§4.2):
+        consulta revisoes por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar,
+        retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links
+        externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - confirmacoes-decisao
+      x-papel-minimo: Aprovador
+      x-escopo-mcp: athena:approve
+      x-projeto: projetoId
+      x-decidir: Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente.
+        Token delegado sozinho NÃO pode emitir comprovante.
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: loteId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./revisoes.yaml#/components/schemas/ConfirmacaoHumanaEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./revisoes.yaml#/components/schemas/ConfirmacaoHumana
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/workspaces:
+    get:
+      operationId: gestaoListarWorkspaces
+      summary: Listar workspaces
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - workspaces
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/PaginaWorkspaces
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarWorkspace
+      summary: Criar workspace
+      description: '§§5.6, 7.4. Criação de projeto torna criador único Owner. Propriedade de workspace não concede
+        acesso implícito aos projetos. Política de criação no workspace pendente. BFF Gestão (§4.2): consulta projetos-acesso
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - workspaces
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Quem pode criar workspace/projeto no workspace? Exige política própria; papel Leitor é piso, não
+        concessão.
+      x-proposta: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/WorkspaceEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Workspace
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/workspaces/{workspaceId}:
+    get:
+      operationId: gestaoObterWorkspace
+      summary: Obter workspace
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - workspaces
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Workspace
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: gestaoEditarWorkspace
+      summary: Editar workspace
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - workspaces
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Qual permissão de organização para workspace, cuja propriedade é independente dos projetos?
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/WorkspacePatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Workspace
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos:
+    get:
+      operationId: gestaoListarProjetos
+      summary: Listar projetos
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - projetos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      - name: workspaceId
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/PaginaProjetos
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarProjeto
+      summary: Criar projeto
+      description: '§§5.6, 7.4. Criação de projeto torna criador único Owner. Propriedade de workspace não concede
+        acesso implícito aos projetos. Política de criação no workspace pendente. BFF Gestão (§4.2): consulta projetos-acesso
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - projetos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Quem pode criar workspace/projeto no workspace? Exige política própria; papel Leitor é piso, não
+        concessão.
+      x-proposta: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/ProjetoEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Projeto
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}:
+    get:
+      operationId: gestaoObterProjeto
+      summary: Obter projeto
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - projetos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Projeto
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: gestaoEditarProjeto
+      summary: Editar projeto
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - projetos
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/ProjetoPatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Projeto
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/workspaces/{workspaceId}/exclusoes:
+    post:
+      operationId: gestaoCriarExclusaoWorkspace
+      summary: Criar exclusao workspace
+      description: '§5.6. If-Match do workspace. Confirmação pelo nome por Owner DO WORKSPACE. Exclusão lógica de
+        workspace e projetos vinculados; não executa exclusão física de projetos. BFF Gestão (§4.2): consulta projetos-acesso
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - exclusoes
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/ConfirmacaoNome
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/ExclusaoWorkspace
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/workspaces/{workspaceId}/membros:
+    get:
+      operationId: gestaoListarMembrosWorkspace
+      summary: Listar membros workspace
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - membros
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Definir leitura de membros no workspace independentemente dos projetos.
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/PaginaMembros
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarMembroWorkspace
+      summary: Criar membro workspace
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - membros
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: 'Definir papéis/permissões dos membros do workspace: livro detalha papéis por projeto.'
+      x-proposta: true
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/MembroEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Membro
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/workspaces/{workspaceId}/membros/{membroId}:
+    patch:
+      operationId: gestaoEditarMembroWorkspace
+      summary: Editar membro workspace
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - membros
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Qual política para membros do workspace?
+      x-proposta: true
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - name: membroId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/MembroPatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Membro
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    delete:
+      operationId: gestaoRemoverMembroWorkspace
+      summary: Remover membro workspace
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - membros
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Qual política para membros do workspace?
+      x-proposta: true
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - name: membroId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/arquivamentos:
+    post:
+      operationId: gestaoCriarArquivamento
+      summary: Criar arquivamento
+      description: '§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira
+        persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.
+        BFF Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação
+        em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e
+        Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - arquivamentos
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-decidir: Arquivamento assíncrono exige recurso de acompanhamento? 201 só após quiescência confirmada.
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Projeto
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/restauracoes:
+    post:
+      operationId: gestaoCriarRestauracao
+      summary: Criar restauracao
+      description: '§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira
+        persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.
+        BFF Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação
+        em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e
+        Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - restauracoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-decidir: Arquivamento assíncrono exige recurso de acompanhamento? 201 só após quiescência confirmada.
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Projeto
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/exclusoes:
+    post:
+      operationId: gestaoCriarExclusaoProjeto
+      summary: Criar exclusao projeto
+      description: '§§5.6, 9.2. If-Match do projeto arquivado. Owner confirma nome; 409 com SAGA/revisão/sincronização
+        ativa. FECHANDO bloqueia admissões, exige barreira local e quiescência dos domínios; depois EXCLUINDO e
+        limpeza idempotente. Só CONCLUIDA após todas as confirmações. Preserva marcas técnicas, não apaga arquivos
+        externos. BFF Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio
+        ou validação em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag,
+        If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - exclusoes
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:delete-project
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/ConfirmacaoNome
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Exclusao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/exclusoes/{exclusaoId}:
+    get:
+      operationId: gestaoObterExclusaoProjeto
+      summary: Obter exclusao projeto
+      description: '§5.6. Durante exclusão, somente Owner admitido para acompanhamento; não devolver conteúdo excluído.
+        BFF Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação
+        em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e
+        Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - exclusoes
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Como autorizar acompanhamento do Owner quando o acesso ao projeto estiver bloqueado por exclusão?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: exclusaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Exclusao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/membros:
+    get:
+      operationId: gestaoListarMembrosProjeto
+      summary: Listar membros projeto
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - membros
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/PaginaMembros
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/membros/{membroId}:
+    patch:
+      operationId: gestaoEditarMembroProjeto
+      summary: Editar membro projeto
+      description: '§7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner
+        gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo
+        não amplia papel. Workspace não concede acesso implícito a projeto. BFF Gestão (§4.2): consulta projetos-acesso
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - membros
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: membroId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/MembroPatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Membro
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    delete:
+      operationId: gestaoRemoverMembroProjeto
+      summary: Remover membro projeto
+      description: '§7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner
+        gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo
+        não amplia papel. Workspace não concede acesso implícito a projeto. BFF Gestão (§4.2): consulta projetos-acesso
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - membros
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: membroId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/historico-membros:
+    get:
+      operationId: gestaoListarHistoricoMembros
+      summary: Listar historico membros
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - historico-membros
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/PaginaHistoricoMembros
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/convites:
+    get:
+      operationId: gestaoListarConvites
+      summary: Listar convites
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - convites
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/PaginaConvites
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarConvite
+      summary: Criar convite
+      description: '§7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner
+        gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo
+        não amplia papel. Workspace não concede acesso implícito a projeto. Owner nunca por convite; aceite pela
+        conta destinatária e revalidação do papel na entrada. BFF Gestão (§4.2): consulta projetos-acesso por troca
+        de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete
+        escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao,
+        sem revelar endereço interno.'
+      tags:
+      - convites
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/ConviteEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Convite
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/convites/{conviteId}:
+    delete:
+      operationId: gestaoRemoverConvite
+      summary: Remover convite
+      description: '§7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner
+        gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo
+        não amplia papel. Workspace não concede acesso implícito a projeto. BFF Gestão (§4.2): consulta projetos-acesso
+        por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503;
+        não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos
+        usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - convites
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: conviteId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/convites/{conviteId}/aceite:
+    post:
+      operationId: gestaoAceitarConvite
+      summary: Aceitar convite
+      description: '§7.4. Conta autenticada destinatária, sem acesso antes do aceite. Revalida convite e papel concedível;
+        papel mínimo não pressupõe associação existente. BFF Gestão (§4.2): consulta projetos-acesso por troca de
+        token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita
+        automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao,
+        sem revelar endereço interno.'
+      tags:
+      - aceite
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-proposta: true
+      parameters:
+      - name: conviteId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Membro
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/transferencias-propriedade:
+    post:
+      operationId: gestaoCriarTransferenciaPropriedade
+      summary: Criar transferencia propriedade
+      description: '§7.4. Owner atual confirma destinatário membro ativo; conclusão depende do aceite. BFF Gestão
+        (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - transferencias-propriedade
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/TransferenciaEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Transferencia
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/transferencias-propriedade/{transferenciaId}/aceite:
+    post:
+      operationId: gestaoAceitarTransferenciaPropriedade
+      summary: Aceitar transferencia propriedade
+      description: '§7.4. Somente destinatário membro ativo. Transação única torna-o Owner e antigo Owner Mantenedor.
+        BFF Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação
+        em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e
+        Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - aceite
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-proposta: true
+      parameters:
+      - name: transferenciaId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Transferencia
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/notificacoes:
+    get:
+      operationId: gestaoListarNotificacoes
+      summary: Listar notificacoes
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - notificacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      - name: lida
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: boolean
+          example: false
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/PaginaNotificacoes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/notificacoes/{notificacaoId}:
+    patch:
+      operationId: gestaoEditarNotificacao
+      summary: Editar notificacao
+      description: '§7.4. Somente destinatário marca leitura da própria notificação; não concede acesso ao conteúdo
+        referido. BFF Gestão (§4.2): consulta projetos-acesso por troca de token, sem banco próprio; se domínio
+        ou validação em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag,
+        If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - notificacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:write
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+      - name: notificacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./projetos-acesso.yaml#/components/schemas/NotificacaoPatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./projetos-acesso.yaml#/components/schemas/Notificacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/conexoes:
+    get:
+      operationId: gestaoListarConexoes
+      summary: Listar conexoes
+      description: '§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+        BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/PaginaConexoes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarConexao
+      summary: Criar conexao
+      description: '§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+        BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-decidir: Como autorizar conectores Google/OpenProject e quais operações são suportadas?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./integracoes.yaml#/components/schemas/ConexaoEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/Conexao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/conexoes/{conexaoId}:
+    get:
+      operationId: gestaoObterConexao
+      summary: Obter conexao
+      description: '§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+        BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: conexaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/Conexao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: gestaoEditarConexao
+      summary: Editar conexao
+      description: '§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+        BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-decidir: Qual fluxo de autorização dos conectores?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: conexaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./integracoes.yaml#/components/schemas/ConexaoPatch
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/Conexao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    delete:
+      operationId: gestaoRemoverConexao
+      summary: Remover conexao
+      description: '§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+        BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - conexoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: conexaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/vinculos:
+    get:
+      operationId: gestaoListarVinculos
+      summary: Listar vinculos
+      description: '§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+        BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - vinculos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/PaginaVinculos
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarVinculo
+      summary: Criar vinculo
+      description: '§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+        BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - vinculos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Como autorizar conectores Google/OpenProject e quais operações são suportadas?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./integracoes.yaml#/components/schemas/VinculoEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/Vinculo
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/vinculos/{vinculoId}:
+    delete:
+      operationId: gestaoRemoverVinculo
+      summary: Remover vinculo
+      description: '§6.10. Credenciais só writeOnly no backend, nunca retornadas. Google prioriza drive.file com
+        seleção explícita; OpenProject com mínimo acesso ao projeto. GitHub MVP somente vínculos. Importação explícita
+        entra como rascunho/proposta, jamais sobrescreve publicada. Fluxo de autorização de conectores não definido.
+        BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - vinculos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: vinculoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/sincronizacoes:
+    post:
+      operationId: gestaoCriarSincronizacao
+      summary: Criar sincronizacao
+      description: '§6.10. Operação e intenção persistidas atomicamente; compara versão externa e revisão local.
+        Timeout consulta/reconcilia antes de repetir; sem prova do efeito fica RESULTADO_DESCONHECIDO com resolução
+        humana e sem nova criação automática. 429 externo respeita Retry-After. §6.10. Credenciais só writeOnly
+        no backend, nunca retornadas. Google prioriza drive.file com seleção explícita; OpenProject com mínimo acesso
+        ao projeto. GitHub MVP somente vínculos. Importação explícita entra como rascunho/proposta, jamais sobrescreve
+        publicada. Fluxo de autorização de conectores não definido. BFF Gestão (§4.2): consulta integracoes por
+        troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não
+        repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam
+        /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - sincronizacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Confirmar Idempotency-Key obrigatória na sincronização e catálogo completo de estados.
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./integracoes.yaml#/components/schemas/SincronizacaoEntrada
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/Sincronizacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    get:
+      operationId: gestaoListarSincronizacoes
+      summary: Listar sincronizacoes
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - sincronizacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Qual catálogo completo de estados da sincronização?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/PaginaSincronizacoes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}:
+    get:
+      operationId: gestaoObterSincronizacao
+      summary: Obter sincronizacao
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - sincronizacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: sincronizacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/Sincronizacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}/resolucoes:
+    post:
+      operationId: gestaoCriarResolucaoSincronizacao
+      summary: Criar resolucao sincronizacao
+      description: '§6.10. Registra evidência humana; não aceita comando genérico de sobrescrever versão publicada
+        ou recriar automaticamente efeito desconhecido. BFF Gestão (§4.2): consulta integracoes por troca de token,
+        sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita
+        automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao,
+        sem revelar endereço interno.'
+      tags:
+      - resolucoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Quais comandos e efeitos são permitidos na resolução humana de conflito/resultado desconhecido?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: sincronizacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./integracoes.yaml#/components/schemas/ResolucaoEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./integracoes.yaml#/components/schemas/Resolucao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/tarefas-externas:
+    post:
+      operationId: gestaoCriarTarefaExterna
+      summary: Criar tarefa externa
+      description: '§6.10. Criação OpenProject com operação persistida; resultado desconhecido exige reconciliação
+        sem duplicar tarefa. BFF Gestão (§4.2): consulta integracoes por troca de token, sem banco próprio; se domínio
+        ou validação em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag,
+        If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - tarefas-externas
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Quais campos OpenProject são obrigatórios e qual recurso acompanha criação de tarefa externa?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./integracoes.yaml#/components/schemas/TarefaExternaEntrada
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/Operacao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes:
+    get:
+      operationId: gestaoListarVersoes
+      summary: Listar versoes
+      description: 'Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF
+        Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos
+        e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - versoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/PaginaVersoes
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}:
+    get:
+      operationId: gestaoObterVersao
+      summary: Obter versao
+      description: '§§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis.
+        BFF Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em
+        Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key.
+        Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      tags:
+      - versoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - name: versaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Versao
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      security:
+      - bearerJwt: []
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+components:
+  schemas:
+    RequisitoGestao:
+      type: object
+      properties:
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        codigo:
+          type: string
+          example: REQ-42
+          pattern: ^REQ-[0-9]+$
+        titulo:
+          type: string
+          example: Exportar documento de requisitos.
+        situacao:
+          $ref: ./_shared/components.yaml#/components/schemas/SituacaoRequisito
+        versaoEmEdicao:
+          type: integer
+          example: 4
+          minimum: 1
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        estadoVersao:
+          $ref: ./_shared/components.yaml#/components/schemas/EstadoVersao
+        loteId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        pendenciasAbertas:
+          type: integer
+          example: 2
+          minimum: 0
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+        _actions:
+          $ref: ./_shared/components.yaml#/components/schemas/Actions
+        avisos:
+          type: array
+          items:
+            type: string
+            example: Revisões indisponível.
+          example: []
+      additionalProperties: false
+      required:
+      - requisitoId
+      - projetoId
+      - codigo
+      - titulo
+      - situacao
+      - atualizadoEm
+      - _links
+      - _actions
+      - avisos
+      example:
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        codigo: REQ-42
+        titulo: Exportar documento de requisitos.
+        situacao: ATIVO
+        atualizadoEm: '2026-10-21T15:00:00Z'
+        _links: {}
+        _actions: {}
+        avisos: []
+  securitySchemes:
+    bearerJwt:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/bearerJwt
+    serviceToken:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/serviceToken
+    cookieRefresh:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/cookieRefresh
+    csrf:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/csrf
+    oauthClient:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/oauthClient

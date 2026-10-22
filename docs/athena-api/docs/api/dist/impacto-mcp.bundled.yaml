@@ -1,0 +1,1166 @@
+openapi: 3.1.0
+info:
+  title: ATHENA — Análise de Impacto/MCP
+  version: 1.0.0
+  description: 'Versionamento por URI (§6.2): /api/v1 para mudanças compatíveis, /api/v2 para quebra. Gateway roteia por prefixo; versão aparece nos logs; clientes Angular migram sem negociar cabeçalho. Versão da API independe da versão do requisito. Fonte de verdade: Arquitetura v1.0, §§6.11 e 7.5. APIs de domínio são internas; só BFFs, MCP e serviços com troca de token as chamam. Nenhuma leitura é pública por compartilhar URL. Escopos x-escopo-mcp só são exigidos em contexto delegado; nunca substituem papel/acesso. x-proposta identifica formas de representação não especificadas pelo livro.'
+  contact:
+    name: Equipe ATHENA
+servers:
+  - url: https://athena.example.invalid
+    description: Origem HTTPS ilustrativa; substituir no ambiente.
+security:
+  - serviceToken: []
+tags:
+  - name: analises
+    description: Recursos analises; §§5–7.
+  - name: avaliacoes
+    description: Recursos avaliacoes; §§5–7.
+  - name: buscas
+    description: Recursos buscas; §§5–7.
+  - name: indice
+    description: Recursos indice; §§5–7.
+  - name: operacoes
+    description: Recursos operacoes; §§5–7.
+  - name: reindexacoes
+    description: Recursos reindexacoes; §§5–7.
+  - name: sugestoes
+    description: Recursos sugestoes; §§5–7.
+paths:
+  /api/v1/projetos/{projetoId}/analises:
+    post:
+      operationId: criarAnalise
+      summary: Criar analise
+      description: §6.11. Persiste preparação de contexto; agente externo executa LLM e devolve sugestões não confiáveis. Backend gera apenas embeddings locais; falha LLM permite referências e fluxo manual.
+      tags:
+        - analises
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Qual protocolo para agente registrar resultado da análise, estados e timeout sem agente conectado?
+      x-proposta: true
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnaliseEntrada'
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analise'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    get:
+      operationId: listarAnalises
+      summary: Listar analises
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - analises
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaAnalises'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/analises/{analiseId}:
+    get:
+      operationId: obterAnalise
+      summary: Obter analise
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - analises
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Definir catálogo de status da análise e estadoValidacao/tipo de sugestão.
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: analiseId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analise'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes/{sugestaoId}/avaliacoes:
+    post:
+      operationId: criarAvaliacaoSugestao
+      summary: Criar avaliacao sugestao
+      description: §§6.11, 7.4–7.5. Revalida versão/hash e acesso oficial, inclusive rascunhos; 409 se desatualizados. Sugestão jamais se torna relação oficial sozinha; aplicação exige ação autorizada no domínio.
+      tags:
+        - avaliacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Quais valores/efeitos da avaliação? Aceite cria relação na mesma chamada ou exige criação explícita no domínio?
+      x-proposta: true
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: analiseId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+        - name: sugestaoId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvaliacaoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Avaliacao'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/contexto/buscas:
+    post:
+      operationId: buscarContexto
+      summary: Buscar contexto
+      description: §6.11. Busca híbrida textual/vetorial, cinco trechos padrão, remove duplicatas com referências. Filtra acesso antes de entregar e revalida nas fontes oficiais inclusive rascunhos/revogação. Similaridade não é probabilidade. Chunks 300–400 tokens, ~50 sobreposição, e5-small até 512, query:/passage:, vetores normalizados.
+      tags:
+        - buscas
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-proposta: true
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuscaEntrada'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Busca'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/indice:
+    get:
+      operationId: obterIndice
+      summary: Obter indice
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - indice
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Quais situações do índice e unidade final do atraso?
+      x-proposta: true
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Indice'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/operacoes:
+    get:
+      operationId: listarOperacoesImpacto
+      summary: Listar operacoes impacto
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - operacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaOperacoes'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/operacoes/{operacaoId}:
+    get:
+      operationId: obterOperacaoImpacto
+      summary: Obter operacao impacto
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - operacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: operacaoId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operacao'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/reindexacoes:
+    post:
+      operationId: criarReindexacao
+      summary: Criar reindexacao
+      description: §§6.8, 6.11. Trabalho persistido, revalida versão/exclusão antes de ativar chunks; troca atômica preserva anterior; trabalho atrasado não reativa dados excluídos.
+      tags:
+        - reindexacoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-proposta: true
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operacao'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes:
+    post:
+      operationId: criarSugestaoAnalise
+      summary: Criar sugestao analise
+      description: §§6.11, 7.4–7.5. Proposta de rota de registro da saída externa não confiável; valida esquema, versões, evidências e acesso, sem criar relação oficial. Escopo athena:write e papel não substituem avaliação.
+      tags:
+        - sugestoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Confirmar fluxo/identificador para registrar sugestões do agente e papel de Repórter versus Editor.
+      x-proposta: true
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: analiseId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sugestao'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sugestao'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+components:
+  schemas:
+    VersaoUtilizada:
+      type: object
+      properties:
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        hashConteudo:
+          type: string
+          example: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      additionalProperties: false
+      required:
+        - requisitoId
+        - versaoId
+        - hashConteudo
+      example:
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        versaoId: 33333333-3333-4333-8333-333333333333
+        hashConteudo: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    Evidencia:
+      type: object
+      properties:
+        origemId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        trecho:
+          type: string
+          example: O documento deve ser exportável.
+        referencia:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111
+          format: uri-reference
+      additionalProperties: false
+      required:
+        - origemId
+        - versaoId
+        - trecho
+        - referencia
+      example:
+        origemId: 11111111-1111-4111-8111-111111111111
+        versaoId: 33333333-3333-4333-8333-333333333333
+        trecho: O documento deve ser exportável.
+        referencia: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111
+    Sugestao:
+      type: object
+      properties:
+        sugestaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tipo:
+          type: string
+          example: RELACAO
+        requisitoAnalisadoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        alvos:
+          type: array
+          items:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+          example:
+            - 33333333-3333-4333-8333-333333333333
+        versoesUtilizadas:
+          type: array
+          items:
+            $ref: '#/components/schemas/VersaoUtilizada'
+          example: []
+        evidencias:
+          type: array
+          items:
+            $ref: '#/components/schemas/Evidencia'
+          example: []
+        justificativa:
+          type: string
+          example: A alteração afeta requisito relacionado.
+        estadoValidacao:
+          type: string
+          example: PENDENTE
+      additionalProperties: false
+      required:
+        - sugestaoId
+        - tipo
+        - requisitoAnalisadoId
+        - alvos
+        - versoesUtilizadas
+        - evidencias
+        - justificativa
+        - estadoValidacao
+      example:
+        sugestaoId: 11111111-1111-4111-8111-111111111111
+        tipo: RELACAO
+        requisitoAnalisadoId: 11111111-1111-4111-8111-111111111111
+        alvos:
+          - 33333333-3333-4333-8333-333333333333
+        versoesUtilizadas: []
+        evidencias: []
+        justificativa: A alteração afeta requisito relacionado.
+        estadoValidacao: PENDENTE
+    AnaliseEntrada:
+      type: object
+      properties:
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        objetivo:
+          type: string
+          example: Identificar impactos da alteração
+      additionalProperties: false
+      required:
+        - requisitoId
+        - versaoId
+      example:
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        versaoId: 33333333-3333-4333-8333-333333333333
+    Analise:
+      type: object
+      properties:
+        analiseId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        status:
+          type: string
+          example: AGUARDANDO_AGENTE
+        sugestoes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sugestao'
+          example: []
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - analiseId
+        - projetoId
+        - status
+        - sugestoes
+        - atualizadoEm
+      example:
+        analiseId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        status: AGUARDANDO_AGENTE
+        sugestoes: []
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    AvaliacaoEntrada:
+      type: object
+      properties:
+        avaliacao:
+          type: string
+          example: ACEITAR
+        versoesUtilizadas:
+          type: array
+          items:
+            $ref: '#/components/schemas/VersaoUtilizada'
+          example: []
+        justificativa:
+          type: string
+          example: Evidências conferidas
+      additionalProperties: false
+      required:
+        - avaliacao
+        - versoesUtilizadas
+        - justificativa
+      example:
+        avaliacao: ACEITAR
+        versoesUtilizadas: []
+        justificativa: Evidências conferidas
+    Avaliacao:
+      type: object
+      properties:
+        avaliacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        sugestaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        data:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - avaliacaoId
+        - sugestaoId
+        - autor
+        - data
+      example:
+        avaliacaoId: 11111111-1111-4111-8111-111111111111
+        sugestaoId: 11111111-1111-4111-8111-111111111111
+        autor: 11111111-1111-4111-8111-111111111111
+        data: '2026-10-21T15:00:00Z'
+    BuscaEntrada:
+      type: object
+      properties:
+        q:
+          type: string
+          example: Quais requisitos dependem da exportação?
+        limite:
+          type: integer
+          example: 5
+          default: 5
+          minimum: 1
+      additionalProperties: false
+      required:
+        - q
+      example:
+        q: Quais requisitos dependem da exportação?
+    Trecho:
+      type: object
+      properties:
+        texto:
+          type: string
+          example: O sistema deve exportar documento.
+        referencia:
+          $ref: '#/components/schemas/Evidencia'
+        similaridade:
+          type: number
+          example: 0.82
+          description: Escore de ordenação; NÃO probabilidade de acerto.
+      additionalProperties: false
+      required:
+        - texto
+        - referencia
+        - similaridade
+      example:
+        texto: O sistema deve exportar documento.
+        referencia:
+          origemId: 11111111-1111-4111-8111-111111111111
+          versaoId: 33333333-3333-4333-8333-333333333333
+          trecho: O documento deve ser exportável.
+          referencia: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111
+        similaridade: 0.82
+    Busca:
+      type: object
+      properties:
+        trechos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Trecho'
+          example: []
+        avisos:
+          type: array
+          items:
+            type: string
+            example: Índice com atualização pendente.
+          example: []
+      additionalProperties: false
+      required:
+        - trechos
+        - avisos
+      example:
+        trechos: []
+        avisos: []
+    Indice:
+      type: object
+      properties:
+        ultimaAtualizacao:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+        situacao:
+          type: string
+          example: ATUALIZADO
+        atraso:
+          type: integer
+          example: 0
+          minimum: 0
+          description: Atraso em segundos; nome/unidade propostos.
+        modeloEmbeddings:
+          type: string
+          example: multilingual-e5-small
+      additionalProperties: false
+      required:
+        - ultimaAtualizacao
+        - situacao
+        - atraso
+        - modeloEmbeddings
+      example:
+        ultimaAtualizacao: '2026-10-21T15:00:00Z'
+        situacao: ATUALIZADO
+        atraso: 0
+        modeloEmbeddings: multilingual-e5-small
+    PaginaAnalises:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Analise'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaOperacoes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Operacao'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+      additionalProperties: false
+      required:
+        - href
+      example:
+        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+      example:
+        self:
+          href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          example: urn:athena:problema:requisicao-invalida
+          format: uri
+          pattern: ^urn:athena:problema:[a-z0-9]+(?:-[a-z0-9]+)*$
+        title:
+          type: string
+          example: Requisição inválida
+        status:
+          type: integer
+          example: 400
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          example: Verifique os campos enviados.
+        instance:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+        codigo:
+          type: string
+          example: REQUISICAO_INVALIDA
+        traceId:
+          type: string
+          example: a3d9b24f670c48bca701d5f893ed45af
+      additionalProperties: false
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+        - codigo
+        - traceId
+      example:
+        type: urn:athena:problema:requisicao-invalida
+        title: Requisição inválida
+        status: 400
+        detail: Verifique os campos enviados.
+        instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+        codigo: REQUISICAO_INVALIDA
+        traceId: a3d9b24f670c48bca701d5f893ed45af
+    Operacao:
+      type: object
+      properties:
+        operacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - operacaoId
+        - projetoId
+        - atualizadoEm
+        - _links
+      example:
+        operacaoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        atualizadoEm: '2026-10-21T15:00:00Z'
+        _links:
+          self:
+            href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+  securitySchemes:
+    bearerJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT RS256
+      description: §7.1–7.2. RS256, kid/JWKS; validar iss, aud, exp e sessão/autorização atual a cada chamada. Escopos só se aplicam à delegação; x-escopo-mcp declara o mapeamento.
+    serviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT RS256
+      description: §7.1. Identidade de serviço ou token trocado, aud igual ao serviço chamado; preserva usuário, projeto e delegação, reduz escopos. Nunca repassar token MCP bruto.
+    cookieRefresh:
+      type: apiKey
+      in: cookie
+      name: athenaRefresh
+      description: §7.2–7.3. Nome proposto; Secure, HttpOnly, SameSite=Lax, sem Domain, Path=/api/v1/autenticacao; rotação e validade absoluta da família.
+    csrf:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: §7.3. Nome proposto. Token vinculado à sessão; validar também Origin.
+    oauthClient:
+      type: http
+      scheme: basic
+      description: Autenticação de cliente confidencial OAuth; método final depende da compatibilidade §7.1. Cliente público usa client_id e PKCE S256.
+  parameters:
+    ProjetoId:
+      name: projetoId
+      in: path
+      required: true
+      description: UUID estável (§5.1).
+      schema:
+        type: string
+        example: 22222222-2222-4222-8222-222222222222
+        format: uuid
+    Page:
+      name: page
+      in: query
+      description: Página inicial zero (§6.2).
+      schema:
+        type: integer
+        example: 0
+        default: 0
+        minimum: 0
+    Size:
+      name: size
+      in: query
+      description: Quantidade por página (§6.2).
+      schema:
+        type: integer
+        example: 20
+        default: 20
+        minimum: 1
+        maximum: 100
+    Sort:
+      name: sort
+      in: query
+      description: '§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum.'
+      schema:
+        type: string
+        example: atualizadoEm,desc
+        default: atualizadoEm,desc
+        enum:
+          - atualizadoEm,desc
+          - atualizadoEm,asc
+          - id,asc
+          - id,desc
+  responses:
+    Erro400:
+      description: Requisição inválida (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:requisicao-invalida
+            title: Requisição inválida
+            status: 400
+            detail: Requisição inválida.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: REQUISICAO_INVALIDA
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro401:
+      description: Credencial ou sessão inválida (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-autenticado
+            title: Credencial ou sessão inválida
+            status: 401
+            detail: Credencial ou sessão inválida.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_AUTENTICADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro403:
+      description: Acesso negado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:acesso-negado
+            title: Acesso negado
+            status: 403
+            detail: Acesso negado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: ACESSO_NEGADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro404:
+      description: Recurso não encontrado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-encontrado
+            title: Recurso não encontrado
+            status: 404
+            detail: Recurso não encontrado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_ENCONTRADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro409:
+      description: Conflito com estado atual (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:conflito
+            title: Conflito com estado atual
+            status: 409
+            detail: Conflito com estado atual.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: CONFLITO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro429:
+      description: Limite de requisições excedido (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:limite-excedido
+            title: Limite de requisições excedido
+            status: 429
+            detail: Limite de requisições excedido.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: LIMITE_EXCEDIDO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+    Erro503:
+      description: Serviço indisponível (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:servico-indisponivel
+            title: Serviço indisponível
+            status: 503
+            detail: Serviço indisponível.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: SERVICO_INDISPONIVEL
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+  headers:
+    RetryAfter:
+      description: §6.1. Segundos até nova tentativa.
+      schema:
+        type: string
+        example: '30'
+    Location:
+      description: §6.2. URI do recurso criado ou de acompanhamento.
+      schema:
+        type: string
+        example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    ETag:
+      description: §6.3. Revisão técnica forte do recurso.
+      schema:
+        type: string
+        example: '"rev-7"'

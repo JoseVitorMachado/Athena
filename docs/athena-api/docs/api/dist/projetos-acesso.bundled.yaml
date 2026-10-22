@@ -1,0 +1,3837 @@
+openapi: 3.1.0
+info:
+  title: ATHENA — Projetos e acesso
+  version: 1.0.0
+  description: 'Versionamento por URI (§6.2): /api/v1 para mudanças compatíveis, /api/v2 para quebra. Gateway roteia por prefixo; versão aparece nos logs; clientes Angular migram sem negociar cabeçalho. Versão da API independe da versão do requisito. Fonte de verdade: Arquitetura v1.0, §§5.6, 6.1, 7.1–7.5. APIs de domínio são internas; só BFFs, MCP e serviços com troca de token as chamam. Nenhuma leitura é pública por compartilhar URL. Escopos x-escopo-mcp só são exigidos em contexto delegado; nunca substituem papel/acesso. x-proposta identifica formas de representação não especificadas pelo livro.'
+  contact:
+    name: Equipe ATHENA
+servers:
+  - url: https://athena.example.invalid
+    description: Origem HTTPS ilustrativa; substituir no ambiente.
+security:
+  - serviceToken: []
+tags:
+  - name: cadastro
+    description: Recursos cadastro; §§5–7.
+  - name: login
+    description: Recursos login; §§5–7.
+  - name: recuperacao
+    description: Recursos recuperacao; §§5–7.
+  - name: conclusao
+    description: Recursos conclusao; §§5–7.
+  - name: renovacao
+    description: Recursos renovacao; §§5–7.
+  - name: logout
+    description: Recursos logout; §§5–7.
+  - name: me
+    description: Recursos me; §§5–7.
+  - name: autorizacoes-agente
+    description: Recursos autorizacoes-agente; §§5–7.
+  - name: workspaces
+    description: Recursos workspaces; §§5–7.
+  - name: projetos
+    description: Recursos projetos; §§5–7.
+  - name: exclusoes
+    description: Recursos exclusoes; §§5–7.
+  - name: membros
+    description: Recursos membros; §§5–7.
+  - name: arquivamentos
+    description: Recursos arquivamentos; §§5–7.
+  - name: restauracoes
+    description: Recursos restauracoes; §§5–7.
+  - name: historico-membros
+    description: Recursos historico-membros; §§5–7.
+  - name: convites
+    description: Recursos convites; §§5–7.
+  - name: aceite
+    description: Recursos aceite; §§5–7.
+  - name: transferencias-propriedade
+    description: Recursos transferencias-propriedade; §§5–7.
+  - name: notificacoes
+    description: Recursos notificacoes; §§5–7.
+  - name: interno
+    description: Recursos interno; §§5–7.
+  - name: jwks
+    description: Recursos jwks; §§5–7.
+  - name: oauth-authorization-server
+    description: Recursos oauth-authorization-server; §§5–7.
+  - name: oauth-protected-resource
+    description: Recursos oauth-protected-resource; §§5–7.
+  - name: authorize
+    description: Recursos authorize; §§5–7.
+  - name: token
+    description: Recursos token; §§5–7.
+  - name: revoke
+    description: Recursos revoke; §§5–7.
+paths:
+  /api/v1/autenticacao/cadastro:
+    post:
+      operationId: criarCadastro
+      summary: Criar cadastro
+      description: §§7.1–7.3. Cadastro por e-mail/senha; Argon2id. Política detalhada de senha ainda não definida.
+      tags:
+        - cadastro
+      security: []
+      x-decidir: Qual política de senha e validação de e-mail?
+      x-proposta: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CadastroEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/autenticacao/login:
+    post:
+      operationId: criarLogin
+      summary: Criar login
+      description: §§7.1–7.3. JWT RS256 em memória; refresh somente em cookie Secure HttpOnly SameSite=Lax; 24 h sem lembrar, 30 dias com lembrar; access token até 15 min limitado à sessão.
+      tags:
+        - login
+      security: []
+      x-proposta: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginEntrada'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sessao'
+          headers:
+            Set-Cookie:
+              description: athenaRefresh=<opaco>; Path=/api/v1/autenticacao; Secure; HttpOnly; SameSite=Lax. Sem Domain. Max-Age só com lembrarDispositivo, limitado ao prazo restante.
+              schema:
+                type: string
+                example: athenaRefresh=opaco; Path=/api/v1/autenticacao; Secure; HttpOnly; SameSite=Lax
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/autenticacao/recuperacao:
+    post:
+      operationId: criarRecuperacao
+      summary: Criar recuperacao
+      description: §§7.1–7.3. Resposta uniforme, não revela existência da conta. Location aponta para instruções de conclusão, sem identificador de conta.
+      tags:
+        - recuperacao
+      security: []
+      x-decidir: 'Recuperação: código 6 dígitos/10 min ou token de alta entropia/15 min? Não fixar formato de credencial.'
+      x-proposta: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecuperacaoEntrada'
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              description: URI das instruções, constante e independente da existência da conta.
+              schema:
+                type: string
+                example: /api/v1/autenticacao/recuperacao/conclusao
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecuperacaoAceita'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/autenticacao/recuperacao/conclusao:
+    post:
+      operationId: concluirRecuperacao
+      summary: Concluir recuperacao
+      description: §§7.1–7.3. Credencial opaca de uso único; redefinição encerra todas as sessões E autorizações MCP.
+      tags:
+        - conclusao
+      security: []
+      x-decidir: 'Recuperação: código 6 dígitos/10 min ou token de alta entropia/15 min? Não fixar formato de credencial.'
+      x-proposta: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecuperacaoConclusao'
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/autenticacao/renovacao:
+    post:
+      operationId: renovarSessao
+      summary: Renovar sessao
+      description: §§7.2–7.3. Exige cookie + CSRF vinculado à sessão e Origin permitido. Rotação transacional, reuso revoga família; prazo absoluto não reinicia.
+      tags:
+        - renovacao
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      security:
+        - cookieRefresh: []
+          csrf: []
+      x-decidir: Confirmar nome X-CSRF-Token e mecanismo de entrega/renovação do token CSRF.
+      x-proposta: true
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sessao'
+          headers:
+            Set-Cookie:
+              description: Rotacionar refresh mantendo prazo absoluto.
+              schema:
+                type: string
+                example: athenaRefresh=opaco; Path=/api/v1/autenticacao; Secure; HttpOnly; SameSite=Lax
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      parameters:
+        - name: Origin
+          in: header
+          required: true
+          description: §7.3. Conferir origem HTTPS autorizada.
+          schema:
+            type: string
+            example: https://athena.example.invalid
+            format: uri
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/autenticacao/logout:
+    post:
+      operationId: encerrarSessao
+      summary: Encerrar sessao
+      description: §§7.2–7.3. Exige cookie + CSRF vinculado à sessão e Origin permitido. Revoga só sessão atual, remove cookie com mesmo Path e limpa JWT. Autorização MCP permanece independente.
+      tags:
+        - logout
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      security:
+        - cookieRefresh: []
+          csrf: []
+      x-decidir: Confirmar nome X-CSRF-Token e mecanismo de entrega/renovação do token CSRF.
+      x-proposta: true
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+          headers:
+            Set-Cookie:
+              description: Excluir cookie com Path e atributos originais, Max-Age=0.
+              schema:
+                type: string
+                example: athenaRefresh=; Path=/api/v1/autenticacao; Max-Age=0; Secure; HttpOnly; SameSite=Lax
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      parameters:
+        - name: Origin
+          in: header
+          required: true
+          description: §7.3. Conferir origem HTTPS autorizada.
+          schema:
+            type: string
+            example: https://athena.example.invalid
+            format: uri
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/usuarios/me:
+    get:
+      operationId: obterUsuarioAtual
+      summary: Obter usuario atual
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - me
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/autorizacoes-agente:
+    get:
+      operationId: listarAutorizacoesAgente
+      summary: Listar autorizacoes agente
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - autorizacoes-agente
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaAutorizacoes'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/autorizacoes-agente/{autorizacaoId}:
+    delete:
+      operationId: revogarAutorizacaoAgente
+      summary: Revogar autorizacao agente
+      description: §7.2. Apenas titular; encerra só autorização MCP, não sessão da interface; chamadas e entregas seguintes são bloqueadas.
+      tags:
+        - autorizacoes-agente
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+        - name: autorizacaoId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/workspaces:
+    get:
+      operationId: listarWorkspaces
+      summary: Listar workspaces
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - workspaces
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaWorkspaces'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarWorkspace
+      summary: Criar workspace
+      description: §§5.6, 7.4. Criação de projeto torna criador único Owner. Propriedade de workspace não concede acesso implícito aos projetos. Política de criação no workspace pendente.
+      tags:
+        - workspaces
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Quem pode criar workspace/projeto no workspace? Exige política própria; papel Leitor é piso, não concessão.
+      x-proposta: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/workspaces/{workspaceId}:
+    get:
+      operationId: obterWorkspace
+      summary: Obter workspace
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - workspaces
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: editarWorkspace
+      summary: Editar workspace
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - workspaces
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Qual permissão de organização para workspace, cuja propriedade é independente dos projetos?
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspacePatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos:
+    get:
+      operationId: listarProjetos
+      summary: Listar projetos
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - projetos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - name: workspaceId
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaProjetos'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarProjeto
+      summary: Criar projeto
+      description: §§5.6, 7.4. Criação de projeto torna criador único Owner. Propriedade de workspace não concede acesso implícito aos projetos. Política de criação no workspace pendente.
+      tags:
+        - projetos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Quem pode criar workspace/projeto no workspace? Exige política própria; papel Leitor é piso, não concessão.
+      x-proposta: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjetoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projeto'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}:
+    get:
+      operationId: obterProjeto
+      summary: Obter projeto
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - projetos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projeto'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: editarProjeto
+      summary: Editar projeto
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - projetos
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjetoPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projeto'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/workspaces/{workspaceId}/exclusoes:
+    post:
+      operationId: criarExclusaoWorkspace
+      summary: Criar exclusao workspace
+      description: §5.6. If-Match do workspace. Confirmação pelo nome por Owner DO WORKSPACE. Exclusão lógica de workspace e projetos vinculados; não executa exclusão física de projetos.
+      tags:
+        - exclusoes
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmacaoNome'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExclusaoWorkspace'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '412':
+          $ref: '#/components/responses/Erro412'
+        '428':
+          $ref: '#/components/responses/Erro428'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/workspaces/{workspaceId}/membros:
+    get:
+      operationId: listarMembrosWorkspace
+      summary: Listar membros workspace
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - membros
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Definir leitura de membros no workspace independentemente dos projetos.
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaMembros'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarMembroWorkspace
+      summary: Criar membro workspace
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - membros
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: 'Definir papéis/permissões dos membros do workspace: livro detalha papéis por projeto.'
+      x-proposta: true
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembroEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membro'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/workspaces/{workspaceId}/membros/{membroId}:
+    patch:
+      operationId: editarMembroWorkspace
+      summary: Editar membro workspace
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - membros
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Qual política para membros do workspace?
+      x-proposta: true
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+        - name: membroId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembroPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membro'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    delete:
+      operationId: removerMembroWorkspace
+      summary: Remover membro workspace
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - membros
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-decidir: Qual política para membros do workspace?
+      x-proposta: true
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+        - name: membroId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/arquivamentos:
+    post:
+      operationId: criarArquivamento
+      summary: Criar arquivamento
+      description: §§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.
+      tags:
+        - arquivamentos
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-decidir: Arquivamento assíncrono exige recurso de acompanhamento? 201 só após quiescência confirmada.
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projeto'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/restauracoes:
+    post:
+      operationId: criarRestauracao
+      summary: Criar restauracao
+      description: §§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.
+      tags:
+        - restauracoes
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      x-decidir: Arquivamento assíncrono exige recurso de acompanhamento? 201 só após quiescência confirmada.
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projeto'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/exclusoes:
+    post:
+      operationId: criarExclusaoProjeto
+      summary: Criar exclusao projeto
+      description: §§5.6, 9.2. If-Match do projeto arquivado. Owner confirma nome; 409 com SAGA/revisão/sincronização ativa. FECHANDO bloqueia admissões, exige barreira local e quiescência dos domínios; depois EXCLUINDO e limpeza idempotente. Só CONCLUIDA após todas as confirmações. Preserva marcas técnicas, não apaga arquivos externos.
+      tags:
+        - exclusoes
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:delete-project
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmacaoNome'
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exclusao'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '412':
+          $ref: '#/components/responses/Erro412'
+        '428':
+          $ref: '#/components/responses/Erro428'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/exclusoes/{exclusaoId}:
+    get:
+      operationId: obterExclusaoProjeto
+      summary: Obter exclusao projeto
+      description: §5.6. Durante exclusão, somente Owner admitido para acompanhamento; não devolver conteúdo excluído.
+      tags:
+        - exclusoes
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Como autorizar acompanhamento do Owner quando o acesso ao projeto estiver bloqueado por exclusão?
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: exclusaoId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exclusao'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/membros:
+    get:
+      operationId: listarMembrosProjeto
+      summary: Listar membros projeto
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - membros
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaMembros'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/membros/{membroId}:
+    patch:
+      operationId: editarMembroProjeto
+      summary: Editar membro projeto
+      description: §7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo não amplia papel. Workspace não concede acesso implícito a projeto.
+      tags:
+        - membros
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: membroId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembroPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membro'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    delete:
+      operationId: removerMembroProjeto
+      summary: Remover membro projeto
+      description: §7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo não amplia papel. Workspace não concede acesso implícito a projeto.
+      tags:
+        - membros
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: membroId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/historico-membros:
+    get:
+      operationId: listarHistoricoMembros
+      summary: Listar historico membros
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - historico-membros
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaHistoricoMembros'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/convites:
+    get:
+      operationId: listarConvites
+      summary: Listar convites
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - convites
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaConvites'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarConvite
+      summary: Criar convite
+      description: §7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo não amplia papel. Workspace não concede acesso implícito a projeto. Owner nunca por convite; aceite pela conta destinatária e revalidação do papel na entrada.
+      tags:
+        - convites
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConviteEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Convite'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/convites/{conviteId}:
+    delete:
+      operationId: removerConvite
+      summary: Remover convite
+      description: §7.4. Mantenedor gerencia até Aprovador, nunca Mantenedor/Owner nem promove a Mantenedor. Owner gerencia até Mantenedor. Owner não sai, é removido ou se rebaixa antes da transferência confirmada; escopo não amplia papel. Workspace não concede acesso implícito a projeto.
+      tags:
+        - convites
+      x-papel-minimo: Mantenedor
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: conviteId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '204':
+          description: Removido, sem corpo (§6.2).
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/convites/{conviteId}/aceite:
+    post:
+      operationId: aceitarConvite
+      summary: Aceitar convite
+      description: §7.4. Conta autenticada destinatária, sem acesso antes do aceite. Revalida convite e papel concedível; papel mínimo não pressupõe associação existente.
+      tags:
+        - aceite
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-proposta: true
+      parameters:
+        - name: conviteId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membro'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/transferencias-propriedade:
+    post:
+      operationId: criarTransferenciaPropriedade
+      summary: Criar transferencia propriedade
+      description: §7.4. Owner atual confirma destinatário membro ativo; conclusão depende do aceite.
+      tags:
+        - transferencias-propriedade
+      x-papel-minimo: Owner
+      x-escopo-mcp: athena:admin
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferenciaEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transferencia'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/transferencias-propriedade/{transferenciaId}/aceite:
+    post:
+      operationId: aceitarTransferenciaPropriedade
+      summary: Aceitar transferencia propriedade
+      description: §7.4. Somente destinatário membro ativo. Transação única torna-o Owner e antigo Owner Mantenedor.
+      tags:
+        - aceite
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      x-proposta: true
+      parameters:
+        - name: transferenciaId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transferencia'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/notificacoes:
+    get:
+      operationId: listarNotificacoes
+      summary: Listar notificacoes
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - notificacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - name: lida
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: boolean
+            example: false
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaNotificacoes'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/notificacoes/{notificacaoId}:
+    patch:
+      operationId: editarNotificacao
+      summary: Editar notificacao
+      description: §7.4. Somente destinatário marca leitura da própria notificação; não concede acesso ao conteúdo referido.
+      tags:
+        - notificacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:write
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      parameters:
+        - name: notificacaoId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificacaoPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notificacao'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/internal/sessoes/validacao:
+    post:
+      operationId: validarSessaoInterna
+      summary: Validar sessao interna
+      description: §7.2. Apenas identidade Gateway autorizada. Token de usuário é dado a validar; cabeçalhos não concedem autoridade. 200 ativa, 401 inválida, 503 se não confirmar em 2 s. Não roteado externamente.
+      tags:
+        - interno
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:write
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      security:
+        - serviceToken: []
+      x-interno: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidacaoSessaoEntrada'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidacaoSessao'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/internal/projetos/{projetoId}/acesso:
+    get:
+      operationId: obterAcessoProjetoInterno
+      summary: Obter acesso projeto interno
+      description: §7.1–7.4. Apenas serviços autorizados; obter papel atual do sujeito autorizado pela troca de token, sem confiar no usuarioId isolado. Sem rota Gateway.
+      tags:
+        - interno
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      security:
+        - serviceToken: []
+      x-interno: true
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: usuarioId
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcessoProjeto'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /oauth2/jwks:
+    get:
+      operationId: obterJwks
+      summary: Obter jwks
+      description: §§6.1, 7.1, 7.5. Descoberta pública OAuth/MCP; não concede leitura de projeto. Sem versionamento URI para manter interoperabilidade do protocolo.
+      tags:
+        - jwks
+      security: []
+      x-decidir: Registro dinâmico OAuth/MCP será suportado? Não anunciar registration_endpoint sem decisão.
+      x-proposta: true
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Jwks'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /.well-known/oauth-authorization-server:
+    get:
+      operationId: obterMetadadosOAuth
+      summary: Obter metadados o auth
+      description: §§6.1, 7.1, 7.5. Descoberta pública OAuth/MCP; não concede leitura de projeto. Sem versionamento URI para manter interoperabilidade do protocolo.
+      tags:
+        - oauth-authorization-server
+      security: []
+      x-decidir: Registro dinâmico OAuth/MCP será suportado? Não anunciar registration_endpoint sem decisão.
+      x-proposta: true
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetadadosOAuth'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /.well-known/oauth-protected-resource:
+    get:
+      operationId: obterMetadadosMcp
+      summary: Obter metadados mcp
+      description: §§6.1, 7.1, 7.5. Descoberta pública OAuth/MCP; não concede leitura de projeto. Sem versionamento URI para manter interoperabilidade do protocolo.
+      tags:
+        - oauth-protected-resource
+      security: []
+      x-decidir: Registro dinâmico OAuth/MCP será suportado? Não anunciar registration_endpoint sem decisão.
+      x-proposta: true
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetadadosMcp'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /oauth2/authorize:
+    get:
+      operationId: autorizarAgente
+      summary: Autorizar agente
+      description: §7.5. Usuário autenticado escolhe projetos/escopos (inicial somente leitura); Authorization Code com PKCE S256 e state. Escopos independentes. Se não autenticado, frontend conduz login; esta rota não é exceção pública. Redirect somente URI de cliente registrada e validada.
+      tags:
+        - authorize
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      security:
+        - bearerJwt: []
+      x-decidir: Como a sessão autenticada chega ao fluxo authorize mantendo JWT só em memória? Registro dinâmico de clientes indefinido.
+      x-proposta: true
+      responses:
+        '302':
+          description: Redireciona apenas para redirect_uri previamente validada com code e state; erro de autorização usa error e state (RFC 6749).
+          headers:
+            Location:
+              description: Callback previamente registrado.
+              schema:
+                type: string
+                example: http://127.0.0.1:8765/callback?code=opaco&state=estado-aleatorio
+                format: uri
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      parameters:
+        - name: response_type
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            const: code
+            example: code
+          required: true
+        - name: client_id
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            example: cliente-python
+          required: true
+        - name: redirect_uri
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            example: http://127.0.0.1:8765/callback
+            format: uri
+          required: true
+        - name: scope
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            example: athena:read
+          required: true
+        - name: state
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            example: estado-aleatorio
+          required: true
+        - name: code_challenge
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            example: challenge-base64url
+          required: true
+        - name: code_challenge_method
+          in: query
+          description: Filtro autorizado (§6.2); valor inválido retorna 400.
+          schema:
+            type: string
+            const: S256
+            example: S256
+          required: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /oauth2/token:
+    post:
+      operationId: emitirTokenOAuth
+      summary: Emitir token o auth
+      description: §§7.1–7.5. Authorization Code+PKCE para público (client_id+verifier); refresh rotacionado até 30 dias absolutos; troca de token exige cliente serviço autenticado e reduz escopos, aud, usuário/projeto/delegação. Não exige bearer anterior para resgatar código. Autenticação de cliente público é validação PKCE; security oauthClient representa ramo confidencial, x-seguranca-condicional detalha público.
+      tags:
+        - token
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      security:
+        - oauthClient: []
+      x-decidir: Confirmar autenticação dos clientes e interoperabilidade da troca nas bibliotecas; registro dinâmico não definido.
+      x-proposta: true
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthTokens'
+        '400':
+          description: Erro OAuth padronizado (RFC 6749/7009/8693); Gateway pode responder Problem Details antes do protocolo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErro'
+              example:
+                error: invalid_grant
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                type: urn:athena:problema:requisicao-invalida
+                title: Requisição inválida
+                status: 400
+                detail: Requisição inválida.
+                instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                codigo: REQUISICAO_INVALIDA
+                traceId: a3d9b24f670c48bca701d5f893ed45af
+        '401':
+          description: Erro OAuth padronizado (RFC 6749/7009/8693); Gateway pode responder Problem Details antes do protocolo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErro'
+              example:
+                error: invalid_grant
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                type: urn:athena:problema:nao-autenticado
+                title: Credencial ou sessão inválida
+                status: 401
+                detail: Credencial ou sessão inválida.
+                instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                codigo: NAO_AUTENTICADO
+                traceId: a3d9b24f670c48bca701d5f893ed45af
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-seguranca-condicional:
+        authorization_code: 'Cliente público: client_id registrado + PKCE S256, sem HTTP Basic.'
+        refresh_token: 'Cliente público: client_id e refresh válido; confidencial também autentica.'
+        token_exchange: Cliente confidencial autenticado; valida sujeito e restrição de projeto.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/OAuthCodigo'
+                - $ref: '#/components/schemas/OAuthRefresh'
+                - $ref: '#/components/schemas/OAuthTroca'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /oauth2/revoke:
+    post:
+      operationId: revogarTokenOAuth
+      summary: Revogar token o auth
+      description: '§§7.2, 7.5. RFC 7009: token inválido também retorna 200 sem corpo. Revogar autorização MCP não encerra sessão da interface. Público exige client_id registrado e vinculação ao token; confidencial autentica cliente.'
+      tags:
+        - revoke
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:admin
+      x-projeto: resolvido pelo recurso ou contexto autorizado; conta/workspace não concede papel em projeto
+      security:
+        - oauthClient: []
+      x-decidir: Confirmar método de autenticação de clientes públicos e confidenciais na revogação.
+      x-proposta: true
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+        '400':
+          description: Erro OAuth padronizado (RFC 6749/7009/8693); Gateway pode responder Problem Details antes do protocolo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErro'
+              example:
+                error: invalid_grant
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                type: urn:athena:problema:requisicao-invalida
+                title: Requisição inválida
+                status: 400
+                detail: Requisição inválida.
+                instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                codigo: REQUISICAO_INVALIDA
+                traceId: a3d9b24f670c48bca701d5f893ed45af
+        '401':
+          description: Erro OAuth padronizado (RFC 6749/7009/8693); Gateway pode responder Problem Details antes do protocolo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErro'
+              example:
+                error: invalid_grant
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                type: urn:athena:problema:nao-autenticado
+                title: Credencial ou sessão inválida
+                status: 401
+                detail: Credencial ou sessão inválida.
+                instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                codigo: NAO_AUTENTICADO
+                traceId: a3d9b24f670c48bca701d5f893ed45af
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OAuthRevogacao'
+      x-seguranca-condicional:
+        publico: client_id validado e token vinculado
+        confidencial: HTTP Basic validado
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+components:
+  schemas:
+    CadastroEntrada:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: Fernando
+        email:
+          type: string
+          example: fernando@example.invalid
+          format: email
+        senha:
+          type: string
+          example: senha-apenas-ilustrativa
+          writeOnly: true
+      additionalProperties: false
+      required:
+        - nome
+        - email
+        - senha
+      example:
+        nome: Fernando
+        email: fernando@example.invalid
+        senha: senha-apenas-ilustrativa
+    Usuario:
+      type: object
+      properties:
+        usuarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        nome:
+          type: string
+          example: Fernando
+        email:
+          type: string
+          example: fernando@example.invalid
+          format: email
+      additionalProperties: false
+      required:
+        - usuarioId
+        - nome
+        - email
+      example:
+        usuarioId: 11111111-1111-4111-8111-111111111111
+        nome: Fernando
+        email: fernando@example.invalid
+    LoginEntrada:
+      type: object
+      properties:
+        email:
+          type: string
+          example: fernando@example.invalid
+          format: email
+        senha:
+          type: string
+          example: senha-apenas-ilustrativa
+          writeOnly: true
+        lembrarDispositivo:
+          type: boolean
+          example: false
+      additionalProperties: false
+      required:
+        - email
+        - senha
+      example:
+        email: fernando@example.invalid
+        senha: senha-apenas-ilustrativa
+    Sessao:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: jwt-ilustrativo
+        tokenType:
+          type: string
+          const: Bearer
+          example: Bearer
+        expiraEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+        csrfToken:
+          type: string
+          example: csrf-opaco-ilustrativo
+      additionalProperties: false
+      required:
+        - accessToken
+        - tokenType
+        - expiraEm
+        - csrfToken
+      example:
+        accessToken: jwt-ilustrativo
+        tokenType: Bearer
+        expiraEm: '2026-10-21T15:00:00Z'
+        csrfToken: csrf-opaco-ilustrativo
+    RecuperacaoEntrada:
+      type: object
+      properties:
+        email:
+          type: string
+          example: fernando@example.invalid
+          format: email
+      additionalProperties: false
+      required:
+        - email
+      example:
+        email: fernando@example.invalid
+    RecuperacaoAceita:
+      type: object
+      properties:
+        mensagem:
+          type: string
+          example: Se a conta estiver elegível, enviaremos as instruções.
+      additionalProperties: false
+      required:
+        - mensagem
+      example:
+        mensagem: Se a conta estiver elegível, enviaremos as instruções.
+    RecuperacaoConclusao:
+      type: object
+      properties:
+        credencial:
+          type: string
+          example: credencial-opaca
+          writeOnly: true
+        novaSenha:
+          type: string
+          example: nova-senha-ilustrativa
+          writeOnly: true
+      additionalProperties: false
+      required:
+        - credencial
+        - novaSenha
+      example:
+        credencial: credencial-opaca
+        novaSenha: nova-senha-ilustrativa
+    AutorizacaoAgente:
+      type: object
+      properties:
+        autorizacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        clienteId:
+          type: string
+          example: cliente-python
+        projetos:
+          type: array
+          items:
+            type: string
+            example: 22222222-2222-4222-8222-222222222222
+            format: uuid
+          example:
+            - 22222222-2222-4222-8222-222222222222
+        escopos:
+          type: array
+          items:
+            type: string
+            example: athena:read
+          example:
+            - athena:read
+        criadaEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+        expiraEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - autorizacaoId
+        - clienteId
+        - projetos
+        - escopos
+        - criadaEm
+        - expiraEm
+      example:
+        autorizacaoId: 11111111-1111-4111-8111-111111111111
+        clienteId: cliente-python
+        projetos:
+          - 22222222-2222-4222-8222-222222222222
+        escopos:
+          - athena:read
+        criadaEm: '2026-10-21T15:00:00Z'
+        expiraEm: '2026-10-21T15:00:00Z'
+    WorkspaceEntrada:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: Equipe ATHENA
+      additionalProperties: false
+      required:
+        - nome
+      example:
+        nome: Equipe ATHENA
+    Workspace:
+      type: object
+      properties:
+        workspaceId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        nome:
+          type: string
+          example: Equipe ATHENA
+        ownerId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - workspaceId
+        - nome
+        - ownerId
+        - atualizadoEm
+      example:
+        workspaceId: 11111111-1111-4111-8111-111111111111
+        nome: Equipe ATHENA
+        ownerId: 11111111-1111-4111-8111-111111111111
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    WorkspacePatch:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: Equipe ATHENA atualizada
+      additionalProperties: false
+      required:
+        - nome
+      example:
+        nome: Equipe ATHENA atualizada
+    ProjetoEntrada:
+      type: object
+      properties:
+        workspaceId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        nome:
+          type: string
+          example: ATHENA
+        descricao:
+          type: string
+          example: Gestão de requisitos
+      additionalProperties: false
+      required:
+        - workspaceId
+        - nome
+      example:
+        workspaceId: 11111111-1111-4111-8111-111111111111
+        nome: ATHENA
+    Projeto:
+      type: object
+      properties:
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        workspaceId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        nome:
+          type: string
+          example: ATHENA
+        descricao:
+          type: string
+          example: Gestão de requisitos
+        arquivado:
+          type: boolean
+          example: false
+        ownerId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - projetoId
+        - workspaceId
+        - nome
+        - arquivado
+        - ownerId
+        - atualizadoEm
+      example:
+        projetoId: 22222222-2222-4222-8222-222222222222
+        workspaceId: 11111111-1111-4111-8111-111111111111
+        nome: ATHENA
+        arquivado: false
+        ownerId: 11111111-1111-4111-8111-111111111111
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    ProjetoPatch:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: ATHENA
+        descricao:
+          type: string
+          example: Descrição atualizada
+      additionalProperties: false
+      minProperties: 1
+      example:
+        descricao: Descrição atualizada
+    Membro:
+      type: object
+      properties:
+        membroId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        usuarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        papel:
+          $ref: '#/components/schemas/Papel'
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - membroId
+        - usuarioId
+        - papel
+        - atualizadoEm
+      example:
+        membroId: 11111111-1111-4111-8111-111111111111
+        usuarioId: 11111111-1111-4111-8111-111111111111
+        papel: Leitor
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    MembroEntrada:
+      type: object
+      properties:
+        usuarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        papel:
+          $ref: '#/components/schemas/Papel'
+      additionalProperties: false
+      required:
+        - usuarioId
+        - papel
+      example:
+        usuarioId: 11111111-1111-4111-8111-111111111111
+        papel: Leitor
+    MembroPatch:
+      type: object
+      properties:
+        papel:
+          $ref: '#/components/schemas/Papel'
+      additionalProperties: false
+      required:
+        - papel
+      example:
+        papel: Editor
+    HistoricoMembro:
+      type: object
+      properties:
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        membroId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        papelAnterior:
+          $ref: '#/components/schemas/Papel'
+        papelNovo:
+          $ref: '#/components/schemas/Papel'
+        data:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - autor
+        - membroId
+        - papelAnterior
+        - papelNovo
+        - data
+      example:
+        autor: 11111111-1111-4111-8111-111111111111
+        membroId: 11111111-1111-4111-8111-111111111111
+        papelAnterior: Leitor
+        papelNovo: Editor
+        data: '2026-10-21T15:00:00Z'
+    ConfirmacaoNome:
+      type: object
+      properties:
+        confirmacaoNome:
+          type: string
+          example: ATHENA
+      additionalProperties: false
+      required:
+        - confirmacaoNome
+      example:
+        confirmacaoNome: ATHENA
+    Exclusao:
+      type: object
+      properties:
+        exclusaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        estado:
+          type: string
+          example: FECHANDO
+          enum:
+            - FECHANDO
+            - EXCLUINDO
+            - CONCLUIDA
+        confirmacoes:
+          type: array
+          items:
+            type: object
+            properties:
+              servico:
+                type: string
+                example: requisitos
+              quiescenciaConfirmada:
+                type: boolean
+                example: false
+              limpezaConfirmada:
+                type: boolean
+                example: false
+            additionalProperties: false
+            required:
+              - servico
+              - quiescenciaConfirmada
+              - limpezaConfirmada
+            example:
+              servico: requisitos
+              quiescenciaConfirmada: false
+              limpezaConfirmada: false
+          example: []
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - exclusaoId
+        - projetoId
+        - estado
+        - confirmacoes
+        - atualizadoEm
+      example:
+        exclusaoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        estado: FECHANDO
+        confirmacoes: []
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    ExclusaoWorkspace:
+      type: object
+      properties:
+        exclusaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        workspaceId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        excluidoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - exclusaoId
+        - workspaceId
+        - excluidoEm
+      example:
+        exclusaoId: 11111111-1111-4111-8111-111111111111
+        workspaceId: 11111111-1111-4111-8111-111111111111
+        excluidoEm: '2026-10-21T15:00:00Z'
+    ConviteEntrada:
+      type: object
+      properties:
+        email:
+          type: string
+          example: destinatario@example.invalid
+          format: email
+        papel:
+          type: string
+          example: Leitor
+          enum:
+            - Leitor
+            - Repórter
+            - Editor
+            - Aprovador
+            - Mantenedor
+      additionalProperties: false
+      required:
+        - email
+        - papel
+      example:
+        email: destinatario@example.invalid
+        papel: Leitor
+    Convite:
+      type: object
+      properties:
+        conviteId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        email:
+          type: string
+          example: destinatario@example.invalid
+          format: email
+        papel:
+          type: string
+          example: Leitor
+          enum:
+            - Leitor
+            - Repórter
+            - Editor
+            - Aprovador
+            - Mantenedor
+        aceito:
+          type: boolean
+          example: false
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - conviteId
+        - projetoId
+        - email
+        - papel
+        - aceito
+        - atualizadoEm
+      example:
+        conviteId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        email: destinatario@example.invalid
+        papel: Leitor
+        aceito: false
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    TransferenciaEntrada:
+      type: object
+      properties:
+        destinatarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        confirmacao:
+          type: boolean
+          const: true
+          example: true
+      additionalProperties: false
+      required:
+        - destinatarioId
+        - confirmacao
+      example:
+        destinatarioId: 11111111-1111-4111-8111-111111111111
+        confirmacao: true
+    Transferencia:
+      type: object
+      properties:
+        transferenciaId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        ownerAtualId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        destinatarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        aceita:
+          type: boolean
+          example: false
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - transferenciaId
+        - projetoId
+        - ownerAtualId
+        - destinatarioId
+        - aceita
+        - atualizadoEm
+      example:
+        transferenciaId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        ownerAtualId: 11111111-1111-4111-8111-111111111111
+        destinatarioId: 11111111-1111-4111-8111-111111111111
+        aceita: false
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    Notificacao:
+      type: object
+      properties:
+        notificacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        destinatarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        mensagem:
+          type: string
+          example: Revisão disponível
+        lida:
+          type: boolean
+          example: false
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - notificacaoId
+        - destinatarioId
+        - mensagem
+        - lida
+        - atualizadoEm
+      example:
+        notificacaoId: 11111111-1111-4111-8111-111111111111
+        destinatarioId: 11111111-1111-4111-8111-111111111111
+        mensagem: Revisão disponível
+        lida: false
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    NotificacaoPatch:
+      type: object
+      properties:
+        lida:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+        - lida
+      example:
+        lida: true
+    PaginaAutorizacoes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutorizacaoAgente'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaWorkspaces:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaProjetos:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Projeto'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaMembros:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Membro'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaHistoricoMembros:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoricoMembro'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaConvites:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Convite'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaNotificacoes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notificacao'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    ValidacaoSessaoEntrada:
+      type: object
+      properties:
+        credencial:
+          type: string
+          example: jwt-ilustrativo
+          writeOnly: true
+      additionalProperties: false
+      required:
+        - credencial
+      example:
+        credencial: jwt-ilustrativo
+    ValidacaoSessao:
+      type: object
+      properties:
+        ativa:
+          type: boolean
+          const: true
+          example: true
+        usuarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        expiraEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - ativa
+        - usuarioId
+        - expiraEm
+      example:
+        ativa: true
+        usuarioId: 11111111-1111-4111-8111-111111111111
+        expiraEm: '2026-10-21T15:00:00Z'
+    AcessoProjeto:
+      type: object
+      properties:
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        usuarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        papel:
+          $ref: '#/components/schemas/Papel'
+        ativo:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+        - projetoId
+        - usuarioId
+        - papel
+        - ativo
+      example:
+        projetoId: 22222222-2222-4222-8222-222222222222
+        usuarioId: 11111111-1111-4111-8111-111111111111
+        papel: Leitor
+        ativo: true
+    OAuthTokens:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: token-opaco
+        token_type:
+          type: string
+          const: Bearer
+          example: Bearer
+        expires_in:
+          type: integer
+          example: 900
+          minimum: 1
+        refresh_token:
+          type: string
+          example: refresh-opaco
+        scope:
+          type: string
+          example: athena:read
+        issued_token_type:
+          type: string
+          example: urn:ietf:params:oauth:token-type:access_token
+      additionalProperties: false
+      required:
+        - access_token
+        - token_type
+        - expires_in
+      example:
+        access_token: token-opaco
+        token_type: Bearer
+        expires_in: 900
+    OAuthErro:
+      type: object
+      properties:
+        error:
+          type: string
+          example: invalid_grant
+        error_description:
+          type: string
+          example: Credencial inválida.
+      additionalProperties: false
+      required:
+        - error
+      example:
+        error: invalid_grant
+    Jwk:
+      type: object
+      properties:
+        kty:
+          type: string
+          const: RSA
+          example: RSA
+        kid:
+          type: string
+          example: athena-2026-01
+        use:
+          type: string
+          const: sig
+          example: sig
+        alg:
+          type: string
+          const: RS256
+          example: RS256
+        'n':
+          type: string
+          example: sXchavePublicaBase64url
+        e:
+          type: string
+          example: AQAB
+      additionalProperties: false
+      required:
+        - kty
+        - kid
+        - use
+        - alg
+        - 'n'
+        - e
+      example:
+        kty: RSA
+        kid: athena-2026-01
+        use: sig
+        alg: RS256
+        'n': sXchavePublicaBase64url
+        e: AQAB
+    Jwks:
+      type: object
+      properties:
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/Jwk'
+          example: []
+      additionalProperties: false
+      required:
+        - keys
+      example:
+        keys: []
+    MetadadosOAuth:
+      type: object
+      properties:
+        issuer:
+          type: string
+          example: https://athena.example.invalid
+          format: uri
+        authorization_endpoint:
+          type: string
+          example: https://athena.example.invalid/oauth2/authorize
+          format: uri
+        token_endpoint:
+          type: string
+          example: https://athena.example.invalid/oauth2/token
+          format: uri
+        revocation_endpoint:
+          type: string
+          example: https://athena.example.invalid/oauth2/revoke
+          format: uri
+        jwks_uri:
+          type: string
+          example: https://athena.example.invalid/oauth2/jwks
+          format: uri
+        response_types_supported:
+          type: array
+          items:
+            type: string
+            example: code
+          example:
+            - code
+        grant_types_supported:
+          type: array
+          items:
+            type: string
+            example: authorization_code
+          example:
+            - authorization_code
+            - refresh_token
+            - urn:ietf:params:oauth:grant-type:token-exchange
+        code_challenge_methods_supported:
+          type: array
+          items:
+            type: string
+            example: S256
+          example:
+            - S256
+        scopes_supported:
+          type: array
+          items:
+            type: string
+            example: athena:read
+          example:
+            - athena:read
+            - athena:write
+            - athena:approve
+            - athena:publish
+            - athena:admin
+            - athena:delete-project
+      additionalProperties: false
+      required:
+        - issuer
+        - authorization_endpoint
+        - token_endpoint
+        - jwks_uri
+        - response_types_supported
+        - code_challenge_methods_supported
+        - scopes_supported
+      example:
+        issuer: https://athena.example.invalid
+        authorization_endpoint: https://athena.example.invalid/oauth2/authorize
+        token_endpoint: https://athena.example.invalid/oauth2/token
+        jwks_uri: https://athena.example.invalid/oauth2/jwks
+        response_types_supported:
+          - code
+        code_challenge_methods_supported:
+          - S256
+        scopes_supported:
+          - athena:read
+          - athena:write
+          - athena:approve
+          - athena:publish
+          - athena:admin
+          - athena:delete-project
+    MetadadosMcp:
+      type: object
+      properties:
+        resource:
+          type: string
+          example: https://athena.example.invalid/mcp
+          format: uri
+        authorization_servers:
+          type: array
+          items:
+            type: string
+            example: https://athena.example.invalid
+            format: uri
+          example:
+            - https://athena.example.invalid
+        scopes_supported:
+          type: array
+          items:
+            type: string
+            example: athena:read
+          example:
+            - athena:read
+            - athena:write
+            - athena:approve
+            - athena:publish
+            - athena:admin
+            - athena:delete-project
+        bearer_methods_supported:
+          type: array
+          items:
+            type: string
+            example: header
+          example:
+            - header
+      additionalProperties: false
+      required:
+        - resource
+        - authorization_servers
+        - scopes_supported
+        - bearer_methods_supported
+      example:
+        resource: https://athena.example.invalid/mcp
+        authorization_servers:
+          - https://athena.example.invalid
+        scopes_supported:
+          - athena:read
+          - athena:write
+          - athena:approve
+          - athena:publish
+          - athena:admin
+          - athena:delete-project
+        bearer_methods_supported:
+          - header
+    OAuthCodigo:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          const: authorization_code
+          example: authorization_code
+        code:
+          type: string
+          example: codigo-opaco
+        redirect_uri:
+          type: string
+          example: http://127.0.0.1:8765/callback
+          format: uri
+        client_id:
+          type: string
+          example: cliente-python
+        code_verifier:
+          type: string
+          example: vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+          minLength: 43
+          maxLength: 128
+      additionalProperties: false
+      required:
+        - grant_type
+        - code
+        - redirect_uri
+        - client_id
+        - code_verifier
+      example:
+        grant_type: authorization_code
+        code: codigo-opaco
+        redirect_uri: http://127.0.0.1:8765/callback
+        client_id: cliente-python
+        code_verifier: vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    OAuthRefresh:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          const: refresh_token
+          example: refresh_token
+        refresh_token:
+          type: string
+          example: refresh-opaco
+        client_id:
+          type: string
+          example: cliente-python
+        scope:
+          type: string
+          example: athena:read
+      additionalProperties: false
+      required:
+        - grant_type
+        - refresh_token
+        - client_id
+      example:
+        grant_type: refresh_token
+        refresh_token: refresh-opaco
+        client_id: cliente-python
+    OAuthTroca:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          const: urn:ietf:params:oauth:grant-type:token-exchange
+          example: urn:ietf:params:oauth:grant-type:token-exchange
+        subject_token:
+          type: string
+          example: token-sujeito
+        subject_token_type:
+          type: string
+          const: urn:ietf:params:oauth:token-type:access_token
+          example: urn:ietf:params:oauth:token-type:access_token
+        audience:
+          type: string
+          example: requisitos
+        scope:
+          type: string
+          example: athena:read
+      additionalProperties: false
+      required:
+        - grant_type
+        - subject_token
+        - subject_token_type
+        - audience
+        - scope
+      example:
+        grant_type: urn:ietf:params:oauth:grant-type:token-exchange
+        subject_token: token-sujeito
+        subject_token_type: urn:ietf:params:oauth:token-type:access_token
+        audience: requisitos
+        scope: athena:read
+    OAuthRevogacao:
+      type: object
+      properties:
+        token:
+          type: string
+          example: token-opaco
+        token_type_hint:
+          type: string
+          example: refresh_token
+          enum:
+            - refresh_token
+            - access_token
+        client_id:
+          type: string
+          example: cliente-python
+      additionalProperties: false
+      required:
+        - token
+        - client_id
+      example:
+        token: token-opaco
+        client_id: cliente-python
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          example: urn:athena:problema:requisicao-invalida
+          format: uri
+          pattern: ^urn:athena:problema:[a-z0-9]+(?:-[a-z0-9]+)*$
+        title:
+          type: string
+          example: Requisição inválida
+        status:
+          type: integer
+          example: 400
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          example: Verifique os campos enviados.
+        instance:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+        codigo:
+          type: string
+          example: REQUISICAO_INVALIDA
+        traceId:
+          type: string
+          example: a3d9b24f670c48bca701d5f893ed45af
+      additionalProperties: false
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+        - codigo
+        - traceId
+      example:
+        type: urn:athena:problema:requisicao-invalida
+        title: Requisição inválida
+        status: 400
+        detail: Verifique os campos enviados.
+        instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+        codigo: REQUISICAO_INVALIDA
+        traceId: a3d9b24f670c48bca701d5f893ed45af
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+      additionalProperties: false
+      required:
+        - href
+      example:
+        href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+      example:
+        self:
+          href: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    Papel:
+      type: string
+      example: Leitor
+      enum:
+        - Leitor
+        - Repórter
+        - Editor
+        - Aprovador
+        - Mantenedor
+        - Owner
+  securitySchemes:
+    bearerJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT RS256
+      description: §7.1–7.2. RS256, kid/JWKS; validar iss, aud, exp e sessão/autorização atual a cada chamada. Escopos só se aplicam à delegação; x-escopo-mcp declara o mapeamento.
+    serviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT RS256
+      description: §7.1. Identidade de serviço ou token trocado, aud igual ao serviço chamado; preserva usuário, projeto e delegação, reduz escopos. Nunca repassar token MCP bruto.
+    cookieRefresh:
+      type: apiKey
+      in: cookie
+      name: athenaRefresh
+      description: §7.2–7.3. Nome proposto; Secure, HttpOnly, SameSite=Lax, sem Domain, Path=/api/v1/autenticacao; rotação e validade absoluta da família.
+    csrf:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: §7.3. Nome proposto. Token vinculado à sessão; validar também Origin.
+    oauthClient:
+      type: http
+      scheme: basic
+      description: Autenticação de cliente confidencial OAuth; método final depende da compatibilidade §7.1. Cliente público usa client_id e PKCE S256.
+  headers:
+    Location:
+      description: §6.2. URI do recurso criado ou de acompanhamento.
+      schema:
+        type: string
+        example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+    RetryAfter:
+      description: §6.1. Segundos até nova tentativa.
+      schema:
+        type: string
+        example: '30'
+    ETag:
+      description: §6.3. Revisão técnica forte do recurso.
+      schema:
+        type: string
+        example: '"rev-7"'
+  responses:
+    Erro400:
+      description: Requisição inválida (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:requisicao-invalida
+            title: Requisição inválida
+            status: 400
+            detail: Requisição inválida.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: REQUISICAO_INVALIDA
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro429:
+      description: Limite de requisições excedido (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:limite-excedido
+            title: Limite de requisições excedido
+            status: 429
+            detail: Limite de requisições excedido.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: LIMITE_EXCEDIDO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+    Erro503:
+      description: Serviço indisponível (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:servico-indisponivel
+            title: Serviço indisponível
+            status: 503
+            detail: Serviço indisponível.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: SERVICO_INDISPONIVEL
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+    Erro401:
+      description: Credencial ou sessão inválida (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-autenticado
+            title: Credencial ou sessão inválida
+            status: 401
+            detail: Credencial ou sessão inválida.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_AUTENTICADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro403:
+      description: Acesso negado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:acesso-negado
+            title: Acesso negado
+            status: 403
+            detail: Acesso negado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: ACESSO_NEGADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro404:
+      description: Recurso não encontrado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-encontrado
+            title: Recurso não encontrado
+            status: 404
+            detail: Recurso não encontrado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_ENCONTRADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro409:
+      description: Conflito com estado atual (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:conflito
+            title: Conflito com estado atual
+            status: 409
+            detail: Conflito com estado atual.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: CONFLITO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro412:
+      description: ETag desatualizada (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:revisao-divergente
+            title: ETag desatualizada
+            status: 412
+            detail: ETag desatualizada.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: REVISAO_DIVERGENTE
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro428:
+      description: If-Match obrigatório (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:precondicao-obrigatoria
+            title: If-Match obrigatório
+            status: 428
+            detail: If-Match obrigatório.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: PRECONDICAO_OBRIGATORIA
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Página inicial zero (§6.2).
+      schema:
+        type: integer
+        example: 0
+        default: 0
+        minimum: 0
+    Size:
+      name: size
+      in: query
+      description: Quantidade por página (§6.2).
+      schema:
+        type: integer
+        example: 20
+        default: 20
+        minimum: 1
+        maximum: 100
+    Sort:
+      name: sort
+      in: query
+      description: '§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum.'
+      schema:
+        type: string
+        example: atualizadoEm,desc
+        default: atualizadoEm,desc
+        enum:
+          - atualizadoEm,desc
+          - atualizadoEm,asc
+          - id,asc
+          - id,desc
+    ProjetoId:
+      name: projetoId
+      in: path
+      required: true
+      description: UUID estável (§5.1).
+      schema:
+        type: string
+        example: 22222222-2222-4222-8222-222222222222
+        format: uuid
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      description: §6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo.
+      schema:
+        type: string
+        example: '"rev-7"'
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: '§6.3. Ordem: autenticar; verificar acesso atual; consultar chave no escopo usuário/projeto/operação e comparar pedido; repetição idêntica recupera resultado/acompanhamento por 24 h sem reavaliar If-Match; pedido divergente retorna 409. Só operação nova valida presença/valor de If-Match, quando exigido. Reserva, efeito e resultado são transacionais.'
+      schema:
+        type: string
+        example: tentativa-20261021-001
+        minLength: 1

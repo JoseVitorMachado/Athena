@@ -1,0 +1,2772 @@
+openapi: 3.1.0
+info:
+  title: ATHENA — Requisitos
+  version: 1.0.0
+  description: 'Versionamento por URI (§6.2): /api/v1 para mudanças compatíveis, /api/v2 para quebra. Gateway roteia
+    por prefixo; versão aparece nos logs; clientes Angular migram sem negociar cabeçalho. Versão da API independe
+    da versão do requisito. Fonte de verdade: Arquitetura v1.0, §§4, 5.1–5.3, 6.2–6.9 e 7.4–7.5. APIs de domínio
+    são internas; só BFFs, MCP e serviços com troca de token as chamam. Nenhuma leitura é pública por compartilhar
+    URL. Escopos x-escopo-mcp só são exigidos em contexto delegado; nunca substituem papel/acesso. x-proposta identifica
+    formas de representação não especificadas pelo livro.'
+  contact:
+    name: Equipe ATHENA
+servers:
+- url: https://athena.example.invalid
+  description: Origem HTTPS ilustrativa; substituir no ambiente.
+security:
+- serviceToken: []
+tags:
+- name: documentos
+  description: Recursos documentos; §§5–7.
+- name: epicos
+  description: Recursos epicos; §§5–7.
+- name: requisitos
+  description: Recursos requisitos; §§5–7.
+- name: candidata
+  description: Recursos candidata; §§5–7.
+- name: versoes
+  description: Recursos versoes; §§5–7.
+- name: submissoes
+  description: Recursos submissoes; §§5–7.
+- name: publicacoes
+  description: Recursos publicacoes; §§5–7.
+- name: historico
+  description: Recursos historico; §§5–7.
+- name: cancelamentos
+  description: Recursos cancelamentos; §§5–7.
+- name: reativacoes
+  description: Recursos reativacoes; §§5–7.
+- name: comentarios
+  description: Recursos comentarios; §§5–7.
+- name: baselines
+  description: Recursos baselines; §§5–7.
+- name: confirmacoes-publicacao
+  description: Recursos confirmacoes-publicacao; §§5–7.
+paths:
+  /api/v1/projetos/{projetoId}/documentos:
+    get:
+      operationId: listarDocumentos
+      summary: Listar documentos
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - documentos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaDocumentos'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarDocumento
+      summary: Criar documento
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - documentos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Documento'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/documentos/{documentoId}:
+    get:
+      operationId: obterDocumento
+      summary: Obter documento
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - documentos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: documentoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Documento'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: editarDocumento
+      summary: Editar documento
+      description: §§5.2, 6.3, 7.4. PATCH de requisito altera somente responsavelId, epicoId e tipo; metadados não
+        contornam bloqueios. Organização de documentos/épicos conforme inventário; confirmar fronteira com Mantenedor.
+      tags:
+      - documentos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: documentoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentoPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Documento'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/epicos:
+    get:
+      operationId: listarEpicos
+      summary: Listar epicos
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - epicos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaEpicos'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarEpico
+      summary: Criar epico
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - epicos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EpicoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Epico'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/epicos/{epicoId}:
+    patch:
+      operationId: editarEpico
+      summary: Editar epico
+      description: §§5.2, 6.3, 7.4. PATCH de requisito altera somente responsavelId, epicoId e tipo; metadados não
+        contornam bloqueios. Organização de documentos/épicos conforme inventário; confirmar fronteira com Mantenedor.
+      tags:
+      - epicos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: epicoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EpicoPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Epico'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos:
+    get:
+      operationId: listarRequisitos
+      summary: Listar requisitos
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - requisitos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      x-decidir: Qual catálogo de tipos de requisito?
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      - name: q
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: exportar
+      - name: situacao
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          $ref: ./_shared/components.yaml#/components/schemas/SituacaoRequisito
+          default: ATIVO
+      - name: estadoVersao
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          $ref: ./_shared/components.yaml#/components/schemas/EstadoVersao
+      - name: tipo
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: FUNCIONAL
+      - name: epicoId
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - name: responsavelId
+        in: query
+        description: Filtro autorizado (§6.2); valor inválido retorna 400.
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaRequisitos'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarRequisito
+      summary: Criar requisito
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - requisitos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-decidir: Qual catálogo de tipos de requisito?
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequisitoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Requisito'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}:
+    get:
+      operationId: obterRequisito
+      summary: Obter requisito
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - requisitos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Requisito'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: editarRequisito
+      summary: Editar requisito
+      description: §§5.2, 6.3, 7.4. Apenas metadados responsavelId, epicoId e tipo; não altera conteúdo nem contorna
+        bloqueios.
+      tags:
+      - requisitos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetadadosPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Requisito'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/candidata:
+    get:
+      operationId: obterCandidata
+      summary: Obter candidata
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - candidata
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Versao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    patch:
+      operationId: editarCandidata
+      summary: Editar candidata
+      description: '§§5.2, 6.3. If-Match da candidata. EM_SUBMISSAO ou AGUARDANDO_REVISAO: 409. Editar APROVADA
+        retorna RASCUNHO e invalida elegibilidade; PUBLICADA é imutável. Após publicação inicia outra candidata;
+        cancelado/arquivado bloqueia escrita.'
+      tags:
+      - candidata
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidataPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Versao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes:
+    get:
+      operationId: listarVersoes
+      summary: Listar versoes
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - versoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaVersoes'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}:
+    get:
+      operationId: obterVersao
+      summary: Obter versao
+      description: §§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis.
+      tags:
+      - versoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - name: versaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Versao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes:
+    get:
+      operationId: listarSubmissoes
+      summary: Listar submissoes
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - submissoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaSubmissoes'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarSubmissao
+      summary: Criar submissao
+      description: §§5.2, 6.3, 6.5–6.9. If-Match da candidata. Apenas RASCUNHO; submissão ativa ou estado divergente
+        retorna 409. 202 após transação local; SAGA independe da IA, conclui ao preparar revisão. Ativação do lote
+        é posterior. Prazo inicial 90 s; compensação confirmada antes de liberar candidata.
+      tags:
+      - submissoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissaoEntrada'
+      responses:
+        '202':
+          description: Aceito; acompanhar Location; não indica conclusão (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submissao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          description: Conflitos de negócio, conforme §§5.2–5.4 e 6.9. Códigos propostos estão em PROPOSTAS.md.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+              examples:
+                submissao-ativa:
+                  value:
+                    type: urn:athena:problema:submissao-ativa
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: submissao ativa.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: SUBMISSAO_ATIVA
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+                candidata-fora-de-rascunho:
+                  value:
+                    type: urn:athena:problema:candidata-fora-de-rascunho
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: candidata fora de rascunho.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: CANDIDATA_FORA_DE_RASCUNHO
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/submissoes/{submissaoId}:
+    get:
+      operationId: obterSubmissao
+      summary: Obter submissao
+      description: §§5.2, 6.5–6.9. Acompanhamento persistido; etapa só durante fase correspondente. Compensação
+        pendente não libera candidata.
+      tags:
+      - submissoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - name: submissaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submissao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes:
+    get:
+      operationId: listarPublicacoes
+      summary: Listar publicacoes
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - publicacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaPublicacoes'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarPublicacao
+      summary: Criar publicacao
+      description: §§4.3, 6.3, 6.9, 7.5. If-Match da candidata. Exige APROVADA já aplicada em Requisitos e versão/tentativa
+        correspondentes; divergência 409. Registro imutável vincula o retrato aprovado. MCP exige comprovante humano
+        consumido atomicamente; publicar não é aprovar.
+      tags:
+      - publicacoes
+      x-papel-minimo: Aprovador
+      x-escopo-mcp: athena:publish
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicacaoEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publicacao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          description: Conflitos de negócio, conforme §§5.2–5.4 e 6.9. Códigos propostos estão em PROPOSTAS.md.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+              examples:
+                candidata-nao-aprovada:
+                  value:
+                    type: urn:athena:problema:candidata-nao-aprovada
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: candidata nao aprovada.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: CANDIDATA_NAO_APROVADA
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+                versao-divergente:
+                  value:
+                    type: urn:athena:problema:versao-divergente
+                    title: Conflito com estado atual
+                    status: 409
+                    detail: 'Conflito: versao divergente.'
+                    instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+                    codigo: VERSAO_DIVERGENTE
+                    traceId: a3d9b24f670c48bca701d5f893ed45af
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes/{publicacaoId}:
+    get:
+      operationId: obterPublicacao
+      summary: Obter publicacao
+      description: §§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis.
+      tags:
+      - publicacoes
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - name: publicacaoId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publicacao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/historico:
+    get:
+      operationId: listarHistoricoRequisito
+      summary: Listar historico requisito
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - historico
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaHistorico'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos:
+    post:
+      operationId: criarCancelamento
+      summary: Criar cancelamento
+      description: §§5.3, 6.3. If-Match do requisito. Confirmação true obrigatória; SAGA ou revisão ativa retorna
+        409. Preserva histórico e remove do Livro corrente.
+      tags:
+      - cancelamentos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Confirmacao'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlteracaoSituacao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes:
+    post:
+      operationId: criarReativacao
+      summary: Criar reativacao
+      description: §§5.3, 6.3. If-Match do requisito. Retorna ATIVO com nova candidata RASCUNHO baseada no último
+        conteúdo; exige nova aprovação/publicação para voltar ao Livro.
+      tags:
+      - reativacoes
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/IfMatch
+      - $ref: ./_shared/components.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+              example: {}
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlteracaoSituacao'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+        '412':
+          $ref: ./_shared/components.yaml#/components/responses/Erro412
+        '428':
+          $ref: ./_shared/components.yaml#/components/responses/Erro428
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios:
+    get:
+      operationId: listarComentarios
+      summary: Listar comentarios
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - comentarios
+      x-papel-minimo: Repórter
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaComentarios'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarComentario
+      summary: Criar comentario
+      description: §7.4. Vincula versão e menções; âncora perdida fica NAO_LOCALIZADA, nunca reassociada silenciosamente.
+      tags:
+      - comentarios
+      x-papel-minimo: Repórter
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComentarioEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comentario'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId}:
+    patch:
+      operationId: editarComentario
+      summary: Editar comentario
+      description: §7.4. Repórter edita/resolve apenas comentário próprio; Editor resolve no conteúdo que administra.
+        Preserva histórico. Âncora NAO_LOCALIZADA não é reassociada silenciosamente.
+      tags:
+      - comentarios
+      x-papel-minimo: Repórter
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      - name: comentarioId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComentarioPatch'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comentario'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/baselines:
+    get:
+      operationId: listarBaselines
+      summary: Listar baselines
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/Page
+      - $ref: ./_shared/components.yaml#/components/parameters/Size
+      - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaBaselines'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: criarBaseline
+      summary: Criar baseline
+      description: §§5.1, 7.4. Conjunto imutável de versões e retratos autorizados.
+      tags:
+      - baselines
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaselineEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Baseline'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/baselines/{baselineId}:
+    get:
+      operationId: obterBaseline
+      summary: Obter baseline
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+      - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - name: baselineId
+        in: path
+        required: true
+        description: UUID do recurso (§5.1).
+        schema:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Baseline'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao:
+    post:
+      operationId: criarConfirmacaoPublicacao
+      summary: Criar confirmacao publicacao
+      description: §7.5. Rota proposta para tela ATHENA autenticada; recusa identidade delegada MCP. Mostrar ação
+        e conteúdo/versão, vincular usuário/projeto/ação/versão/hash. Serviço proprietário emite comprovante único
+        por 5 min. Sem política de prova implementada, negar emissão. Não há tool MCP de emissão.
+      tags:
+      - confirmacoes-publicacao
+      x-papel-minimo: Aprovador
+      x-escopo-mcp: athena:publish
+      x-projeto: projetoId
+      x-decidir: Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente.
+        Token delegado sozinho NÃO pode emitir comprovante.
+      x-proposta: true
+      parameters:
+      - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmacaoHumanaEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmacaoHumana'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+components:
+  schemas:
+    DocumentoEntrada:
+      type: object
+      properties:
+        titulo:
+          type: string
+          example: Especificação funcional
+        descricao:
+          type: string
+          example: Escopo do produto
+      additionalProperties: false
+      required:
+      - titulo
+      example:
+        titulo: Especificação funcional
+    Documento:
+      type: object
+      properties:
+        documentoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        titulo:
+          type: string
+          example: Especificação funcional
+        descricao:
+          type: string
+          example: Escopo do produto
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - documentoId
+      - projetoId
+      - titulo
+      - atualizadoEm
+      example:
+        documentoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        titulo: Especificação funcional
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    DocumentoPatch:
+      type: object
+      properties:
+        titulo:
+          type: string
+          example: Especificação revisada
+        descricao:
+          type: string
+          example: Escopo atualizado
+      additionalProperties: false
+      minProperties: 1
+      example:
+        titulo: Documentação
+    EpicoEntrada:
+      type: object
+      properties:
+        titulo:
+          type: string
+          example: Documentação
+        descricao:
+          type: string
+          example: Organizar requisitos
+      additionalProperties: false
+      required:
+      - titulo
+      example:
+        titulo: Documentação
+    Epico:
+      type: object
+      properties:
+        epicoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        titulo:
+          type: string
+          example: Documentação
+        descricao:
+          type: string
+          example: Organizar requisitos
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - epicoId
+      - projetoId
+      - titulo
+      - atualizadoEm
+      example:
+        epicoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        titulo: Documentação
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    EpicoPatch:
+      type: object
+      properties:
+        titulo:
+          type: string
+          example: Documentação
+        descricao:
+          type: string
+          example: Organizar requisitos
+      additionalProperties: false
+      minProperties: 1
+      example:
+        titulo: Documentação
+    CandidataPatch:
+      type: object
+      properties:
+        titulo:
+          type: string
+          example: Exportar documento de requisitos.
+        conteudo:
+          type: string
+          example: O sistema deve permitir exportar o documento.
+        criteriosAceite:
+          type: array
+          items:
+            type: string
+            example: Exportação preserva requisitos.
+          example:
+          - Exportação preserva requisitos.
+      additionalProperties: false
+      minProperties: 1
+      example:
+        conteudo: Conteúdo atualizado.
+    RequisitoEntrada:
+      type: object
+      properties:
+        documentoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        epicoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        responsavelId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tipo:
+          type: string
+          example: FUNCIONAL
+          description: 'Catálogo não definido: x-decidir da operação.'
+        titulo:
+          type: string
+          example: Exportar documento de requisitos.
+        conteudo:
+          type: string
+          example: O sistema deve permitir exportar o documento.
+        criteriosAceite:
+          type: array
+          items:
+            type: string
+            example: Exportação preserva requisitos.
+          example: &id001
+          - Exportação preserva requisitos.
+      additionalProperties: false
+      required:
+      - documentoId
+      - titulo
+      - conteudo
+      - criteriosAceite
+      example:
+        documentoId: 11111111-1111-4111-8111-111111111111
+        titulo: Exportar documento de requisitos.
+        conteudo: O sistema deve permitir exportar o documento.
+        criteriosAceite: *id001
+    MetadadosPatch:
+      type: object
+      properties:
+        responsavelId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        epicoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tipo:
+          type: string
+          example: FUNCIONAL
+      additionalProperties: false
+      minProperties: 1
+      example:
+        responsavelId: 11111111-1111-4111-8111-111111111111
+    Versao:
+      type: object
+      properties:
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        numero:
+          type: integer
+          example: 4
+          minimum: 1
+        estadoVersao:
+          $ref: ./_shared/components.yaml#/components/schemas/EstadoVersao
+        titulo:
+          type: string
+          example: Exportar documento de requisitos.
+        conteudo:
+          type: string
+          example: O sistema deve permitir exportar o documento.
+        criteriosAceite:
+          type: array
+          items:
+            type: string
+            example: Exportação preserva requisitos.
+          example:
+          - Exportação preserva requisitos.
+        hashConteudo:
+          type: string
+          example: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          pattern: ^[a-f0-9]{64}$
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - versaoId
+      - requisitoId
+      - numero
+      - estadoVersao
+      - titulo
+      - conteudo
+      - criteriosAceite
+      - hashConteudo
+      - atualizadoEm
+      example:
+        versaoId: 33333333-3333-4333-8333-333333333333
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        numero: 4
+        estadoVersao: RASCUNHO
+        titulo: Exportar documento de requisitos.
+        conteudo: O sistema deve permitir exportar o documento.
+        criteriosAceite:
+        - Exportação preserva requisitos.
+        hashConteudo: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    Requisito:
+      type: object
+      properties:
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        codigo:
+          type: string
+          example: REQ-42
+          pattern: ^REQ-[0-9]+$
+        documentoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        epicoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        responsavelId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tipo:
+          type: string
+          example: FUNCIONAL
+        titulo:
+          type: string
+          example: Exportar documento de requisitos.
+        situacao:
+          $ref: ./_shared/components.yaml#/components/schemas/SituacaoRequisito
+        candidata:
+          $ref: '#/components/schemas/Versao'
+        versaoPublicadaId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - requisitoId
+      - projetoId
+      - codigo
+      - titulo
+      - situacao
+      - atualizadoEm
+      example:
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        codigo: REQ-42
+        titulo: Exportar documento de requisitos.
+        situacao: ATIVO
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    SubmissaoEntrada:
+      type: object
+      properties:
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+      additionalProperties: false
+      required:
+      - versaoId
+      example:
+        versaoId: 33333333-3333-4333-8333-333333333333
+    Submissao:
+      type: object
+      properties:
+        submissaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        sagaId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        estadoSaga:
+          $ref: ./_shared/components.yaml#/components/schemas/EstadoSaga
+        etapaSaga:
+          $ref: ./_shared/components.yaml#/components/schemas/EtapaSaga
+        tentativas:
+          type: integer
+          example: 1
+          minimum: 0
+        prazo:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+        hashConteudo:
+          type: string
+          example: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          pattern: ^[a-f0-9]{64}$
+        retratoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        loteId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - submissaoId
+      - sagaId
+      - projetoId
+      - requisitoId
+      - versaoId
+      - estadoSaga
+      - tentativas
+      - prazo
+      - hashConteudo
+      - atualizadoEm
+      example:
+        submissaoId: 11111111-1111-4111-8111-111111111111
+        sagaId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        versaoId: 33333333-3333-4333-8333-333333333333
+        estadoSaga: EM_ANDAMENTO
+        etapaSaga: AGUARDANDO_RETRATO
+        tentativas: 1
+        prazo: '2026-10-21T15:00:00Z'
+        hashConteudo: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    PublicacaoEntrada:
+      type: object
+      properties:
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        submissaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        comprovanteHumano:
+          $ref: ./_shared/components.yaml#/components/schemas/ComprovanteHumano
+      additionalProperties: false
+      required:
+      - versaoId
+      - submissaoId
+      example:
+        versaoId: 33333333-3333-4333-8333-333333333333
+        submissaoId: 11111111-1111-4111-8111-111111111111
+    Publicacao:
+      type: object
+      properties:
+        publicacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        submissaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        retratoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        data:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - publicacaoId
+      - requisitoId
+      - versaoId
+      - submissaoId
+      - retratoId
+      - autor
+      - data
+      example:
+        publicacaoId: 11111111-1111-4111-8111-111111111111
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        versaoId: 33333333-3333-4333-8333-333333333333
+        submissaoId: 11111111-1111-4111-8111-111111111111
+        retratoId: 11111111-1111-4111-8111-111111111111
+        autor: 11111111-1111-4111-8111-111111111111
+        data: '2026-10-21T15:00:00Z'
+    Confirmacao:
+      type: object
+      properties:
+        confirmacao:
+          type: boolean
+          const: true
+          example: true
+      additionalProperties: false
+      required:
+      - confirmacao
+      example:
+        confirmacao: true
+    AlteracaoSituacao:
+      type: object
+      properties:
+        operacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        situacao:
+          $ref: ./_shared/components.yaml#/components/schemas/SituacaoRequisito
+        candidataId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        data:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - operacaoId
+      - requisitoId
+      - situacao
+      - autor
+      - data
+      example:
+        operacaoId: 11111111-1111-4111-8111-111111111111
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        situacao: CANCELADO
+        autor: 11111111-1111-4111-8111-111111111111
+        data: '2026-10-21T15:00:00Z'
+    Ancora:
+      type: object
+      properties:
+        selecao:
+          type: string
+          example: Texto selecionado
+        situacao:
+          type: string
+          example: LOCALIZADA
+          enum:
+          - LOCALIZADA
+          - NAO_LOCALIZADA
+      additionalProperties: false
+      required:
+      - selecao
+      - situacao
+      example:
+        selecao: Texto selecionado
+        situacao: LOCALIZADA
+    ComentarioEntrada:
+      type: object
+      properties:
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        texto:
+          type: string
+          example: Rever este critério.
+        ancora:
+          $ref: '#/components/schemas/Ancora'
+        mencoes:
+          type: array
+          items:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+          example:
+          - 11111111-1111-4111-8111-111111111111
+      additionalProperties: false
+      required:
+      - versaoId
+      - texto
+      example:
+        versaoId: 33333333-3333-4333-8333-333333333333
+        texto: Rever este critério.
+    ComentarioPatch:
+      type: object
+      properties:
+        texto:
+          type: string
+          example: Critério esclarecido.
+        resolvido:
+          type: boolean
+          example: true
+      additionalProperties: false
+      minProperties: 1
+      example:
+        texto: Critério esclarecido.
+    Comentario:
+      type: object
+      properties:
+        comentarioId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        texto:
+          type: string
+          example: Rever este critério.
+        ancora:
+          $ref: '#/components/schemas/Ancora'
+        mencoes:
+          type: array
+          items:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+          example:
+          - 11111111-1111-4111-8111-111111111111
+        resolvido:
+          type: boolean
+          example: false
+        atualizadoEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - comentarioId
+      - versaoId
+      - autor
+      - texto
+      - atualizadoEm
+      example:
+        comentarioId: 11111111-1111-4111-8111-111111111111
+        versaoId: 33333333-3333-4333-8333-333333333333
+        autor: 11111111-1111-4111-8111-111111111111
+        texto: Rever este critério.
+        atualizadoEm: '2026-10-21T15:00:00Z'
+    BaselineEntrada:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: Entrega 1
+        versoes:
+          type: array
+          items:
+            type: object
+            properties:
+              requisitoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+              versaoId:
+                type: string
+                example: 33333333-3333-4333-8333-333333333333
+                format: uuid
+              retratoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+            additionalProperties: false
+            required:
+            - requisitoId
+            - versaoId
+            - retratoId
+            example:
+              requisitoId: 11111111-1111-4111-8111-111111111111
+              versaoId: 33333333-3333-4333-8333-333333333333
+              retratoId: 11111111-1111-4111-8111-111111111111
+          example: &id002
+          - requisitoId: 11111111-1111-4111-8111-111111111111
+            versaoId: 33333333-3333-4333-8333-333333333333
+            retratoId: 11111111-1111-4111-8111-111111111111
+          minItems: 1
+      additionalProperties: false
+      required:
+      - nome
+      - versoes
+      example:
+        nome: Entrega 1
+        versoes: *id002
+    Baseline:
+      type: object
+      properties:
+        baselineId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        nome:
+          type: string
+          example: Entrega 1
+        versoes:
+          type: array
+          items:
+            type: object
+            properties:
+              requisitoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+              versaoId:
+                type: string
+                example: 33333333-3333-4333-8333-333333333333
+                format: uuid
+              retratoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+            additionalProperties: false
+            required:
+            - requisitoId
+            - versaoId
+            - retratoId
+            example:
+              requisitoId: 11111111-1111-4111-8111-111111111111
+              versaoId: 33333333-3333-4333-8333-333333333333
+              retratoId: 11111111-1111-4111-8111-111111111111
+          example: &id003
+          - requisitoId: 11111111-1111-4111-8111-111111111111
+            versaoId: 33333333-3333-4333-8333-333333333333
+            retratoId: 11111111-1111-4111-8111-111111111111
+          minItems: 1
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        data:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - baselineId
+      - projetoId
+      - nome
+      - versoes
+      - autor
+      - data
+      example:
+        baselineId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        nome: Entrega 1
+        versoes: *id003
+        autor: 11111111-1111-4111-8111-111111111111
+        data: '2026-10-21T15:00:00Z'
+    Historico:
+      type: object
+      properties:
+        eventoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        requisitoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        acao:
+          type: string
+          example: CANDIDATA_EDITADA
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        data:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - eventoId
+      - requisitoId
+      - acao
+      - autor
+      - data
+      example:
+        eventoId: 11111111-1111-4111-8111-111111111111
+        requisitoId: 11111111-1111-4111-8111-111111111111
+        acao: CANDIDATA_EDITADA
+        autor: 11111111-1111-4111-8111-111111111111
+        data: '2026-10-21T15:00:00Z'
+    PaginaDocumentos:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Documento'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaEpicos:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Epico'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaRequisitos:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Requisito'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaVersoes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Versao'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaSubmissoes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submissao'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaPublicacoes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Publicacao'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaHistorico:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Historico'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaComentarios:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comentario'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    PaginaBaselines:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Baseline'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: ./_shared/components.yaml#/components/schemas/Links
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - totalElements
+      - totalPages
+      - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    ConfirmacaoHumanaEntrada:
+      type: object
+      properties:
+        versaoId:
+          type: string
+          example: 33333333-3333-4333-8333-333333333333
+          format: uuid
+        hashAcao:
+          type: string
+          example: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          pattern: ^[a-f0-9]{64}$
+        confirmacao:
+          type: boolean
+          const: true
+          example: true
+      additionalProperties: false
+      required:
+      - versaoId
+      - hashAcao
+      - confirmacao
+      example:
+        versaoId: 33333333-3333-4333-8333-333333333333
+        hashAcao: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+        confirmacao: true
+    ConfirmacaoHumana:
+      type: object
+      properties:
+        confirmacaoId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        comprovanteHumano:
+          $ref: ./_shared/components.yaml#/components/schemas/ComprovanteHumano
+        expiraEm:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+      - confirmacaoId
+      - comprovanteHumano
+      - expiraEm
+      example:
+        confirmacaoId: 11111111-1111-4111-8111-111111111111
+        comprovanteHumano: comprovante-opaco
+        expiraEm: '2026-10-21T15:00:00Z'
+  securitySchemes:
+    bearerJwt:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/bearerJwt
+    serviceToken:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/serviceToken
+    cookieRefresh:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/cookieRefresh
+    csrf:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/csrf
+    oauthClient:
+      $ref: ./_shared/components.yaml#/components/securitySchemes/oauthClient

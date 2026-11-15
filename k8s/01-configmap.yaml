@@ -1,0 +1,41 @@
+# Configuração não sensível, compartilhada pelas aplicações. As credenciais
+# ficam nos Secrets (02-secrets.yaml e o Secret athena-jwt, criado à parte).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: athena-config
+  namespace: athena
+  labels:
+    app.kubernetes.io/part-of: athena
+data:
+  # Endereços internos (Services ClusterIP do namespace).
+  REQUISITOS_URL: http://requisitos:8080
+  REVISOES_URL: http://revisoes:8080
+  RASTREABILIDADE_URL: http://rastreabilidade:8080
+  BFF_GESTAO_URL: http://bff-gestao:8080
+  BFF_LIVRO_URL: http://bff-livro:8080
+  IMPACTO_MCP_URL: http://impacto-mcp:8000
+  GATEWAY_URL: http://gateway:8080
+  RABBITMQ_HOST: rabbitmq
+
+  # Bancos: cada serviço tem o seu (database per service).
+  PROJETOS_ACESSO_DB_HOST: db-projetos-acesso
+  PROJETOS_ACESSO_DB_NAME: projetos_acesso
+  REQUISITOS_DB_HOST: db-requisitos
+  REQUISITOS_DB_NAME: requisitos
+  RASTREABILIDADE_DB_HOST: db-rastreabilidade
+  RASTREABILIDADE_DB_NAME: rastreabilidade
+  REVISOES_DB_HOST: db-revisoes
+  REVISOES_DB_NAME: revisoes
+  INTEGRACOES_DB_HOST: db-integracoes
+  INTEGRACOES_DB_NAME: integracoes
+  IMPACTO_MCP_DB_HOST: db-impacto-mcp
+  IMPACTO_MCP_DB_NAME: impacto_mcp
+
+  # Migrações de esquema + dados de demonstração. Para bancos vazios, deixe só
+  # classpath:db/migration.
+  FLYWAY_LOCATIONS: classpath:db/migration,classpath:db/demo
+  CARREGAR_DEMO: "true"
+
+  # Caminho onde o Secret athena-jwt é montado no projetos-acesso.
+  JWT_CHAVE_PRIVADA_ARQUIVO: /etc/athena/jwt/chave-privada.pem

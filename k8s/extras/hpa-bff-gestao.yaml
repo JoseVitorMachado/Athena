@@ -1,0 +1,27 @@
+# Escalonamento automático do BFF Gestão por CPU (opcional).
+#
+# Não é aplicado pelo "kubectl apply -f k8s/": com o HPA ativo, ele assume o
+# número de réplicas e desfaz um "kubectl scale" manual. Para usar:
+#   minikube -p athena addons enable metrics-server
+#   kubectl apply -f k8s/extras/hpa-bff-gestao.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bff-gestao
+  namespace: athena
+  labels:
+    app.kubernetes.io/part-of: athena
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bff-gestao
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60

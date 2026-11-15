@@ -1,0 +1,50 @@
+# Entrada externa única (nginx ingress controller). Uma só origem para o
+# navegador (livro §7.3): os clientes ficam em /gestao e /livro, e a API e o MCP
+# passam pelo Gateway. Serviços de domínio e BFFs não têm rota aqui.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: athena
+  namespace: athena
+  labels:
+    app.kubernetes.io/part-of: athena
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 1m
+    # /mcp pode manter respostas em streaming.
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    # A raiz leva ao cliente Gestão.
+    nginx.ingress.kubernetes.io/app-root: /gestao/
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway
+                port:
+                  name: http
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway
+                port:
+                  name: http
+          - path: /gestao
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-gestao
+                port:
+                  name: http
+          - path: /livro
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-livro
+                port:
+                  name: http

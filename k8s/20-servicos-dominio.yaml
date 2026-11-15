@@ -1,0 +1,730 @@
+# Serviços de domínio: Deployment + Service ClusterIP (sem exposição externa).
+# Cada um fala só com o próprio banco (veja 50-network-policies.yaml).
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: projetos-acesso
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: projetos-acesso
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: projetos-acesso
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: projetos-acesso
+        app.kubernetes.io/part-of: athena
+        athena/camada: dominio
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: projetos-acesso
+          image: athena/projetos-acesso:0.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: PROJETOS_ACESSO_DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: PROJETOS_ACESSO_DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-projetos-acesso-credenciais
+                  key: usuario
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-projetos-acesso-credenciais
+                  key: senha
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: usuario
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: senha
+            - name: FLYWAY_LOCATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: FLYWAY_LOCATIONS
+            - name: JWT_CHAVE_PRIVADA_ARQUIVO
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: JWT_CHAVE_PRIVADA_ARQUIVO
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          # Startup dá tempo à JVM e às migrações; readiness controla o tráfego;
+          # liveness não olha banco nem broker, para não reiniciar em cascata.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 20
+            failureThreshold: 3
+          volumeMounts:
+            - name: jwt
+              mountPath: /etc/athena/jwt
+              readOnly: true
+      volumes:
+        # Chave privada RS256 do emissor de tokens (Secret criado por comando).
+        - name: jwt
+          secret:
+            secretName: athena-jwt
+            defaultMode: 0440
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: projetos-acesso
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: projetos-acesso
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: projetos-acesso
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: requisitos
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: requisitos
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: requisitos
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: requisitos
+        app.kubernetes.io/part-of: athena
+        athena/camada: dominio
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: requisitos
+          image: athena/requisitos:0.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REQUISITOS_DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REQUISITOS_DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-requisitos-credenciais
+                  key: usuario
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-requisitos-credenciais
+                  key: senha
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: usuario
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: senha
+            - name: FLYWAY_LOCATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: FLYWAY_LOCATIONS
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          # Startup dá tempo à JVM e às migrações; readiness controla o tráfego;
+          # liveness não olha banco nem broker, para não reiniciar em cascata.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: requisitos
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: requisitos
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: requisitos
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rastreabilidade
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: rastreabilidade
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rastreabilidade
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rastreabilidade
+        app.kubernetes.io/part-of: athena
+        athena/camada: dominio
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: rastreabilidade
+          image: athena/rastreabilidade:0.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RASTREABILIDADE_DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RASTREABILIDADE_DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-rastreabilidade-credenciais
+                  key: usuario
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-rastreabilidade-credenciais
+                  key: senha
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: usuario
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: senha
+            - name: FLYWAY_LOCATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: FLYWAY_LOCATIONS
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          # Startup dá tempo à JVM e às migrações; readiness controla o tráfego;
+          # liveness não olha banco nem broker, para não reiniciar em cascata.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rastreabilidade
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: rastreabilidade
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: rastreabilidade
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: revisoes
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: revisoes
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: revisoes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: revisoes
+        app.kubernetes.io/part-of: athena
+        athena/camada: dominio
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: revisoes
+          image: athena/revisoes:0.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REVISOES_DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REVISOES_DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-revisoes-credenciais
+                  key: usuario
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-revisoes-credenciais
+                  key: senha
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: usuario
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: senha
+            - name: FLYWAY_LOCATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: FLYWAY_LOCATIONS
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          # Startup dá tempo à JVM e às migrações; readiness controla o tráfego;
+          # liveness não olha banco nem broker, para não reiniciar em cascata.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: revisoes
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: revisoes
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: revisoes
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: integracoes
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: integracoes
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: integracoes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: integracoes
+        app.kubernetes.io/part-of: athena
+        athena/camada: dominio
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: integracoes
+          image: athena/integracoes:0.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: INTEGRACOES_DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: INTEGRACOES_DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-integracoes-credenciais
+                  key: usuario
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-integracoes-credenciais
+                  key: senha
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: usuario
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: senha
+            - name: FLYWAY_LOCATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: FLYWAY_LOCATIONS
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          # Startup dá tempo à JVM e às migrações; readiness controla o tráfego;
+          # liveness não olha banco nem broker, para não reiniciar em cascata.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: integracoes
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: integracoes
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: integracoes
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: impacto-mcp
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: impacto-mcp
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: impacto-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: impacto-mcp
+        app.kubernetes.io/part-of: athena
+        athena/camada: dominio
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: impacto-mcp
+          image: athena/impacto-mcp:0.3.0
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: IMPACTO_MCP_DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: IMPACTO_MCP_DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-impacto-mcp-credenciais
+                  key: usuario
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-impacto-mcp-credenciais
+                  key: senha
+            - name: CARREGAR_DEMO
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: CARREGAR_DEMO
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          startupProbe:
+            httpGet:
+              path: /saude/pronto
+              port: 8000
+            periodSeconds: 3
+            failureThreshold: 40
+          readinessProbe:
+            httpGet:
+              path: /saude/pronto
+              port: 8000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /saude/vivo
+              port: 8000
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: impacto-mcp
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: impacto-mcp
+    app.kubernetes.io/part-of: athena
+    athena/camada: dominio
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: impacto-mcp
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

@@ -7,6 +7,18 @@ server:
 spring:
   application:
     name: gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            # Sem pool, cada requisição abre uma conexão nova com o destino. O
+            # Kubernetes balanceia por conexão, então só assim as réplicas de um
+            # BFF escalado recebem tráfego de forma distribuída.
+            pool:
+              type: ${GATEWAY_HTTP_POOL:disabled}
+            connect-timeout: 2000
+            response-timeout: 30s
 
 athena:
   rotas:

@@ -1,0 +1,190 @@
+# Isolamento entre camadas, equivalente às redes do docker-compose:
+#   - cada banco só aceita conexões do seu serviço;
+#   - o RabbitMQ só aceita os serviços de domínio;
+#   - serviços de domínio só aceitam BFFs, Gateway (impacto-mcp) e outros domínios;
+#   - BFFs só aceitam o Gateway;
+#   - Gateway e clientes só aceitam o Ingress controller e o próprio namespace.
+# Exige um CNI que aplique NetworkPolicy (o README sobe o minikube com Calico).
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-projetos-acesso-somente-do-servico
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: db-projetos-acesso
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: projetos-acesso
+      ports:
+        - port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-requisitos-somente-do-servico
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: db-requisitos
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: requisitos
+      ports:
+        - port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-rastreabilidade-somente-do-servico
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: db-rastreabilidade
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rastreabilidade
+      ports:
+        - port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-revisoes-somente-do-servico
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: db-revisoes
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: revisoes
+      ports:
+        - port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-integracoes-somente-do-servico
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: db-integracoes
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: integracoes
+      ports:
+        - port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-impacto-mcp-somente-do-servico
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: db-impacto-mcp
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: impacto-mcp
+      ports:
+        - port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rabbitmq-somente-dominio
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              athena/camada: dominio
+      ports:
+        - port: 5672
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dominio-somente-interno
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      athena/camada: dominio
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              athena/camada: bff
+        - podSelector:
+            matchLabels:
+              athena/camada: dominio
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: bff-somente-gateway
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      athena/camada: bff
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: borda-ingress-e-namespace
+  namespace: athena
+spec:
+  podSelector:
+    matchExpressions:
+      - key: athena/camada
+        operator: In
+        values: [borda, cliente]
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+        - podSelector: {}

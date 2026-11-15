@@ -1,0 +1,31 @@
+{
+  "vhosts": [
+    { "name": "/" }
+  ],
+  "users": [
+    { "name": "__USUARIO__", "password": "__SENHA__", "tags": ["administrator"] }
+  ],
+  "permissions": [
+    { "user": "__USUARIO__", "vhost": "/", "configure": ".*", "write": ".*", "read": ".*" }
+  ],
+  "exchanges": [
+    {
+      "name": "athena.commands",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "athena.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ]
+}

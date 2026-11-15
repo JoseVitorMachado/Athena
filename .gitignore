@@ -1,1 +1,21 @@
 node_modules/
+
+# Variáveis locais do compose
+.env
+
+# Build Java
+target/
+
+# Build Angular
+frontend/*/dist/
+frontend/*/.angular/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDEs
+.idea/
+.vscode/
+*.iml

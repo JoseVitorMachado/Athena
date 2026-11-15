@@ -1,0 +1,137 @@
+# ATHENA — ambiente local completo.
+#
+#   docker compose up --build
+#
+# Redes (isolamento entre camadas):
+#   edge      navegador -> frontends e Gateway. Única rede com portas publicadas.
+#   app       Gateway, BFFs, serviços de domínio e RabbitMQ. Sem acesso externo.
+#   dados-*   uma por serviço: só o serviço dono enxerga o seu banco.
+#
+# As variáveis têm valores padrão de desenvolvimento, então o comando acima
+# funciona sem preparo. Para trocar senhas ou portas, copie .env.example para .env.
+
+name: athena
+
+x-banco: &banco
+  image: athena/postgres:17.9-1
+  build:
+    context: ./infra/postgres
+  restart: unless-stopped
+
+services:
+
+  # ---------------------------------------------------------------- mensageria
+
+  rabbitmq:
+    image: athena/rabbitmq:4.3.7-1
+    build:
+      context: ./infra/rabbitmq
+    hostname: rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-athena}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-dev_rabbitmq}
+    volumes:
+      - rabbitmq-dados:/var/lib/rabbitmq
+    networks:
+      - app
+
+  # -------------------------------------------- bancos (um por serviço de domínio)
+
+  db-projetos-acesso:
+    <<: *banco
+    environment:
+      POSTGRES_DB: projetos_acesso
+      POSTGRES_USER: ${PROJETOS_ACESSO_DB_USER:-projetos_acesso}
+      POSTGRES_PASSWORD: ${PROJETOS_ACESSO_DB_PASSWORD:-dev_projetos_acesso}
+    volumes:
+      - db-projetos-acesso-dados:/var/lib/postgresql/data
+    networks:
+      - dados-projetos-acesso
+
+  db-requisitos:
+    <<: *banco
+    environment:
+      POSTGRES_DB: requisitos
+      POSTGRES_USER: ${REQUISITOS_DB_USER:-requisitos}
+      POSTGRES_PASSWORD: ${REQUISITOS_DB_PASSWORD:-dev_requisitos}
+    volumes:
+      - db-requisitos-dados:/var/lib/postgresql/data
+    networks:
+      - dados-requisitos
+
+  db-rastreabilidade:
+    <<: *banco
+    environment:
+      POSTGRES_DB: rastreabilidade
+      POSTGRES_USER: ${RASTREABILIDADE_DB_USER:-rastreabilidade}
+      POSTGRES_PASSWORD: ${RASTREABILIDADE_DB_PASSWORD:-dev_rastreabilidade}
+    volumes:
+      - db-rastreabilidade-dados:/var/lib/postgresql/data
+    networks:
+      - dados-rastreabilidade
+
+  db-revisoes:
+    <<: *banco
+    environment:
+      POSTGRES_DB: revisoes
+      POSTGRES_USER: ${REVISOES_DB_USER:-revisoes}
+      POSTGRES_PASSWORD: ${REVISOES_DB_PASSWORD:-dev_revisoes}
+    volumes:
+      - db-revisoes-dados:/var/lib/postgresql/data
+    networks:
+      - dados-revisoes
+
+  db-integracoes:
+    <<: *banco
+    environment:
+      POSTGRES_DB: integracoes
+      POSTGRES_USER: ${INTEGRACOES_DB_USER:-integracoes}
+      POSTGRES_PASSWORD: ${INTEGRACOES_DB_PASSWORD:-dev_integracoes}
+    volumes:
+      - db-integracoes-dados:/var/lib/postgresql/data
+    networks:
+      - dados-integracoes
+
+  # Mesmo Dockerfile dos demais bancos, com a base que traz a extensão pgvector.
+  db-impacto-mcp:
+    image: athena/postgres-pgvector:0.8.7-pg17-1
+    build:
+      context: ./infra/postgres
+      args:
+        IMAGEM_BASE: pgvector/pgvector:0.8.7-pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: impacto_mcp
+      POSTGRES_USER: ${IMPACTO_MCP_DB_USER:-impacto_mcp}
+      POSTGRES_PASSWORD: ${IMPACTO_MCP_DB_PASSWORD:-dev_impacto_mcp}
+    volumes:
+      - db-impacto-mcp-dados:/var/lib/postgresql/data
+    networks:
+      - dados-impacto-mcp
+
+networks:
+  edge:
+  app:
+    internal: true
+  dados-projetos-acesso:
+    internal: true
+  dados-requisitos:
+    internal: true
+  dados-rastreabilidade:
+    internal: true
+  dados-revisoes:
+    internal: true
+  dados-integracoes:
+    internal: true
+  dados-impacto-mcp:
+    internal: true
+
+volumes:
+  rabbitmq-dados:
+  db-projetos-acesso-dados:
+  db-requisitos-dados:
+  db-rastreabilidade-dados:
+  db-revisoes-dados:
+  db-integracoes-dados:
+  db-impacto-mcp-dados:

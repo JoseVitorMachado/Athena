@@ -1,0 +1,32 @@
+# Os destinos das rotas vêm de variáveis de ambiente (compose ou ConfigMap).
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+spring:
+  application:
+    name: gateway
+
+athena:
+  rotas:
+    bff-gestao: ${BFF_GESTAO_URL}
+    bff-livro: ${BFF_LIVRO_URL}
+    impacto-mcp: ${IMPACTO_MCP_URL}
+
+# O Actuator fica em outra porta, que não é publicada nem roteada: endpoints
+# técnicos não saem pela entrada pública (livro §6.1).
+management:
+  server:
+    port: ${MANAGEMENT_PORT:8081}
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    gateway:
+      access: read-only
+    health:
+      show-details: always
+      probes:
+        enabled: true

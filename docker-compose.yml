@@ -10,7 +10,7 @@
 # As variáveis têm valores padrão de desenvolvimento, então o comando acima
 # funciona sem preparo. Para trocar senhas ou portas, copie .env.example para .env.
 
-name: athena
+name: athena-sd
 
 x-banco: &banco
   image: athena/postgres:17.9-1
@@ -105,6 +105,27 @@ services:
   # ------------------------------------------------------- serviços de domínio
   # Nenhum publica porta: só são alcançáveis pela rede "app".
 
+  projetos-acesso:
+    <<: *java
+    image: athena/projetos-acesso:0.3.0
+    build:
+      context: ./services/projetos-acesso
+    environment:
+      <<: *rabbitmq-cliente
+      DB_HOST: db-projetos-acesso
+      DB_NAME: projetos_acesso
+      DB_USER: ${PROJETOS_ACESSO_DB_USER:-projetos_acesso}
+      DB_PASSWORD: ${PROJETOS_ACESSO_DB_PASSWORD:-dev_projetos_acesso}
+      FLYWAY_LOCATIONS: ${FLYWAY_LOCATIONS:-classpath:db/migration,classpath:db/demo}
+    depends_on:
+      db-projetos-acesso:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app
+      - dados-projetos-acesso
+
   requisitos:
     <<: *java
     image: athena/requisitos:0.3.0
@@ -125,6 +146,69 @@ services:
     networks:
       - app
       - dados-requisitos
+
+  rastreabilidade:
+    <<: *java
+    image: athena/rastreabilidade:0.3.0
+    build:
+      context: ./services/rastreabilidade
+    environment:
+      <<: *rabbitmq-cliente
+      DB_HOST: db-rastreabilidade
+      DB_NAME: rastreabilidade
+      DB_USER: ${RASTREABILIDADE_DB_USER:-rastreabilidade}
+      DB_PASSWORD: ${RASTREABILIDADE_DB_PASSWORD:-dev_rastreabilidade}
+      FLYWAY_LOCATIONS: ${FLYWAY_LOCATIONS:-classpath:db/migration,classpath:db/demo}
+    depends_on:
+      db-rastreabilidade:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app
+      - dados-rastreabilidade
+
+  revisoes:
+    <<: *java
+    image: athena/revisoes:0.3.0
+    build:
+      context: ./services/revisoes
+    environment:
+      <<: *rabbitmq-cliente
+      DB_HOST: db-revisoes
+      DB_NAME: revisoes
+      DB_USER: ${REVISOES_DB_USER:-revisoes}
+      DB_PASSWORD: ${REVISOES_DB_PASSWORD:-dev_revisoes}
+      FLYWAY_LOCATIONS: ${FLYWAY_LOCATIONS:-classpath:db/migration,classpath:db/demo}
+    depends_on:
+      db-revisoes:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app
+      - dados-revisoes
+
+  integracoes:
+    <<: *java
+    image: athena/integracoes:0.3.0
+    build:
+      context: ./services/integracoes
+    environment:
+      <<: *rabbitmq-cliente
+      DB_HOST: db-integracoes
+      DB_NAME: integracoes
+      DB_USER: ${INTEGRACOES_DB_USER:-integracoes}
+      DB_PASSWORD: ${INTEGRACOES_DB_PASSWORD:-dev_integracoes}
+      FLYWAY_LOCATIONS: ${FLYWAY_LOCATIONS:-classpath:db/migration,classpath:db/demo}
+    depends_on:
+      db-integracoes:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app
+      - dados-integracoes
 
   # -------------------------------------------- bancos (um por serviço de domínio)
 

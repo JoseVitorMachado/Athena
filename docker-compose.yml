@@ -45,6 +45,45 @@ services:
     networks:
       - app
 
+  # ------------------------------------------------------------------- borda
+  # O Gateway é a única entrada HTTP da aplicação e a única ponte entre a rede
+  # "edge" e a rede "app".
+
+  gateway:
+    <<: *java
+    image: athena/gateway:0.3.0
+    build:
+      context: ./gateway
+    environment:
+      BFF_GESTAO_URL: http://bff-gestao:8080
+      BFF_LIVRO_URL: http://bff-livro:8080
+      IMPACTO_MCP_URL: http://impacto-mcp:8000
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    depends_on:
+      bff-gestao:
+        condition: service_healthy
+    networks:
+      - edge
+      - app
+
+  # -------------------------------------------------------------------- BFFs
+  # Sem banco e sem estado: podem ter várias réplicas.
+
+  bff-gestao:
+    <<: *java
+    image: athena/bff-gestao:0.3.0
+    build:
+      context: ./bff/gestao
+    environment:
+      REQUISITOS_URL: http://requisitos:8080
+      REVISOES_URL: http://revisoes:8080
+    depends_on:
+      requisitos:
+        condition: service_healthy
+    networks:
+      - app
+
   # ------------------------------------------------------- serviços de domínio
   # Nenhum publica porta: só são alcançáveis pela rede "app".
 

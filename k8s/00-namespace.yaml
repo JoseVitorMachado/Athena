@@ -1,0 +1,7 @@
+# Todos os recursos do ATHENA ficam neste namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: athena
+  labels:
+    app.kubernetes.io/part-of: athena

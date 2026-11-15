@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ATHENA — Contratos de API</title>
+<style>
+  :root {
+    --fundo: #f6f7fb; --painel: #ffffff; --borda: #dfe3ec; --texto: #1d2433; --suave: #5b6478;
+    --acento: #5b6cf0; --acento-claro: #eceefe;
+    --get: #1f8a5b; --post: #2f6fd6; --patch: #b7791f; --put: #8a4fd6; --delete: #c43d4b;
+    --alerta: #fff5e0; --alerta-borda: #e3a63b;
+    --fonte: 15px;
+  }
+  * { box-sizing: border-box; }
+  html { font-size: var(--fonte); }
+  body { margin: 0; font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--texto); background: var(--fundo); line-height: 1.45; }
+  html.projetor { --fonte: 19px; }
+  code, pre, .mono { font-family: Consolas, "DejaVu Sans Mono", Menlo, monospace; }
+  a { color: var(--acento); }
+
+  #lateral { position: fixed; top: 0; left: 0; bottom: 0; width: 290px; background: var(--painel); border-right: 1px solid var(--borda); display: flex; flex-direction: column; }
+  #lateral header { padding: 18px 18px 12px; border-bottom: 1px solid var(--borda); }
+  #lateral h1 { margin: 0; font-size: 1.25rem; letter-spacing: .02em; }
+  #lateral h1 span { color: var(--acento); }
+  #lateral .sub { color: var(--suave); font-size: .82rem; margin-top: 2px; }
+  #busca { width: 100%; margin-top: 12px; padding: 8px 10px; border: 1px solid var(--borda); border-radius: 6px; font-size: .9rem; }
+  #menu { flex: 1; overflow-y: auto; padding: 8px 0; }
+  #menu button { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 9px 18px; border: 0; background: none; text-align: left; font-size: .92rem; color: var(--texto); cursor: pointer; }
+  #menu button:hover { background: var(--fundo); }
+  #menu button.ativo { background: var(--acento-claro); color: var(--acento); font-weight: 600; border-left: 3px solid var(--acento); padding-left: 15px; }
+  #menu .qtd { font-size: .75rem; color: var(--suave); background: var(--fundo); border-radius: 10px; padding: 1px 8px; }
+  #menu .secao { padding: 12px 18px 4px; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--suave); }
+  #lateral footer { padding: 12px 18px; border-top: 1px solid var(--borda); font-size: .8rem; }
+  #lateral footer label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+
+  main { margin-left: 290px; padding: 28px 40px 80px; max-width: 1250px; }
+  h2 { font-size: 1.6rem; margin: 0 0 4px; }
+  h3 { font-size: 1.1rem; margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--borda); }
+  .descricao { color: var(--suave); white-space: pre-wrap; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .chip { display: inline-block; font-size: .75rem; padding: 2px 8px; border-radius: 10px; background: var(--fundo); border: 1px solid var(--borda); color: var(--suave); white-space: nowrap; }
+  .chip.papel { background: #eef7f1; border-color: #bfe0cc; color: #1f6b47; }
+  .chip.escopo { background: #f1edfd; border-color: #d6cbf7; color: #5c3fc0; }
+  .chip.decidir { background: var(--alerta); border-color: var(--alerta-borda); color: #8a5a00; font-weight: 600; }
+  .chip.interno { background: #fdecee; border-color: #f2c3c8; color: #a12f3c; }
+
+  .cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 18px; }
+  .cartao { background: var(--painel); border: 1px solid var(--borda); border-radius: 10px; padding: 16px; cursor: pointer; }
+  .cartao:hover { border-color: var(--acento); }
+  .cartao b { display: block; margin-bottom: 4px; }
+  .cartao .num { font-size: 1.8rem; font-weight: 700; color: var(--acento); }
+  .cartao .desc { font-size: .82rem; color: var(--suave); }
+
+  .op { background: var(--painel); border: 1px solid var(--borda); border-radius: 8px; margin: 8px 0; overflow: hidden; }
+  .op > .cab { display: flex; align-items: center; gap: 12px; padding: 9px 12px; cursor: pointer; }
+  .op > .cab:hover { background: #fafbfe; }
+  .metodo { flex: 0 0 64px; text-align: center; color: #fff; font-weight: 700; font-size: .75rem; border-radius: 4px; padding: 4px 0; }
+  .m-get { background: var(--get); } .m-post { background: var(--post); } .m-patch { background: var(--patch); } .m-put { background: var(--put); } .m-delete { background: var(--delete); }
+  .op .rota { font-family: Consolas, "DejaVu Sans Mono", Menlo, monospace; font-size: .88rem; word-break: break-all; }
+  .op .resumo { color: var(--suave); font-size: .85rem; margin-left: auto; text-align: right; }
+  .op .corpo { display: none; border-top: 1px solid var(--borda); padding: 14px 18px 18px; }
+  .op.aberta .corpo { display: block; }
+  .op.aberta > .cab { background: var(--acento-claro); }
+
+  table { width: 100%; border-collapse: collapse; font-size: .87rem; margin: 6px 0 12px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--borda); vertical-align: top; }
+  th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--suave); }
+  .obrig { color: var(--delete); font-weight: 700; }
+  h4 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); margin: 16px 0 6px; }
+
+  .aviso { background: var(--alerta); border-left: 4px solid var(--alerta-borda); padding: 8px 12px; border-radius: 4px; margin: 10px 0; font-size: .88rem; }
+
+  .resp { border: 1px solid var(--borda); border-radius: 6px; margin: 6px 0; }
+  .resp > summary { padding: 6px 10px; cursor: pointer; font-size: .88rem; }
+  .resp > div { padding: 4px 12px 10px; }
+  .st { display: inline-block; min-width: 42px; font-weight: 700; font-family: Consolas, monospace; }
+  .st-2 { color: var(--get); } .st-3 { color: var(--post); } .st-4 { color: var(--patch); } .st-5 { color: var(--delete); }
+
+  .esquema { font-size: .85rem; }
+  .esquema ul { list-style: none; margin: 0; padding-left: 16px; border-left: 1px dashed var(--borda); }
+  .esquema > ul { padding-left: 0; border-left: 0; }
+  .esquema li { padding: 3px 0; }
+  .esquema .nome { font-family: Consolas, monospace; font-weight: 600; }
+  .esquema .tipo { color: var(--acento); font-family: Consolas, monospace; font-size: .8rem; }
+  .esquema .det { color: var(--suave); font-size: .8rem; }
+  .esquema details > summary { cursor: pointer; }
+
+  pre { background: #1f2430; color: #e6e9f0; padding: 12px 14px; border-radius: 6px; overflow-x: auto; font-size: .8rem; max-height: 420px; }
+  .abas { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .abas button { border: 1px solid var(--borda); background: var(--painel); border-radius: 5px 5px 0 0; padding: 4px 10px; font-size: .78rem; cursor: pointer; }
+  .abas button.ativo { background: #1f2430; color: #fff; border-color: #1f2430; }
+  .abas + pre { margin-top: 0; border-top-left-radius: 0; }
+
+  .vazio { color: var(--suave); padding: 30px 0; }
+  .legenda { font-size: .82rem; color: var(--suave); }
+  .barra { display: flex; gap: 10px; align-items: center; margin: 14px 0 0; flex-wrap: wrap; }
+  .barra button { border: 1px solid var(--borda); background: var(--painel); border-radius: 6px; padding: 5px 12px; font-size: .82rem; cursor: pointer; }
+</style>
+</head>
+<body>
+<aside id="lateral">
+  <header>
+    <h1><span>ATHENA</span> · Contratos</h1>
+    <div class="sub" id="versao"></div>
+    <input id="busca" type="search" placeholder="Buscar rota, operação, papel…">
+  </header>
+  <nav id="menu"></nav>
+  <footer>
+    <label><input type="checkbox" id="modoProjetor"> Letra grande (projetor)</label>
+  </footer>
+</aside>
+<main id="conteudo"></main>
+
+<script id="dados" type="application/json">__DADOS__</script>
+<script>
+(function () {
+  "use strict";
+  var DADOS = JSON.parse(document.getElementById("dados").textContent);
+  var contratos = DADOS.contratos;
+  var METODOS = ["get", "post", "put", "patch", "delete"];
+  var conteudo = document.getElementById("conteudo");
+  var menu = document.getElementById("menu");
+  var atual = null;
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function resolver(doc, obj) {
+    var guarda = 0;
+    while (obj && obj.$ref && guarda++ < 20) {
+      var partes = obj.$ref.replace(/^#\//, "").split("/");
+      var alvo = doc;
+      for (var i = 0; i < partes.length; i++) {
+        alvo = alvo ? alvo[partes[i].replace(/~1/g, "/").replace(/~0/g, "~")] : undefined;
+      }
+      if (!alvo) return obj;
+      obj = alvo;
+    }
+    return obj;
+  }
+  function nomeRef(obj) {
+    return obj && obj.$ref ? obj.$ref.split("/").pop() : null;
+  }
+
+  function operacoes(c) {
+    var lista = [];
+    var paths = c.doc.paths || {};
+    Object.keys(paths).forEach(function (rota) {
+      var item = paths[rota];
+      METODOS.forEach(function (m) {
+        if (item[m]) lista.push({ contrato: c, rota: rota, metodo: m, op: item[m], comuns: item.parameters || [] });
+      });
+    });
+    return lista;
+  }
+  contratos.forEach(function (c) { c.ops = operacoes(c); });
+
+  /* ---------- esquemas ---------- */
+  function tipoDe(s) {
+    if (!s) return "";
+    if (s.type) {
+      var t = Array.isArray(s.type) ? s.type.join(" | ") : s.type;
+      if (t === "array" && s.items) {
+        var n = nomeRef(s.items);
+        return "array<" + (n || tipoDe(s.items) || "item") + ">";
+      }
+      return t + (s.format ? " (" + s.format + ")" : "");
+    }
+    if (s.oneOf) return "oneOf";
+    if (s.anyOf) return "anyOf";
+    if (s.allOf) return "allOf";
+    if (s.enum) return "enum";
+    if (s["const"] !== undefined) return "const";
+    return "";
+  }
+
+  function detalhes(s) {
+    var d = [];
+    if (s.description) d.push(esc(s.description));
+    if (s.enum) d.push("valores: <code>" + s.enum.map(esc).join("</code>, <code>") + "</code>");
+    if (s["const"] !== undefined) d.push("constante: <code>" + esc(JSON.stringify(s["const"])) + "</code>");
+    if (s["default"] !== undefined) d.push("padrão: <code>" + esc(JSON.stringify(s["default"])) + "</code>");
+    ["minimum", "maximum", "minLength", "maxLength", "minItems", "maxItems", "pattern"].forEach(function (k) {
+      if (s[k] !== undefined) d.push(k + ": <code>" + esc(s[k]) + "</code>");
+    });
+    if (s.readOnly) d.push("somente leitura");
+    if (s["x-decidir"]) d.push('<span class="chip decidir">a decidir</span> ' + esc(s["x-decidir"]));
+    return d.join(" · ");
+  }
+
+  function arvore(doc, schema, profundidade, vistos) {
+    if (!schema) return "";
+    var ref = nomeRef(schema);
+    var s = resolver(doc, schema);
+    if (ref) {
+      if (vistos.indexOf(ref) >= 0) return '<li><span class="det">↻ referência circular a ' + esc(ref) + "</span></li>";
+      vistos = vistos.concat([ref]);
+    }
+    if (profundidade > 7) return '<li><span class="det">… (nível máximo de detalhe)</span></li>';
+    var h = "";
+    var props = s.properties || {};
+    var obrig = s.required || [];
+    Object.keys(props).forEach(function (nome) {
+      var bruto = props[nome];
+      var p = resolver(doc, bruto);
+      var filhos = filhosDe(doc, bruto, profundidade + 1, vistos);
+      var linha = '<span class="nome">' + esc(nome) + "</span>" +
+        (obrig.indexOf(nome) >= 0 ? ' <span class="obrig" title="obrigatório">*</span>' : "") +
+        ' <span class="tipo">' + esc(nomeRef(bruto) || tipoDe(p)) + "</span>" +
+        (detalhes(p) ? ' <span class="det">— ' + detalhes(p) + "</span>" : "");
+      h += filhos
+        ? "<li><details" + (profundidade < 1 ? " open" : "") + "><summary>" + linha + "</summary><ul>" + filhos + "</ul></details></li>"
+        : "<li>" + linha + "</li>";
+    });
+    ["allOf", "oneOf", "anyOf"].forEach(function (k) {
+      if (!s[k]) return;
+      s[k].forEach(function (sub, i) {
+        var titulo = k === "allOf" ? "inclui" : (k === "oneOf" ? "opção " + (i + 1) : "alternativa " + (i + 1));
+        var interno = arvore(doc, sub, profundidade + 1, vistos);
+        var n = nomeRef(sub) || tipoDe(resolver(doc, sub));
+        h += "<li><details" + (k === "allOf" ? " open" : "") + '><summary><span class="det">' + titulo + ':</span> <span class="tipo">' + esc(n) + "</span></summary><ul>" +
+          (interno || '<li><span class="det">' + detalhes(resolver(doc, sub)) + "</span></li>") + "</ul></details></li>";
+      });
+    });
+    if (s.type === "array" && s.items && !Object.keys(props).length) {
+      var it = arvore(doc, s.items, profundidade + 1, vistos);
+      if (it) h += '<li><span class="det">cada item:</span><ul>' + it + "</ul></li>";
+    }
+    if (s.additionalProperties && typeof s.additionalProperties === "object") {
+      var ad = arvore(doc, s.additionalProperties, profundidade + 1, vistos);
+      h += '<li><span class="nome">{chave}</span> <span class="tipo">' + esc(nomeRef(s.additionalProperties) || tipoDe(resolver(doc, s.additionalProperties))) + "</span>" + (ad ? "<ul>" + ad + "</ul>" : "") + "</li>";
+    }
+    return h;
+  }
+
+  function filhosDe(doc, bruto, profundidade, vistos) {
+    var p = resolver(doc, bruto);
+    var ref = nomeRef(bruto);
+    if (ref && vistos.indexOf(ref) >= 0) return "";
+    var temFilhos = p.properties || p.allOf || p.oneOf || p.anyOf ||
+      (p.type === "array" && p.items && resolver(doc, p.items).properties) ||
+      (p.additionalProperties && typeof p.additionalProperties === "object");
+    return temFilhos ? arvore(doc, bruto, profundidade, vistos) : "";
+  }
+
+  function blocoEsquema(doc, schema) {
+    if (!schema) return "";
+    var s = resolver(doc, schema);
+    var corpo = arvore(doc, schema, 0, []);
+    var titulo = nomeRef(schema) || tipoDe(s);
+    return '<div class="esquema"><div><span class="tipo">' + esc(titulo) + "</span>" +
+      (detalhes(s) ? ' <span class="det">— ' + detalhes(s) + "</span>" : "") + "</div>" +
+      (corpo ? "<ul>" + corpo + "</ul>" : "") + "</div>";
+  }
+
+  /* ---------- exemplos ---------- */
+  var contadorAbas = 0;
+  function blocoExemplos(doc, midia) {
+    var lista = [];
+    if (midia.examples) {
+      Object.keys(midia.examples).forEach(function (k) {
+        var e = resolver(doc, midia.examples[k]);
+        if (e && e.value !== undefined) lista.push({ nome: k, valor: e.value });
+      });
+    } else if (midia.example !== undefined) {
+      lista.push({ nome: "exemplo", valor: midia.example });
+    }
+    if (!lista.length) return "";
+    var id = "ex" + (contadorAbas++);
+    var abas = lista.map(function (e, i) {
+      return '<button data-grupo="' + id + '" data-i="' + i + '"' + (i === 0 ? ' class="ativo"' : "") + ">" + esc(e.nome) + "</button>";
+    }).join("");
+    var pres = lista.map(function (e, i) {
+      return '<pre data-grupo="' + id + '" data-i="' + i + '"' + (i ? ' style="display:none"' : "") + ">" + esc(JSON.stringify(e.valor, null, 2)) + "</pre>";
+    }).join("");
+    return "<h4>Exemplos</h4>" + '<div class="abas">' + abas + "</div>" + pres;
+  }
+
+  /* ---------- operação ---------- */
+  function chipsOp(op) {
+    var h = "";
+    if (op["x-papel-minimo"]) h += '<span class="chip papel" title="Papel mínimo no projeto">' + esc(op["x-papel-minimo"]) + "</span>";
+    if (op["x-escopo-mcp"]) h += '<span class="chip escopo" title="Escopo OAuth exigido do agente MCP">' + esc(op["x-escopo-mcp"]) + "</span>";
+    if (op["x-interno"]) h += '<span class="chip interno">interno</span>';
+    if (op["x-decidir"]) h += '<span class="chip decidir">a decidir</span>';
+    return h;
+  }
+
+  function corpoOperacao(item) {
+    var doc = item.contrato.doc, op = item.op, h = "";
+    if (op.description) h += '<p class="descricao">' + esc(op.description) + "</p>";
+    var chips = chipsOp(op);
+    if (op.operationId) chips = '<span class="chip mono">' + esc(op.operationId) + "</span>" + chips;
+    var seg = op.security || doc.security;
+    if (seg) {
+      var nomes = [];
+      seg.forEach(function (r) { nomes.push(Object.keys(r).join(" + ") || "público"); });
+      chips += '<span class="chip" title="Segurança">🔒 ' + esc(nomes.join(" ou ")) + "</span>";
+    }
+    h += '<div class="chips">' + chips + "</div>";
+    if (op["x-decidir"]) h += '<div class="aviso"><b>Decisão pendente:</b> ' + esc(op["x-decidir"]) + "</div>";
+
+    var params = (item.comuns || []).concat(op.parameters || []).map(function (p) { return resolver(doc, p); });
+    if (params.length) {
+      h += "<h4>Parâmetros</h4><table><tr><th>Nome</th><th>Em</th><th>Tipo</th><th>Descrição</th></tr>";
+      params.forEach(function (p) {
+        var s = p.schema ? resolver(doc, p.schema) : {};
+        h += '<tr><td class="mono">' + esc(p.name) + (p.required ? ' <span class="obrig">*</span>' : "") + "</td><td>" + esc(p["in"]) +
+          '</td><td class="mono">' + esc(nomeRef(p.schema) || tipoDe(s)) + "</td><td>" + esc(p.description || "") +
+          (s.enum ? '<div class="legenda">valores: ' + s.enum.map(esc).join(", ") + "</div>" : "") +
+          (s["default"] !== undefined ? '<div class="legenda">padrão: ' + esc(JSON.stringify(s["default"])) + "</div>" : "") + "</td></tr>";
+      });
+      h += "</table>";
+    }
+
+    if (op.requestBody) {
+      var rb = resolver(doc, op.requestBody);
+      h += "<h4>Corpo da requisição" + (rb.required ? ' <span class="obrig">*</span>' : "") + "</h4>";
+      if (rb.description) h += '<p class="descricao">' + esc(rb.description) + "</p>";
+      Object.keys(rb.content || {}).forEach(function (mt) {
+        h += '<div class="legenda mono">' + esc(mt) + "</div>" + blocoEsquema(doc, rb.content[mt].schema) + blocoExemplos(doc, rb.content[mt]);
+      });
+    }
+
+    var resps = op.responses || {};
+    h += "<h4>Respostas</h4>";
+    Object.keys(resps).forEach(function (st) {
+      var r = resolver(doc, resps[st]);
+      var nomeR = nomeRef(resps[st]);
+      var interno = "";
+      var desc = r.description || "", ponto = desc.indexOf(". ");
+      var resumo = ponto > 0 ? desc.slice(0, ponto + 1) : desc;
+      if (desc && desc !== resumo) interno += '<p class="descricao">' + esc(desc) + "</p>";
+      if (r.headers) {
+        interno += "<table><tr><th>Cabeçalho</th><th>Descrição</th></tr>";
+        Object.keys(r.headers).forEach(function (k) {
+          interno += '<tr><td class="mono">' + esc(k) + "</td><td>" + esc(resolver(doc, r.headers[k]).description || "") + "</td></tr>";
+        });
+        interno += "</table>";
+      }
+      Object.keys(r.content || {}).forEach(function (mt) {
+        interno += '<div class="legenda mono">' + esc(mt) + "</div>" + blocoEsquema(doc, r.content[mt].schema) + blocoExemplos(doc, r.content[mt]);
+      });
+      h += '<details class="resp"' + (st.charAt(0) === "2" || st.charAt(0) === "3" ? " open" : "") + '><summary><span class="st st-' + st.charAt(0) + '">' + esc(st) + "</span> " +
+        esc(resumo.length > 110 ? resumo.slice(0, 110) + "…" : resumo) + (nomeR ? ' <span class="legenda">(' + esc(nomeR) + ")</span>" : "") + "</summary><div>" + interno + "</div></details>";
+    });
+    return h;
+  }
+
+  function linhaOperacao(item, mostrarContrato) {
+    var op = item.op;
+    var div = document.createElement("div");
+    div.className = "op";
+    div.innerHTML = '<div class="cab"><span class="metodo m-' + item.metodo + '">' + item.metodo.toUpperCase() + "</span>" +
+      '<span class="rota">' + esc(item.rota) + "</span>" +
+      '<span class="resumo">' + (mostrarContrato ? '<span class="chip">' + esc(item.contrato.titulo) + "</span> " : "") +
+      esc(op.summary || op.operationId || "") + " " + chipsOp(op) + "</span></div>" +
+      '<div class="corpo"></div>';
+    var cab = div.firstChild, corpo = div.lastChild, montado = false;
+    cab.addEventListener("click", function () {
+      if (!montado) { corpo.innerHTML = corpoOperacao(item); montado = true; }
+      div.classList.toggle("aberta");
+    });
+    return div;
+  }
+
+  /* ---------- telas ---------- */
+  function marcarMenu(id) {
+    Array.prototype.forEach.call(menu.querySelectorAll("button"), function (b) {
+      b.classList.toggle("ativo", b.getAttribute("data-id") === id);
+    });
+  }
+
+  function telaInicio() {
+    atual = null; marcarMenu("inicio");
+    var total = contratos.reduce(function (a, c) { return a + c.ops.length; }, 0);
+    var h = "<h2>Contratos de API do ATHENA</h2>" +
+      '<p class="descricao">' + esc(DADOS.resumo) + "</p>" +
+      '<div class="chips"><span class="chip">' + contratos.length + " contratos</span>" +
+      '<span class="chip">' + total + " operações</span><span class=\"chip\">OpenAPI " + esc(contratos[0].doc.openapi) + "</span>" +
+      '<span class="chip">gerado em ' + esc(DADOS.geradoEm) + "</span></div>" +
+      '<div class="cartoes">';
+    contratos.forEach(function (c) {
+      h += '<div class="cartao" data-id="' + c.id + '"><span class="num">' + c.ops.length + "</span><b>" + esc(c.titulo) + '</b><div class="desc">' + esc(c.papel) + "</div></div>";
+    });
+    h += "</div>" +
+      "<h3>Como ler</h3>" +
+      '<p><span class="chip papel">Editor</span> papel mínimo no projeto (Leitor &lt; Repórter &lt; Editor &lt; Aprovador &lt; Mantenedor &lt; Owner). ' +
+      '<span class="chip escopo">athena:write</span> escopo exigido quando quem chama é o agente MCP. ' +
+      '<span class="chip decidir">a decidir</span> ponto em aberto no livro de arquitetura.</p>' +
+      '<p class="legenda">Clique numa operação para ver parâmetros, corpo, respostas e exemplos. A busca à esquerda procura em todos os contratos.</p>';
+    conteudo.innerHTML = h;
+    Array.prototype.forEach.call(conteudo.querySelectorAll(".cartao"), function (el) {
+      el.addEventListener("click", function () { abrir(el.getAttribute("data-id")); });
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function telaContrato(c) {
+    atual = c; marcarMenu(c.id);
+    var info = c.doc.info || {};
+    var srv = (c.doc.servers || []).map(function (s) { return s.url; }).join(", ");
+    conteudo.innerHTML = "<h2>" + esc(info.title) + "</h2>" +
+      '<div class="chips"><span class="chip">v' + esc(info.version) + '</span><span class="chip">' + c.ops.length + " operações</span>" +
+      (srv ? '<span class="chip mono">' + esc(srv) + "</span>" : "") + "</div>" +
+      '<p class="descricao">' + esc(info.description || "") + "</p>" +
+      '<div class="barra"><button id="abrirTudo">Expandir tudo</button><button id="fecharTudo">Recolher tudo</button></div>' +
+      '<div id="lista"></div><div id="esquemas"></div>';
+
+    var lista = document.getElementById("lista");
+    var porTag = {}, ordem = [];
+    (c.doc.tags || []).forEach(function (t) { porTag[t.name] = { desc: t.description, itens: [] }; ordem.push(t.name); });
+    c.ops.forEach(function (item) {
+      var t = (item.op.tags && item.op.tags[0]) || "outros";
+      if (!porTag[t]) { porTag[t] = { itens: [] }; ordem.push(t); }
+      porTag[t].itens.push(item);
+    });
+    ordem.forEach(function (t) {
+      if (!porTag[t].itens.length) return;
+      var h3 = document.createElement("h3");
+      h3.textContent = t + "  (" + porTag[t].itens.length + ")";
+      lista.appendChild(h3);
+      porTag[t].itens.forEach(function (item) { lista.appendChild(linhaOperacao(item, false)); });
+    });
+
+    var schemas = (c.doc.components && c.doc.components.schemas) || {};
+    var nomes = Object.keys(schemas);
+    if (nomes.length) {
+      var box = document.getElementById("esquemas");
+      box.innerHTML = "<h3>Esquemas (" + nomes.length + ")</h3>";
+      nomes.forEach(function (n) {
+        var d = document.createElement("details");
+        d.className = "resp";
+        d.innerHTML = '<summary><span class="mono">' + esc(n) + '</span> <span class="legenda">' + esc(tipoDe(schemas[n])) + "</span></summary><div></div>";
+        var montado = false;
+        d.addEventListener("toggle", function () {
+          if (d.open && !montado) { d.lastChild.innerHTML = blocoEsquema(c.doc, { $ref: "#/components/schemas/" + n }); montado = true; }
+        });
+        box.appendChild(d);
+      });
+    }
+
+    document.getElementById("abrirTudo").onclick = function () {
+      Array.prototype.forEach.call(lista.querySelectorAll(".op:not(.aberta) > .cab"), function (cab) { cab.click(); });
+    };
+    document.getElementById("fecharTudo").onclick = function () {
+      Array.prototype.forEach.call(lista.querySelectorAll(".op.aberta > .cab"), function (cab) { cab.click(); });
+    };
+    window.scrollTo(0, 0);
+  }
+
+  function telaBusca(termo) {
+    var t = termo.toLowerCase();
+    marcarMenu("");
+    var achados = [];
+    contratos.forEach(function (c) {
+      c.ops.forEach(function (item) {
+        var alvo = [item.metodo, item.rota, item.op.summary, item.op.operationId, item.op["x-papel-minimo"], item.op["x-escopo-mcp"], (item.op.tags || []).join(" ")].join(" ").toLowerCase();
+        if (alvo.indexOf(t) >= 0) achados.push(item);
+      });
+    });
+    conteudo.innerHTML = "<h2>Busca: “" + esc(termo) + "”</h2><p class=\"legenda\">" + achados.length + " operação(ões) em todos os contratos.</p><div id=\"lista\"></div>";
+    var lista = document.getElementById("lista");
+    if (!achados.length) lista.innerHTML = '<div class="vazio">Nada encontrado.</div>';
+    achados.slice(0, 200).forEach(function (item) { lista.appendChild(linhaOperacao(item, true)); });
+  }
+
+  function abrir(id) {
+    if (id === "inicio") { if (location.hash) location.hash = ""; telaInicio(); return; }
+    for (var i = 0; i < contratos.length; i++) if (contratos[i].id === id) { location.hash = id; telaContrato(contratos[i]); return; }
+    telaInicio();
+  }
+
+  /* ---------- montagem ---------- */
+  var mh = '<button data-id="inicio">Visão geral</button><div class="secao">Clientes (BFFs)</div>';
+  contratos.forEach(function (c, i) {
+    if (i === DADOS.inicioDominios) mh += '<div class="secao">Serviços de domínio</div>';
+    mh += '<button data-id="' + c.id + '">' + esc(c.titulo) + '<span class="qtd">' + c.ops.length + "</span></button>";
+  });
+  menu.innerHTML = mh;
+  menu.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("button") : e.target;
+    if (b && b.getAttribute("data-id")) { document.getElementById("busca").value = ""; abrir(b.getAttribute("data-id")); }
+  });
+  document.getElementById("versao").textContent = "Livro de Arquitetura v1.0 · OpenAPI 3.1";
+
+  conteudo.addEventListener("click", function (e) {
+    var b = e.target;
+    if (b.tagName === "BUTTON" && b.getAttribute("data-grupo")) {
+      var g = b.getAttribute("data-grupo"), i = b.getAttribute("data-i");
+      Array.prototype.forEach.call(conteudo.querySelectorAll('[data-grupo="' + g + '"]'), function (el) {
+        if (el.tagName === "BUTTON") el.classList.toggle("ativo", el.getAttribute("data-i") === i);
+        else el.style.display = el.getAttribute("data-i") === i ? "" : "none";
+      });
+    }
+  });
+
+  var tempo;
+  document.getElementById("busca").addEventListener("input", function (e) {
+    clearTimeout(tempo);
+    var v = e.target.value.trim();
+    tempo = setTimeout(function () { if (v.length >= 2) telaBusca(v); else if (!v) (atual ? telaContrato(atual) : telaInicio()); }, 200);
+  });
+
+  var proj = document.getElementById("modoProjetor");
+  try { proj.checked = localStorage.getItem("athena-projetor") === "1"; } catch (e) {}
+  document.documentElement.classList.toggle("projetor", proj.checked);
+  proj.addEventListener("change", function () {
+    document.documentElement.classList.toggle("projetor", proj.checked);
+    try { localStorage.setItem("athena-projetor", proj.checked ? "1" : "0"); } catch (e) {}
+  });
+
+  window.addEventListener("hashchange", function () {
+    var id = location.hash.replace("#", "");
+    if (!atual || atual.id !== id) abrir(id || "inicio");
+  });
+  abrir(location.hash.replace("#", "") || "inicio");
+})();
+</script>
+</body>
+</html>

@@ -81,6 +81,8 @@ services:
     depends_on:
       bff-gestao:
         condition: service_healthy
+      impacto-mcp:
+        condition: service_healthy
     networks:
       - edge
       - app
@@ -209,6 +211,25 @@ services:
     networks:
       - app
       - dados-integracoes
+
+  impacto-mcp:
+    image: athena/impacto-mcp:0.3.0
+    build:
+      context: ./services/impacto-mcp
+    restart: unless-stopped
+    mem_limit: 256m
+    environment:
+      DB_HOST: db-impacto-mcp
+      DB_NAME: impacto_mcp
+      DB_USER: ${IMPACTO_MCP_DB_USER:-impacto_mcp}
+      DB_PASSWORD: ${IMPACTO_MCP_DB_PASSWORD:-dev_impacto_mcp}
+      CARREGAR_DEMO: ${CARREGAR_DEMO:-true}
+    depends_on:
+      db-impacto-mcp:
+        condition: service_healthy
+    networks:
+      - app
+      - dados-impacto-mcp
 
   # -------------------------------------------- bancos (um por serviço de domínio)
 

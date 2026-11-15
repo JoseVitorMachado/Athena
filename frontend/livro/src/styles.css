@@ -1,0 +1,37 @@
+:root {
+  --fundo: #faf8f4;
+  --cartao: #ffffff;
+  --texto: #2a2620;
+  --suave: #6f675b;
+  --borda: #e6e0d4;
+  --destaque: #8a5a12;
+  --aviso-fundo: #fff4d6;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--texto);
+  background: var(--fundo);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+.topo { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 2rem; background: var(--cartao); border-bottom: 1px solid var(--borda); }
+.topo h1 { margin: 0; font-size: 1.4rem; }
+.topo h1 span { color: var(--destaque); font-weight: 400; }
+.topo p { margin: 0.15rem 0 0; color: var(--suave); font-size: 0.9rem; font-family: system-ui, sans-serif; }
+.instancia { font-family: ui-monospace, monospace !important; }
+
+main { max-width: 46rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; display: grid; gap: 1.25rem; }
+
+.cartao { background: var(--cartao); border: 1px solid var(--borda); border-radius: 8px; padding: 1.5rem; line-height: 1.6; }
+.cartao header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.75rem; margin-bottom: 0.5rem; }
+.cartao h2 { margin: 0; font-size: 1.2rem; flex: 1 1 16rem; }
+.cartao h3 { margin: 1rem 0 0.25rem; font-size: 0.85rem; color: var(--suave); font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: 0.04em; }
+.codigo { font-family: ui-monospace, monospace; color: var(--destaque); }
+.versao { font-family: system-ui, sans-serif; font-size: 0.8rem; color: var(--suave); }
+ul { margin: 0; padding-left: 1.25rem; }
+.tipo { font-family: system-ui, sans-serif; font-size: 0.8rem; color: var(--suave); }
+.indisponivel { color: var(--suave); font-style: italic; }
+
+.erro { margin: 0; padding: 0.75rem 1rem; border-radius: 8px; background: #ffe3e3; color: #a61e1e; font-family: system-ui, sans-serif; }
+.aviso { margin: 0.75rem 0 0; padding: 0.5rem 0.8rem; border-radius: 6px; background: var(--aviso-fundo); font-size: 0.85rem; font-family: system-ui, sans-serif; }
+.nota { margin: 0; color: var(--suave); font-family: system-ui, sans-serif; }

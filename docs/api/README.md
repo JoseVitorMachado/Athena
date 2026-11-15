@@ -19,6 +19,7 @@ Contratos OpenAPI 3.1 elaborados contract-first a partir do **Livro de Arquitetu
 | P2 | [matriz-autorizacao.md](matriz-autorizacao.md) | 189 operações; papel e escopo extraídos dos contratos |
 | Revisão | [PROPOSTAS.md](PROPOSTAS.md) | Escolhas de representação e perguntas não resolvidas pelo livro |
 | Validação | [VALIDACAO.md](VALIDACAO.md) | Comandos, verificações e limites das evidências |
+| Leitura | [apresentacao.html](apresentacao.html) | Os 8 contratos num arquivo único, offline; gerado por `npm run apresentacao` |
 
 `x-proposta` identifica escolhas de nomes/representação; não é aprovação de negócio. `x-decidir` é pergunta pendente. Exemplos não constituem catálogo normativo quando o schema não tem enum. Não implementar políticas pendentes concedendo a permissão do exemplo. Nenhuma atualização deste pacote altera o livro original.
 
@@ -91,7 +92,7 @@ O filtro projetoId é o parâmetro obrigatório de caminho nas coleções de pro
 
 ## Validação e reprodução
 
-Na raiz do pacote, com Node.js e npm:
+Na raiz do repositório, com Node.js e npm:
 
 ```sh
 npm ci

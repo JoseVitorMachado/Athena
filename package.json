@@ -6,7 +6,8 @@
     "validar": "node scripts/validar.mjs",
     "matriz": "node scripts/matriz.mjs",
     "catalogo-mcp": "node scripts/catalogo-mcp.mjs",
-    "testar-regras": "node scripts/testar-regras.cjs"
+    "testar-regras": "node scripts/testar-regras.cjs",
+    "apresentacao": "node scripts/apresentacao.mjs"
   },
   "keywords": [],
   "license": "UNLICENSED",

@@ -18,6 +18,15 @@ x-banco: &banco
     context: ./infra/postgres
   restart: unless-stopped
 
+x-java: &java
+  restart: unless-stopped
+  mem_limit: 512m
+
+x-rabbitmq-cliente: &rabbitmq-cliente
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_USER: ${RABBITMQ_USER:-athena}
+  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-dev_rabbitmq}
+
 services:
 
   # ---------------------------------------------------------------- mensageria
@@ -35,6 +44,30 @@ services:
       - rabbitmq-dados:/var/lib/rabbitmq
     networks:
       - app
+
+  # ------------------------------------------------------- serviços de domínio
+  # Nenhum publica porta: só são alcançáveis pela rede "app".
+
+  requisitos:
+    <<: *java
+    image: athena/requisitos:0.3.0
+    build:
+      context: ./services/requisitos
+    environment:
+      <<: *rabbitmq-cliente
+      DB_HOST: db-requisitos
+      DB_NAME: requisitos
+      DB_USER: ${REQUISITOS_DB_USER:-requisitos}
+      DB_PASSWORD: ${REQUISITOS_DB_PASSWORD:-dev_requisitos}
+      FLYWAY_LOCATIONS: ${FLYWAY_LOCATIONS:-classpath:db/migration,classpath:db/demo}
+    depends_on:
+      db-requisitos:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app
+      - dados-requisitos
 
   # -------------------------------------------- bancos (um por serviço de domínio)
 

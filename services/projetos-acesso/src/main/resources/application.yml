@@ -1,0 +1,63 @@
+# Toda a configuração que muda entre ambientes vem de variáveis de ambiente:
+# no compose, do docker-compose.yml; no Kubernetes, de ConfigMap e Secret.
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+spring:
+  application:
+    name: projetos-acesso
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:5}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    # db/migration cria o esquema; db/demo (opcional) carrega dados de demonstração.
+    locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
+    ignore-migration-patterns: "*:missing"
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASSWORD}
+  mvc:
+    problemdetails:
+      enabled: true
+  jackson:
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+      group:
+        # Liveness não depende de banco nem de broker: uma dependência fora do ar
+        # não deve reiniciar o serviço em cascata (livro §8.2).
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db
+
+athena:
+  # Enquanto não há autenticação (Parte 4), as ações são atribuídas a este usuário.
+  usuario-demo: ${ATHENA_USUARIO_DEMO:55555555-5555-4555-8555-555555555555}
+  jwt:
+    # Chave privada RSA (PEM, PKCS#8) usada para assinar os JWTs. No Kubernetes vem
+    # de um Secret montado como arquivo. Vazio: gera uma chave efêmera, só para
+    # desenvolvimento, que muda a cada subida.
+    chave-privada-arquivo: ${JWT_CHAVE_PRIVADA_ARQUIVO:}

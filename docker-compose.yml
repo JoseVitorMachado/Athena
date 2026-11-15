@@ -63,6 +63,21 @@ services:
     networks:
       - edge
 
+  frontend-livro:
+    image: athena/frontend-livro:0.3.0
+    build:
+      context: ./frontend/livro
+    restart: unless-stopped
+    environment:
+      GATEWAY_URL: http://gateway:8080
+    ports:
+      - "${FRONTEND_LIVRO_PORT:-4300}:8080"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - edge
+
   # ------------------------------------------------------------------- borda
   # O Gateway é a única entrada HTTP da aplicação e a única ponte entre a rede
   # "edge" e a rede "app".
@@ -81,6 +96,8 @@ services:
     depends_on:
       bff-gestao:
         condition: service_healthy
+      bff-livro:
+        condition: service_healthy
       impacto-mcp:
         condition: service_healthy
     networks:
@@ -98,6 +115,20 @@ services:
     environment:
       REQUISITOS_URL: http://requisitos:8080
       REVISOES_URL: http://revisoes:8080
+    depends_on:
+      requisitos:
+        condition: service_healthy
+    networks:
+      - app
+
+  bff-livro:
+    <<: *java
+    image: athena/bff-livro:0.3.0
+    build:
+      context: ./bff/livro
+    environment:
+      REQUISITOS_URL: http://requisitos:8080
+      RASTREABILIDADE_URL: http://rastreabilidade:8080
     depends_on:
       requisitos:
         condition: service_healthy

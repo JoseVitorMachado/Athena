@@ -50,9 +50,179 @@
 
 ## Como executar
 
-> O sistema está em implementação. A execução completa via Docker Compose e Kubernetes será documentada aqui na Parte 3.
+O sistema roda de duas formas: **Docker Compose** (um comando, ideal para desenvolvimento) e **Kubernetes** local com minikube. As duas sobem os mesmos 18 containers: 6 serviços de domínio, 6 PostgreSQL, RabbitMQ, Gateway, 2 BFFs e 2 clientes Angular. Os bancos já sobem com um projeto de demonstração.
 
-Por enquanto, o repositório contém a arquitetura e os contratos de API.
+### Pré-requisitos
+
+| Para | Precisa de |
+|---|---|
+| Docker Compose | Docker 24+ com Compose v2. Cerca de 6 GB de RAM livres. |
+| Kubernetes | O de cima, mais [minikube](https://minikube.sigs.k8s.io/docs/start/) 1.33+, `kubectl` e `openssl`. Cerca de 12 GB de RAM livres. |
+
+Não é preciso Java, Maven, Node nem Python na máquina: tudo é compilado dentro dos containers.
+
+### 1. Docker Compose
+
+Na raiz do repositório:
+
+```sh
+docker compose up --build
+```
+
+A primeira vez leva alguns minutos (download das imagens base e compilação). Quando todos os containers ficarem `healthy` (`docker compose ps`), acesse:
+
+| O quê | Endereço |
+|---|---|
+| Cliente Gestão (lista, detalhe e criação de requisitos) | http://localhost:4200 |
+| Cliente Livro (conteúdo publicado) | http://localhost:4300 |
+| API pelo Gateway | http://localhost:8080/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos |
+| MCP pelo Gateway | `POST http://localhost:8080/mcp` |
+
+Teste rápido pelo terminal:
+
+```sh
+# Gestão: navegador -> Gateway -> BFF Gestão -> Requisitos -> banco
+curl http://localhost:8080/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos
+
+# Composição do BFF: requisito (Requisitos) + lote e pendências (Revisões)
+curl http://localhost:8080/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111112
+
+# Livro: versão publicada (Requisitos) + referências (Rastreabilidade)
+curl http://localhost:8080/api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos
+
+# MCP: ferramentas disponíveis no impacto-mcp
+curl -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' http://localhost:8080/mcp
+
+# Serviço de domínio não é exposto: 404
+curl -i http://localhost:8080/api/v1/projetos/22222222-2222-4222-8222-222222222222/requisitos
+```
+
+Para parar: `docker compose down` (mantém os dados). Para apagar também os volumes dos bancos: `docker compose down -v`. Senhas e portas podem ser trocadas copiando `.env.example` para `.env`.
+
+**Redes do compose (isolamento entre camadas):**
+
+| Rede | Quem está nela | Acesso externo |
+|---|---|---|
+| `edge` | clientes Gestão e Livro, Gateway | portas 4200, 4300 e 8080 publicadas |
+| `app` | Gateway, BFFs, serviços de domínio, RabbitMQ | nenhum (`internal`) |
+| `dados-<serviço>` | um serviço e o seu banco | nenhum (`internal`) |
+
+Cada banco só é alcançável pelo próprio serviço, e o Gateway é a única ponte entre a borda e a aplicação.
+
+### 2. Kubernetes (minikube)
+
+Os comandos abaixo valem para Linux e macOS. No Windows (PowerShell), troque o `eval` do passo 2 por `& minikube -p athena docker-env --shell powershell | Invoke-Expression`.
+
+**1. Criar o cluster** com Calico (para as NetworkPolicies valerem) e runtime Docker (para construir as imagens direto no cluster):
+
+```sh
+minikube start -p athena --driver=docker --container-runtime=docker --cpus=6 --memory=12g --cni=calico
+minikube -p athena addons enable ingress
+minikube -p athena addons enable metrics-server   # opcional, usado pelo HPA
+```
+
+**2. Construir as imagens dentro do minikube.** No mesmo terminal:
+
+```sh
+eval $(minikube -p athena docker-env)
+docker compose build
+```
+
+**3. Criar o namespace e o Secret da chave de assinatura do JWT.** A chave é gerada na hora e nunca fica no repositório:
+
+```sh
+kubectl apply -f k8s/00-namespace.yaml
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/athena-jwt.pem
+kubectl -n athena create secret generic athena-jwt --from-file=chave-privada.pem=/tmp/athena-jwt.pem
+rm /tmp/athena-jwt.pem
+```
+
+**4. Aplicar os manifests** e esperar tudo ficar pronto (de 3 a 5 minutos):
+
+```sh
+kubectl apply -f k8s/
+kubectl -n athena wait --for=condition=Available deployment --all --timeout=600s
+kubectl -n athena get pods
+```
+
+**5. Acessar pelo Ingress:**
+
+```sh
+minikube -p athena ip     # por exemplo 192.168.49.2
+```
+
+| O quê | Endereço |
+|---|---|
+| Cliente Gestão | `http://<ip>/gestao/` |
+| Cliente Livro | `http://<ip>/livro/` |
+| API | `http://<ip>/api/v1/gestao/...` e `http://<ip>/api/v1/livro/...` |
+| MCP | `POST http://<ip>/mcp` |
+
+No macOS e no Windows o IP do minikube não é acessível pelo host: rode `minikube -p athena tunnel` num terminal separado e use `http://127.0.0.1` no lugar de `http://<ip>`.
+
+**6. Demonstrar a escalabilidade.** O BFF Gestão não tem estado, então pode ter várias réplicas. Cada resposta traz no cabeçalho `X-Athena-Instancia` o nome do pod que a atendeu:
+
+```sh
+kubectl -n athena scale deployment/bff-gestao --replicas=3
+kubectl -n athena rollout status deployment/bff-gestao
+kubectl -n athena get pods -l app.kubernetes.io/name=bff-gestao
+
+for i in $(seq 1 12); do
+  curl -s -D - -o /dev/null "http://$(minikube -p athena ip)/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos" | grep -i x-athena-instancia
+done | sort | uniq -c
+```
+
+As requisições se distribuem entre as três réplicas. Para voltar: `--replicas=1`. Opcionalmente, o escalonamento automático por CPU fica em `k8s/extras/hpa-bff-gestao.yaml` (`kubectl apply -f k8s/extras/hpa-bff-gestao.yaml`); ele não é aplicado por padrão porque desfaz um `kubectl scale` manual.
+
+**7. Desligar:**
+
+```sh
+kubectl delete namespace athena   # apaga os recursos e os volumes do ATHENA
+minikube -p athena stop           # ou "minikube -p athena delete" para remover o cluster
+```
+
+**O que há em `k8s/`:**
+
+| Arquivo | Conteúdo |
+|---|---|
+| `00-namespace.yaml` | Namespace `athena` |
+| `01-configmap.yaml` | ConfigMap `athena-config`: endereços internos, nomes dos bancos, migrações |
+| `02-secrets.yaml` | Secrets das credenciais dos bancos e do RabbitMQ (valores de desenvolvimento, iguais aos do `.env.example`) |
+| `10-bancos.yaml` | 6 StatefulSets PostgreSQL com Service headless e PersistentVolumeClaim de 1 Gi |
+| `11-rabbitmq.yaml` | StatefulSet do RabbitMQ com Service headless e volume |
+| `20-servicos-dominio.yaml` | Deployments e Services ClusterIP dos 6 serviços de domínio |
+| `30-bffs.yaml` | Deployments e Services dos BFFs Gestão e Livro |
+| `40-gateway-e-clientes.yaml` | Gateway e os dois clientes Angular |
+| `45-ingress.yaml` | Ingress: `/gestao`, `/livro` para os clientes; `/api` e `/mcp` para o Gateway |
+| `50-network-policies.yaml` | Isolamento: banco só do seu serviço, broker só do domínio, domínio só de BFF e Gateway |
+| `extras/hpa-bff-gestao.yaml` | HPA opcional do BFF Gestão |
+
+Todos os containers têm requests e limits, usuário sem privilégios nas aplicações (PostgreSQL e RabbitMQ seguem o modelo de usuários das imagens oficiais) e probes de startup, readiness e liveness. A liveness dos serviços não depende do banco, para uma falha de dependência não reiniciar tudo em cascata.
+
+### Dockerfiles e o ganho do multi-stage
+
+Cada aplicação tem o seu Dockerfile. Os bancos e o RabbitMQ também têm imagem própria, em `infra/`: o PostgreSQL acrescenta script de inicialização, parâmetros e healthcheck, e o RabbitMQ já sobe com as exchanges `athena.commands` e `athena.events`.
+
+As aplicações usam build em dois estágios: o primeiro tem as ferramentas de compilação, e a imagem final leva só o necessário para executar.
+
+| Aplicação | Estágio de build | Imagem final | O que fica de fora |
+|---|---|---|---|
+| Serviços Java, BFFs e Gateway | Maven + JDK 17: 868 MB | JRE 17 + jar: 370 MB | Maven, compilador, código-fonte e dependências de build |
+| Clientes Angular | Node 24 + `node_modules`: 599 MB | nginx + arquivos estáticos: 90 MB | Node, `node_modules` e código TypeScript |
+| impacto-mcp | Python + pip: 244 MB | Python + venv: 237 MB | pip, cache de download e ferramentas de instalação |
+
+Além do tamanho, a imagem final tem menos pacotes para manter atualizados e não oferece compilador nem gerenciador de pacotes a quem invadir o container.
+
+### Limites desta etapa
+
+Implementado agora: a infraestrutura completa e um esqueleto real de cada serviço, com leitura e escrita no próprio banco. Fica para a Parte 4:
+
+- **Autenticação.** Os endpoints ainda não validam JWT. O emissor já publica a chave pública em `/oauth2/jwks`, com a chave privada vinda do Secret `athena-jwt`.
+- **SAGA, outbox e CQRS em execução.** As tabelas `outbox` e `inbox` e as exchanges do RabbitMQ já existem; o publicador e os consumidores não.
+- **Embeddings.** O impacto-mcp usa um embedding por hashing com a mesma dimensão (384) do `multilingual-e5-small` previsto no livro. A coluna `vector(384)`, o índice HNSW e a busca por cosseno já são os definitivos.
+- **Referências do Livro.** Vêm das relações atuais; as do retrato da publicação dependem da SAGA.
+
+### Contratos de API
 
 **Ler os contratos sem instalar nada:** abra `docs/api/apresentacao.html` no navegador. O arquivo funciona offline.
 
@@ -67,13 +237,13 @@ npm run apresentacao   # recria docs/api/apresentacao.html a partir dos bundles
 **Abrir no Swagger UI** (com Docker), também na raiz:
 
 ```sh
-docker run --rm -p 127.0.0.1:8080:8080 \
+docker run --rm -p 127.0.0.1:8090:8080 \
   -e SWAGGER_JSON=/contratos/bff-gestao.bundled.yaml \
   -v "$PWD/docs/api/dist:/contratos:ro" \
   docker.swagger.io/swaggerapi/swagger-ui
 ```
 
-Acesse http://localhost:8080. Para ver outro contrato, troque `bff-gestao.bundled.yaml` por outro arquivo de `docs/api/dist/`. O host `athena.example.invalid` dos contratos é ilustrativo, e o botão **Try it out** só funciona com um backend em execução.
+Acesse http://localhost:8090 (a porta 8080 fica com o Gateway). Para ver outro contrato, troque `bff-gestao.bundled.yaml` por outro arquivo de `docs/api/dist/`. O host `athena.example.invalid` dos contratos é ilustrativo.
 
 ---
 

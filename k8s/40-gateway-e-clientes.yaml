@@ -1,0 +1,270 @@
+# Borda: Gateway e os dois clientes Angular.
+---
+# Gateway: única entrada HTTP da aplicação (o Ingress encaminha /api e /mcp para ele).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/part-of: athena
+    athena/camada: borda
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gateway
+        app.kubernetes.io/part-of: athena
+        athena/camada: borda
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: gateway
+          image: athena/gateway:0.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+            # Actuator: usado só pelas probes, não faz parte do Service.
+            - name: gestao
+              containerPort: 8081
+          env:
+            - name: BFF_GESTAO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: BFF_GESTAO_URL
+            - name: BFF_LIVRO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: BFF_LIVRO_URL
+            - name: IMPACTO_MCP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: IMPACTO_MCP_URL
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          # Startup dá tempo à JVM e às migrações; readiness controla o tráfego;
+          # liveness não olha banco nem broker, para não reiniciar em cascata.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: gestao
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: gestao
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: gestao
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/part-of: athena
+    athena/camada: borda
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: gateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# Cliente Gestao: nginx servindo o Angular em /gestao/.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-gestao
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: frontend-gestao
+    app.kubernetes.io/part-of: athena
+    athena/camada: cliente
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: frontend-gestao
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: frontend-gestao
+        app.kubernetes.io/part-of: athena
+        athena/camada: cliente
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: frontend-gestao
+          image: athena/frontend-gestao:0.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: GATEWAY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: GATEWAY_URL
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi
+          readinessProbe:
+            httpGet:
+              path: /saude
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /saude
+              port: 8080
+            periodSeconds: 20
+          startupProbe:
+            httpGet:
+              path: /saude
+              port: 8080
+            periodSeconds: 2
+            failureThreshold: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-gestao
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: frontend-gestao
+    app.kubernetes.io/part-of: athena
+    athena/camada: cliente
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: frontend-gestao
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# Cliente Livro: nginx servindo o Angular em /livro/.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-livro
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: frontend-livro
+    app.kubernetes.io/part-of: athena
+    athena/camada: cliente
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: frontend-livro
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: frontend-livro
+        app.kubernetes.io/part-of: athena
+        athena/camada: cliente
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: frontend-livro
+          image: athena/frontend-livro:0.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: GATEWAY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: GATEWAY_URL
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi
+          readinessProbe:
+            httpGet:
+              path: /saude
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /saude
+              port: 8080
+            periodSeconds: 20
+          startupProbe:
+            httpGet:
+              path: /saude
+              port: 8080
+            periodSeconds: 2
+            failureThreshold: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-livro
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: frontend-livro
+    app.kubernetes.io/part-of: athena
+    athena/camada: cliente
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: frontend-livro
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

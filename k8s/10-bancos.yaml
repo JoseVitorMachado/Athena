@@ -1,0 +1,626 @@
+# Seis instâncias PostgreSQL independentes, uma por serviço de domínio
+# (livro de arquitetura §3.2 e §8.2). O impacto-mcp usa a imagem com pgvector.
+---
+# Banco exclusivo do serviço projetos-acesso: Service headless + StatefulSet com volume próprio.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-projetos-acesso
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-projetos-acesso
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: db-projetos-acesso
+  ports:
+    - name: postgres
+      port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-projetos-acesso
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-projetos-acesso
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  serviceName: db-projetos-acesso
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: db-projetos-acesso
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: db-projetos-acesso
+        app.kubernetes.io/part-of: athena
+        athena/camada: dados
+    spec:
+      securityContext:
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: athena/postgres:17.9-1
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: PROJETOS_ACESSO_DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-projetos-acesso-credenciais
+                  key: usuario
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-projetos-acesso-credenciais
+                  key: senha
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          startupProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 20
+            failureThreshold: 6
+          volumeMounts:
+            - name: dados
+              mountPath: /var/lib/postgresql/data
+  # Um PersistentVolumeClaim por réplica, mantido mesmo se o StatefulSet for apagado.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+        labels:
+          app.kubernetes.io/name: db-projetos-acesso
+          app.kubernetes.io/part-of: athena
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+# Banco exclusivo do serviço requisitos: Service headless + StatefulSet com volume próprio.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-requisitos
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-requisitos
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: db-requisitos
+  ports:
+    - name: postgres
+      port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-requisitos
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-requisitos
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  serviceName: db-requisitos
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: db-requisitos
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: db-requisitos
+        app.kubernetes.io/part-of: athena
+        athena/camada: dados
+    spec:
+      securityContext:
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: athena/postgres:17.9-1
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REQUISITOS_DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-requisitos-credenciais
+                  key: usuario
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-requisitos-credenciais
+                  key: senha
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          startupProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 20
+            failureThreshold: 6
+          volumeMounts:
+            - name: dados
+              mountPath: /var/lib/postgresql/data
+  # Um PersistentVolumeClaim por réplica, mantido mesmo se o StatefulSet for apagado.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+        labels:
+          app.kubernetes.io/name: db-requisitos
+          app.kubernetes.io/part-of: athena
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+# Banco exclusivo do serviço rastreabilidade: Service headless + StatefulSet com volume próprio.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-rastreabilidade
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-rastreabilidade
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: db-rastreabilidade
+  ports:
+    - name: postgres
+      port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-rastreabilidade
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-rastreabilidade
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  serviceName: db-rastreabilidade
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: db-rastreabilidade
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: db-rastreabilidade
+        app.kubernetes.io/part-of: athena
+        athena/camada: dados
+    spec:
+      securityContext:
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: athena/postgres:17.9-1
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RASTREABILIDADE_DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-rastreabilidade-credenciais
+                  key: usuario
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-rastreabilidade-credenciais
+                  key: senha
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          startupProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 20
+            failureThreshold: 6
+          volumeMounts:
+            - name: dados
+              mountPath: /var/lib/postgresql/data
+  # Um PersistentVolumeClaim por réplica, mantido mesmo se o StatefulSet for apagado.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+        labels:
+          app.kubernetes.io/name: db-rastreabilidade
+          app.kubernetes.io/part-of: athena
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+# Banco exclusivo do serviço revisoes: Service headless + StatefulSet com volume próprio.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-revisoes
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-revisoes
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: db-revisoes
+  ports:
+    - name: postgres
+      port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-revisoes
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-revisoes
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  serviceName: db-revisoes
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: db-revisoes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: db-revisoes
+        app.kubernetes.io/part-of: athena
+        athena/camada: dados
+    spec:
+      securityContext:
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: athena/postgres:17.9-1
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REVISOES_DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-revisoes-credenciais
+                  key: usuario
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-revisoes-credenciais
+                  key: senha
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          startupProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 20
+            failureThreshold: 6
+          volumeMounts:
+            - name: dados
+              mountPath: /var/lib/postgresql/data
+  # Um PersistentVolumeClaim por réplica, mantido mesmo se o StatefulSet for apagado.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+        labels:
+          app.kubernetes.io/name: db-revisoes
+          app.kubernetes.io/part-of: athena
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+# Banco exclusivo do serviço integracoes: Service headless + StatefulSet com volume próprio.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-integracoes
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-integracoes
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: db-integracoes
+  ports:
+    - name: postgres
+      port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-integracoes
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-integracoes
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  serviceName: db-integracoes
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: db-integracoes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: db-integracoes
+        app.kubernetes.io/part-of: athena
+        athena/camada: dados
+    spec:
+      securityContext:
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: athena/postgres:17.9-1
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: INTEGRACOES_DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-integracoes-credenciais
+                  key: usuario
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-integracoes-credenciais
+                  key: senha
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          startupProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 20
+            failureThreshold: 6
+          volumeMounts:
+            - name: dados
+              mountPath: /var/lib/postgresql/data
+  # Um PersistentVolumeClaim por réplica, mantido mesmo se o StatefulSet for apagado.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+        labels:
+          app.kubernetes.io/name: db-integracoes
+          app.kubernetes.io/part-of: athena
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+# Banco exclusivo do serviço impacto-mcp: Service headless + StatefulSet com volume próprio.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-impacto-mcp
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-impacto-mcp
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: db-impacto-mcp
+  ports:
+    - name: postgres
+      port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-impacto-mcp
+  namespace: athena
+  labels:
+    app.kubernetes.io/name: db-impacto-mcp
+    app.kubernetes.io/part-of: athena
+    athena/camada: dados
+spec:
+  serviceName: db-impacto-mcp
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: db-impacto-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: db-impacto-mcp
+        app.kubernetes.io/part-of: athena
+        athena/camada: dados
+    spec:
+      securityContext:
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: athena/postgres-pgvector:0.8.7-pg17-1
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: IMPACTO_MCP_DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-impacto-mcp-credenciais
+                  key: usuario
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-impacto-mcp-credenciais
+                  key: senha
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          startupProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 20
+            failureThreshold: 6
+          volumeMounts:
+            - name: dados
+              mountPath: /var/lib/postgresql/data
+  # Um PersistentVolumeClaim por réplica, mantido mesmo se o StatefulSet for apagado.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+        labels:
+          app.kubernetes.io/name: db-impacto-mcp
+          app.kubernetes.io/part-of: athena
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

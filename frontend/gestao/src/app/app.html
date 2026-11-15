@@ -1,0 +1,96 @@
+<header class="topo">
+  <div>
+    <h1>ATHENA <span>Gestão</span></h1>
+    <p>Elaboração e revisão de requisitos</p>
+  </div>
+  @if (instancia(); as nome) {
+    <p class="instancia" title="Instância do BFF Gestão que respondeu a última listagem">
+      respondido por <strong>{{ nome }}</strong>
+    </p>
+  }
+</header>
+
+<main>
+  @if (erro(); as mensagem) {
+    <p class="erro" role="alert">{{ mensagem }}</p>
+  }
+
+  <section class="cartao">
+    <div class="cabecalho">
+      <h2>Requisitos do projeto <small>({{ total() }})</small></h2>
+      <button type="button" class="secundario" (click)="carregar()" [disabled]="carregando()">
+        {{ carregando() ? 'Carregando…' : 'Atualizar' }}
+      </button>
+    </div>
+
+    @if (requisitos().length > 0) {
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Título</th>
+            <th>Candidata</th>
+            <th>Atualizado em</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (requisito of requisitos(); track requisito.requisitoId) {
+            <tr>
+              <td class="codigo">{{ requisito.codigo }}</td>
+              <td>{{ requisito.titulo }}</td>
+              <td>
+                @if (requisito.candidata; as candidata) {
+                  <span class="estado">v{{ candidata.numero }} · {{ candidata.estadoVersao }}</span>
+                }
+              </td>
+              <td>{{ requisito.atualizadoEm | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td><button type="button" class="link" (click)="abrir(requisito)">Detalhes</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else if (!carregando()) {
+      <p class="vazio">Nenhum requisito neste projeto ainda.</p>
+    }
+  </section>
+
+  @if (detalhe(); as visao) {
+    <section class="cartao">
+      <div class="cabecalho">
+        <h2>{{ visao.codigo }} · {{ visao.titulo }}</h2>
+        <button type="button" class="secundario" (click)="detalhe.set(null)">Fechar</button>
+      </div>
+      <dl>
+        <div><dt>Situação</dt><dd>{{ visao.situacao }}</dd></div>
+        <div><dt>Versão em edição</dt><dd>{{ visao.versaoEmEdicao ?? '—' }}</dd></div>
+        <div><dt>Estado da candidata</dt><dd>{{ visao.estadoVersao ?? '—' }}</dd></div>
+        <div><dt>Lote de revisão</dt><dd>{{ visao.loteId ?? 'nenhum' }}</dd></div>
+        <div><dt>Pendências abertas</dt><dd>{{ visao.pendenciasAbertas ?? '—' }}</dd></div>
+      </dl>
+      @for (aviso of visao.avisos; track aviso) {
+        <p class="aviso">{{ aviso }}</p>
+      }
+      <p class="nota">Visão composta pelo BFF: requisito vem de Requisitos; lote e pendências, de Revisões.</p>
+    </section>
+  }
+
+  <section class="cartao">
+    <h2>Novo requisito</h2>
+    <form (ngSubmit)="criar()">
+      <label>
+        Título
+        <input name="titulo" [ngModel]="titulo()" (ngModelChange)="titulo.set($event)" maxlength="300" required />
+      </label>
+      <label>
+        Conteúdo
+        <textarea name="conteudo" rows="3" [ngModel]="conteudo()" (ngModelChange)="conteudo.set($event)" required></textarea>
+      </label>
+      <label>
+        Critérios de aceite <small>(um por linha)</small>
+        <textarea name="criterios" rows="3" [ngModel]="criterios()" (ngModelChange)="criterios.set($event)"></textarea>
+      </label>
+      <button type="submit" [disabled]="!podeCriar()">{{ salvando() ? 'Salvando…' : 'Criar requisito' }}</button>
+    </form>
+  </section>
+</main>

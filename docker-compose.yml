@@ -45,6 +45,24 @@ services:
     networks:
       - app
 
+  # ---------------------------------------------------------------- clientes
+  # nginx servindo o Angular. Encaminha /api ao Gateway: o navegador vê uma só origem.
+
+  frontend-gestao:
+    image: athena/frontend-gestao:0.3.0
+    build:
+      context: ./frontend/gestao
+    restart: unless-stopped
+    environment:
+      GATEWAY_URL: http://gateway:8080
+    ports:
+      - "${FRONTEND_GESTAO_PORT:-4200}:8080"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - edge
+
   # ------------------------------------------------------------------- borda
   # O Gateway é a única entrada HTTP da aplicação e a única ponte entre a rede
   # "edge" e a rede "app".

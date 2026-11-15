@@ -1,0 +1,61 @@
+<header class="topo">
+  <div>
+    <h1>ATHENA <span>Livro de Requisitos</span></h1>
+    <p>Conteúdo publicado do projeto</p>
+  </div>
+  @if (instancia(); as nome) {
+    <p class="instancia" title="Instância do BFF Livro que respondeu">respondido por <strong>{{ nome }}</strong></p>
+  }
+</header>
+
+<main>
+  @if (erro(); as mensagem) {
+    <p class="erro" role="alert">{{ mensagem }}</p>
+  }
+
+  @if (carregando()) {
+    <p class="nota">Carregando…</p>
+  }
+
+  @for (requisito of requisitos(); track requisito.requisitoId) {
+    <article class="cartao" [id]="requisito.codigo">
+      <header>
+        <span class="codigo">{{ requisito.codigo }}</span>
+        <h2>{{ requisito.titulo }}</h2>
+        <span class="versao">versão publicada {{ requisito.versaoPublicada }}</span>
+      </header>
+
+      <p>{{ requisito.conteudo }}</p>
+
+      @if (requisito.criteriosAceite.length > 0) {
+        <h3>Critérios de aceite</h3>
+        <ul>
+          @for (criterio of requisito.criteriosAceite; track $index) {
+            <li>{{ criterio }}</li>
+          }
+        </ul>
+      }
+
+      @if (requisito.referencias.length > 0) {
+        <h3>Referências</h3>
+        <ul class="referencias">
+          @for (referencia of requisito.referencias; track $index) {
+            @if (referencia.disponivel) {
+              <li><span class="tipo">{{ rotulo(referencia) }}</span> {{ referencia.codigo }} · {{ referencia.titulo }}</li>
+            } @else {
+              <li class="indisponivel">Referência indisponível</li>
+            }
+          }
+        </ul>
+      }
+
+      @for (aviso of requisito.avisos; track aviso) {
+        <p class="aviso">{{ aviso }}</p>
+      }
+    </article>
+  } @empty {
+    @if (!carregando() && !erro()) {
+      <p class="nota">Nenhum requisito publicado neste projeto.</p>
+    }
+  }
+</main>

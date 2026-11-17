@@ -358,6 +358,8 @@ As sugestões produzidas pela IA não serão aplicadas automaticamente. A decis�
 
 ---
 
+link do Video: https://youtu.be/Dv1k_tkIz-U?si=jLkPJ-GIG6OohDBa
+
 ## Concepção do sistema
 
 A **ATHENA** é uma proposta de plataforma voltada à **gestão inteligente de requisitos de software**, com foco na automação da rastreabilidade e na análise de impacto de mudanças em requisitos.

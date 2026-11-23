@@ -1,61 +1,361 @@
-<header class="topo">
-  <div>
-    <h1>ATHENA <span>Livro de Requisitos</span></h1>
-    <p>Conteúdo publicado do projeto</p>
-  </div>
-  @if (instancia(); as nome) {
-    <p class="instancia" title="Instância do BFF Livro que respondeu">respondido por <strong>{{ nome }}</strong></p>
-  }
-</header>
+<div class="book-app">
+  <header class="book-topbar">
+    <a class="book-brand" href="#" (click)="$event.preventDefault(); pagina.set('inicio')"
+      ><span class="brand-shield">◆</span><span>ATH<span class="gold">E</span>NA</span></a
+    >
+    <span class="book-label">LIVRO DE REQUISITOS</span
+    ><button class="platform">Plataforma Athena <span>⌄</span></button>
+    <label class="global-search"
+      ><span>⌕</span
+      ><input
+        aria-label="Buscar na documentação"
+        placeholder="Buscar na documentação"
+        (keydown.enter)="buscar()"
+        [ngModel]="consulta()"
+        (ngModelChange)="consulta.set($event)"
+      /><kbd>Ctrl K</kbd></label
+    >
+    <button class="user-chip">Ana Clara · Owner</button>
+  </header>
+  <aside class="book-sidebar">
+    <div class="sidebar-intro">
+      <small>UFLA / SISTEMAS DISTRIBUÍDOS</small><strong>Plataforma Athena</strong
+      ><span>Documentação oficial</span>
+    </div>
+    <nav>
+      <button [class.current]="pagina() === 'inicio'" (click)="pagina.set('inicio')">
+        Início do Livro</button
+      ><button [class.current]="pagina() === 'busca'" (click)="pagina.set('busca')">
+        Buscar requisitos
+      </button>
+    </nav>
+    <div class="epic-nav">
+      <small>REQUISITOS POR ÉPICO</small>
+      <button
+        (click)="epico.set('Autenticação e Conta'); pagina.set('busca'); termoAplicado.set('')"
+      >
+        › <span>Autenticação e Conta</span><i>3</i>
+      </button>
+      <button
+        (click)="epico.set('Organização de projetos'); pagina.set('busca'); termoAplicado.set('')"
+      >
+        › <span>Organização de projetos</span><i>2</i>
+      </button>
+      <button
+        (click)="epico.set('Editor de Requisitos'); pagina.set('busca'); termoAplicado.set('')"
+      >
+        › <span>Editor de Requisitos</span><i>1</i>
+      </button>
+      <button (click)="epico.set('Rastreabilidade'); pagina.set('busca'); termoAplicado.set('')">
+        › <span>Rastreabilidade</span><i>1</i>
+      </button>
+      <button
+        (click)="epico.set('Revisão e Publicação'); pagina.set('busca'); termoAplicado.set('')"
+      >
+        › <span>Revisão e Publicação</span><i>1</i>
+      </button>
+      <button (click)="epico.set('Integrações'); pagina.set('busca'); termoAplicado.set('')">
+        › <span>Integrações</span><i>1</i>
+      </button>
+    </div>
+    <div class="readonly-note">
+      <strong>Somente leitura</strong
+      ><span>Acesso exclusivo aos membros autorizados deste projeto.</span>
+    </div>
+  </aside>
 
-<main>
-  @if (erro(); as mensagem) {
-    <p class="erro" role="alert">{{ mensagem }}</p>
-  }
-
-  @if (carregando()) {
-    <p class="nota">Carregando…</p>
-  }
-
-  @for (requisito of requisitos(); track requisito.requisitoId) {
-    <article class="cartao" [id]="requisito.codigo">
-      <header>
-        <span class="codigo">{{ requisito.codigo }}</span>
-        <h2>{{ requisito.titulo }}</h2>
-        <span class="versao">versão publicada {{ requisito.versaoPublicada }}</span>
-      </header>
-
-      <p>{{ requisito.conteudo }}</p>
-
-      @if (requisito.criteriosAceite.length > 0) {
-        <h3>Critérios de aceite</h3>
-        <ul>
-          @for (criterio of requisito.criteriosAceite; track $index) {
-            <li>{{ criterio }}</li>
-          }
-        </ul>
+  <main class="book-content">
+    <div class="breadcrumb">
+      <button (click)="pagina.set('inicio')">Livro de Requisitos</button><span>/</span>
+      @if (pagina() === 'inicio') {
+        <span>Início</span>
+      } @else if (pagina() === 'busca') {
+        <span>Buscar requisitos</span>
+      } @else {
+        <button (click)="pagina.set('busca')">{{ selecionado()?.codigo ?? 'Requisito' }}</button>
       }
-
-      @if (requisito.referencias.length > 0) {
-        <h3>Referências</h3>
-        <ul class="referencias">
-          @for (referencia of requisito.referencias; track $index) {
-            @if (referencia.disponivel) {
-              <li><span class="tipo">{{ rotulo(referencia) }}</span> {{ referencia.codigo }} · {{ referencia.titulo }}</li>
-            } @else {
-              <li class="indisponivel">Referência indisponível</li>
-            }
-          }
-        </ul>
-      }
-
-      @for (aviso of requisito.avisos; track aviso) {
-        <p class="aviso">{{ aviso }}</p>
-      }
-    </article>
-  } @empty {
-    @if (!carregando() && !erro()) {
-      <p class="nota">Nenhum requisito publicado neste projeto.</p>
+    </div>
+    @if (erro(); as mensagem) {
+      <div class="book-error" role="alert">{{ mensagem }}</div>
     }
-  }
-</main>
+
+    @if (carregando()) {
+      <p class="loading">Carregando conteúdo publicado…</p>
+    }
+
+    @if (pagina() === 'inicio') {
+      <section class="hero-book">
+        <div class="hero-meta">
+          <span>DOCUMENTAÇÃO OFICIAL</span
+          ><small>{{ requisitos().length }} requisitos publicados · 6 épicos</small>
+        </div>
+        <h1>Conhecimento que conecta<br />todo o projeto.</h1>
+        <p>
+          Consulte as versões publicadas, entenda as regras e acompanhe as relações<br
+            class="desktop-break"
+          />
+          entre os requisitos da Plataforma Athena.
+        </p>
+        <form class="hero-search" (ngSubmit)="buscar()">
+          <span>⌕</span
+          ><input
+            name="q"
+            placeholder="Pesquise por código, título ou conteúdo do requisito"
+            [ngModel]="consulta()"
+            (ngModelChange)="consulta.set($event)"
+          /><button type="submit">Pesquisar →</button>
+        </form>
+      </section>
+      <section class="epic-section">
+        <div class="section-head">
+          <h2>Explore por épico</h2>
+          <button
+            (click)="
+              epico.set('Todos'); termoAplicado.set(''); consulta.set(''); pagina.set('busca')
+            "
+          >
+            Ver todos os requisitos →
+          </button>
+        </div>
+        <div class="epic-grid">
+          <button
+            class="epic-card"
+            (click)="epico.set('Autenticação e Conta'); pagina.set('busca')"
+          >
+            <span>01 <b>↗</b></span
+            ><strong>Autenticação e Conta</strong
+            ><small>Cadastro, acesso seguro e recuperação de credenciais.</small><i>3 requisitos</i>
+          </button>
+          <button
+            class="epic-card"
+            (click)="epico.set('Organização de projetos'); pagina.set('busca')"
+          >
+            <span>02 <b>↗</b></span
+            ><strong>Organização de projetos</strong
+            ><small>Workspaces e projetos em um só lugar.</small><i>2 requisitos</i>
+          </button>
+          <button
+            class="epic-card"
+            (click)="epico.set('Editor de Requisitos'); pagina.set('busca')"
+          >
+            <span>03 <b>↗</b></span
+            ><strong>Editor de Requisitos</strong
+            ><small>Estrutura e conteúdo das histórias de usuário.</small><i>1 requisito</i>
+          </button>
+          <button class="epic-card" (click)="epico.set('Rastreabilidade'); pagina.set('busca')">
+            <span>04 <b>↗</b></span
+            ><strong>Rastreabilidade</strong
+            ><small>Vínculos oficiais entre os requisitos do projeto.</small><i>1 requisito</i>
+          </button>
+          <button
+            class="epic-card"
+            (click)="epico.set('Revisão e Publicação'); pagina.set('busca')"
+          >
+            <span>05 <b>↗</b></span
+            ><strong>Revisão e Publicação</strong
+            ><small>Decisões de revisão e conteúdo aprovado.</small><i>1 requisito</i>
+          </button>
+          <button class="epic-card" (click)="epico.set('Integrações'); pagina.set('busca')">
+            <span>06 <b>↗</b></span
+            ><strong>Integrações</strong><small>Conexão com ferramentas da sua equipe.</small
+            ><i>1 requisito</i>
+          </button>
+        </div>
+      </section>
+      <section class="recent-publications">
+        <header>
+          <h2>Publicações recentes</h2>
+          <small>Últimas versões disponíveis para leitura</small>
+        </header>
+        @for (requisito of requisitos().slice(0, 3); track requisito.requisitoId) {
+          <button class="publication-row" (click)="abrir(requisito)">
+            <span class="pub-code">{{ requisito.codigo ?? 'US' }}</span
+            ><span class="pub-title"
+              ><strong>{{ requisito.titulo }}</strong
+              ><small>{{ epicoFor(requisito) }}</small></span
+            ><span class="published-label">Publicada · v{{ requisito.versaoPublicada }}</span
+            ><span class="read-link">Ler requisito →</span>
+          </button>
+        }
+      </section>
+      <footer class="book-footer">
+        <span>Somente requisitos ativos com versão publicada são exibidos neste Livro.</span
+        ><span>ATHENA / Livro de Requisitos</span>
+      </footer>
+    } @else if (pagina() === 'busca') {
+      <header class="search-heading">
+        <h1>Buscar requisitos</h1>
+        <p>Encontre definições, regras e critérios nas versões publicadas do projeto.</p>
+      </header>
+      <section class="search-panel">
+        <form class="search-main" (ngSubmit)="buscar()">
+          <span>⌕</span
+          ><input
+            name="query"
+            placeholder="Código, título ou conteúdo"
+            [ngModel]="consulta()"
+            (ngModelChange)="consulta.set($event)"
+          /><button
+            type="button"
+            class="clear-search"
+            (click)="consulta.set(''); termoAplicado.set('')"
+          >
+            Limpar</button
+          ><button class="search-button" type="submit">Pesquisar →</button>
+        </form>
+        <div class="search-filters">
+          <label
+            >Épico<select [ngModel]="epico()" (ngModelChange)="epico.set($event)">
+              <option>Todos</option>
+              <option>Autenticação e Conta</option>
+              <option>Organização de projetos</option>
+              <option>Editor de Requisitos</option>
+              <option>Rastreabilidade</option>
+              <option>Revisão e Publicação</option>
+              <option>Integrações</option>
+            </select></label
+          ><label
+            >Pesquisar em<select>
+              <option>Título e conteúdo</option>
+              <option>Título</option>
+              <option>Conteúdo</option>
+            </select></label
+          ><label
+            >Ordenar por<select [ngModel]="ordenacao()" (ngModelChange)="ordenacao.set($event)">
+              <option>Relevância</option>
+              <option>Título</option>
+            </select></label
+          >
+        </div>
+      </section>
+      <div class="results-heading">
+        <h2>
+          {{ resultados().length }} {{ resultados().length === 1 ? 'resultado' : 'resultados' }}
+          @if (termoAplicado()) {
+            para “{{ termoAplicado() }}”
+          }
+        </h2>
+        <small>Busca em {{ requisitos().length }} requisitos publicados</small>
+      </div>
+      <section class="results-list">
+        @for (requisito of resultados(); track requisito.requisitoId) {
+          <article class="result-card">
+            <div class="result-meta">
+              <span>{{ requisito.codigo ?? 'REQUISITO' }} / {{ epicoFor(requisito) }}</span
+              ><i>Publicada · v{{ requisito.versaoPublicada }}</i>
+            </div>
+            <button class="result-title" (click)="abrir(requisito)">{{ requisito.titulo }}</button>
+            <p>{{ requisito.conteudo }}</p>
+            <div class="result-bottom">
+              <span
+                >{{ requisito.criteriosAceite.length ? 'Critérios de aceite · ' : ''
+                }}{{ epicoFor(requisito) }}</span
+              ><button (click)="abrir(requisito)">Ler requisito →</button>
+            </div>
+          </article>
+        } @empty {
+          <div class="no-results">
+            <strong>Nenhum requisito encontrado</strong
+            ><span>Tente ajustar a busca ou selecionar outro épico.</span>
+          </div>
+        }
+      </section>
+      <div class="result-count">
+        Exibindo {{ resultados().length }} de {{ resultados().length }} resultados
+        <button (click)="epico.set('Todos'); consulta.set(''); termoAplicado.set('')">
+          Limpar filtros
+        </button>
+      </div>
+      <div class="official-note">
+        <strong>Você está consultando o conteúdo oficial.</strong
+        ><span
+          >Rascunhos, versões em revisão e requisitos cancelados não aparecem nos resultados. Uma
+          nova revisão não substitui a versão publicada até sua publicação.</span
+        >
+      </div>
+    } @else if (selecionado(); as requisito) {
+      <div class="requirement-layout">
+        <article class="requirement-doc">
+          <div class="doc-meta">
+            <span>{{ requisito.codigo ?? 'REQUISITO' }} / {{ epicoFor(requisito) }}</span
+            ><i>Publicada · v{{ requisito.versaoPublicada }}</i>
+          </div>
+          <h1>{{ requisito.titulo }}</h1>
+          <div class="immutable-bar">
+            <span>Versão publicada v{{ requisito.versaoPublicada }} · Conteúdo imutável</span
+            ><button (click)="copiarLink()">
+              {{ copiado() ? 'Link copiado ✓' : 'Copiar link ↗' }}
+            </button>
+          </div>
+          <section id="historia">
+            <h2>História de usuário</h2>
+            <blockquote>{{ requisito.conteudo }}</blockquote>
+          </section>
+          <section id="contexto">
+            <h2>Contexto e descrição funcional</h2>
+            <p>{{ requisito.conteudo }}</p>
+          </section>
+          <section id="criterios">
+            <h2>Critérios de aceitação</h2>
+            @for (criterio of requisito.criteriosAceite; track $index) {
+              <div class="criterion">
+                <b>{{ ($index + 1).toString().padStart(2, '0') }}</b>
+                <p>{{ criterio }}</p>
+              </div>
+            } @empty {
+              <p class="doc-muted">
+                Esta publicação não possui critérios de aceitação registrados.
+              </p>
+            }
+          </section>
+          <section id="regras">
+            <h2>Regras de negócio</h2>
+            <p class="doc-muted">
+              As regras aplicáveis estão descritas na versão oficial deste requisito.
+            </p>
+          </section>
+        </article>
+        <aside class="doc-aside">
+          <section>
+            <small>NESTA PÁGINA</small><a href="#historia">História de usuário</a
+            ><a href="#contexto">Contexto e descrição</a
+            ><a href="#criterios">Critérios de aceitação</a><a href="#regras">Regras de negócio</a>
+          </section>
+          <section>
+            <h3>Sobre esta publicação</h3>
+            <small>Versão oficial</small
+            ><strong class="green">v{{ requisito.versaoPublicada }} · Publicada</strong
+            ><small>Épico</small><span>{{ epicoFor(requisito) }}</span>
+            <p>Somente leitura. Alterações são realizadas no ambiente de Gestão.</p>
+          </section>
+          <section>
+            <h3>Retrato das relações</h3>
+            <small>Vinculado à publicação v{{ requisito.versaoPublicada }}</small>
+            @if (requisito.referencias.length) {
+              @for (ref of requisito.referencias; track $index) {
+                <p>
+                  {{
+                    ref.disponivel
+                      ? rotulo(ref) + ' · ' + ref.codigo + ' ' + ref.titulo
+                      : 'Referência indisponível'
+                  }}
+                </p>
+              }
+            } @else {
+              <div class="relation-warning">
+                <strong>Relações indisponíveis</strong>
+                <p>
+                  Não foi possível carregar o retrato. O conteúdo publicado continua disponível.
+                </p>
+              </div>
+            }
+          </section>
+        </aside>
+      </div>
+      <div class="doc-navigation">
+        <button (click)="pagina.set('busca')">← Voltar à busca</button
+        ><span>ATHENA / Livro de Requisitos</span>
+      </div>
+    }
+  </main>
+</div>

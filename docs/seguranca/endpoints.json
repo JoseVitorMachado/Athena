@@ -674,6 +674,26 @@
     {
       "contrato": "bff-gestao.yaml",
       "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/historico",
+      "operacaoDominio": "gestaoListarHistoricoRequisito",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas",
+      "operacaoDominio": "gestaoCompararVersoesRequisito",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
       "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes",
       "operacaoDominio": "gestaoListarVersoes",
       "papelMinimo": "Leitor",
@@ -1896,6 +1916,16 @@
       "metodo": "GET",
       "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes/{publicacaoId}",
       "operacaoDominio": "obterPublicacao",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas",
+      "operacaoDominio": "compararVersoesRequisito",
       "papelMinimo": "Leitor",
       "escopo": "athena:read",
       "interno": "Não",

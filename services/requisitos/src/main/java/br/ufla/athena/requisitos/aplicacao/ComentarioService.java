@@ -96,6 +96,7 @@ public class ComentarioService {
             }
         }
         UUID comentario = UUID.randomUUID();
+        Historico.registrar(banco, projeto, requisitoId, versaoId, "COMENTARIO_CRIADO", autor, null);
         banco.update("INSERT INTO comentarios (id,projeto_id,requisito_id,versao_id,autor_id,texto,ancora_selecao,ancora_situacao,mencoes) VALUES (?,?,?,?,?,?,?,?,?::jsonb)",
                 comentario, projeto, requisitoId, versaoId, autor, texto, selecao, situacao, escrever(mencoes));
         emissor.evento("ComentarioCriado", projeto, null, null, comentario, null,

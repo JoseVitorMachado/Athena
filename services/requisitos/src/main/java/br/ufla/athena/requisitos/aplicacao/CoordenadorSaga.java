@@ -107,6 +107,7 @@ public class CoordenadorSaga {
                 id, saga, projeto, requisitoId, versaoId, candidata.getHashConteudo(), escrever(snapshot), comando, comando,
                 Timestamp.from(proxima(agora, 1, agora.plus(prazoTotal))), Timestamp.from(agora.plus(prazoTotal)), Timestamp.from(agora), Timestamp.from(agora), usuario.obter());
         if (inseridas == 0) throw problema(HttpStatus.CONFLICT, "SUBMISSAO_ATIVA", "Já existe submissão ativa.");
+        Historico.registrar(banco, projeto, requisitoId, versaoId, "SUBMETIDA", usuario.obter(), null);
         banco.update("INSERT INTO chaves_idempotencia VALUES (?,?,?,?,?,?)", chave, OPERACAO, projeto, impressao, id, Timestamp.from(agora));
         candidata.alterarEstado(EstadoVersao.EM_SUBMISSAO);
         Registro registro = carregar(id, false);
@@ -169,6 +170,7 @@ public class CoordenadorSaga {
                 r.lote = uuid(payload.get("loteId"));
                 if (r.lote == null) throw new IllegalArgumentException("Lote inválido");
                 transicao(r, "CONCLUIDA", null, "lote aberto");
+                Historico.registrar(banco, r.projeto, r.requisito, r.versao, "SAGA_CONCLUIDA", uuid(payload.get("autorId")), null);
                 r.comando = null;
                 r.proxima = null;
                 mudarVersao(r, EstadoVersao.AGUARDANDO_REVISAO);
@@ -193,6 +195,7 @@ public class CoordenadorSaga {
             case CANCELAR_RETRATO -> mudarEtapa(r, "COMPENSANDO", "CANCELANDO_RETRATO", causa, "lote cancelado");
             case COMPENSAR -> {
                 transicao(r, "COMPENSADA", null, "retrato cancelado");
+                Historico.registrar(banco, r.projeto, r.requisito, r.versao, "SAGA_COMPENSADA", uuid(payload.get("autorId")), null);
                 r.comando = null;
                 r.proxima = null;
                 mudarVersao(r, EstadoVersao.RASCUNHO);

@@ -6,6 +6,10 @@ import br.ufla.athena.requisitos.dominio.VersaoRepository;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.UUID;
+import java.util.List;
+import java.util.Objects;
+import br.ufla.athena.requisitos.dominio.Versao;
+import br.ufla.athena.requisitos.aplicacao.DiferencaTexto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -43,6 +47,38 @@ public class VersaoPublicacaoController {
         return versoes.findByIdAndRequisito_IdAndRequisito_ProjetoId(versaoId, requisitoId, projetoId)
                 .map(versao -> ResponseEntity.ok().eTag("\"" + versao.getRevisao() + "\"").body(VersaoResposta.de(versao)))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Versão não encontrada"));
+    }
+
+    public record ResumoVersao(UUID versaoId, int numero, String estadoVersao) {
+        static ResumoVersao de(Versao v) { return new ResumoVersao(v.getId(), v.getNumero(), v.getEstadoVersao().name()); }
+    }
+    public record Titulo(String anterior, String atual, boolean alterado) { }
+    public record Criterios(List<String> adicionados, List<String> removidos, List<String> mantidos) { }
+    public record DiferencaVersoes(ResumoVersao de, ResumoVersao para, Titulo titulo,
+            List<DiferencaTexto.Linha> conteudo, Criterios criterios) { }
+
+    @GetMapping("/versoes/{versaoId}/diferencas")
+    @Transactional(readOnly = true)
+    public ResponseEntity<DiferencaVersoes> diferencas(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @PathVariable UUID versaoId, @RequestParam(required = false) UUID com) {
+        Versao atual = versoes.findByIdAndRequisito_IdAndRequisito_ProjetoId(versaoId, requisitoId, projetoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Versão não encontrada"));
+        Versao anterior = com == null
+                ? versoes.findByRequisito_IdAndNumero(requisitoId, atual.getNumero() - 1)
+                    .orElseThrow(() -> new Problema(HttpStatus.NOT_FOUND, "SEM_VERSAO_ANTERIOR", "Não existe versão anterior."))
+                : versoes.findByIdAndRequisito_IdAndRequisito_ProjetoId(com, requisitoId, projetoId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Versão não encontrada"));
+        List<DiferencaTexto.Linha> linhas;
+        try { linhas = DiferencaTexto.comparar(anterior.getConteudo(), atual.getConteudo()); }
+        catch (IllegalArgumentException e) {
+            throw new Problema(HttpStatus.UNPROCESSABLE_ENTITY, "CONTEUDO_GRANDE_DEMAIS", "O conteúdo excede 2000 linhas.");
+        }
+        List<String> a = anterior.getCriteriosAceite(), b = atual.getCriteriosAceite();
+        DiferencaVersoes resultado = new DiferencaVersoes(ResumoVersao.de(anterior), ResumoVersao.de(atual),
+                new Titulo(anterior.getTitulo(), atual.getTitulo(), !Objects.equals(anterior.getTitulo(), atual.getTitulo())),
+                linhas, new Criterios(b.stream().filter(c -> !a.contains(c)).toList(),
+                a.stream().filter(c -> !b.contains(c)).toList(), a.stream().filter(b::contains).toList()));
+        return ResponseEntity.ok().eTag("\"" + anterior.getId() + "-" + anterior.getRevisao() + "-" + atual.getId() + "-" + atual.getRevisao() + "\"").body(resultado);
     }
 
     /** listarVersoes: por padrão, da mais recente para a mais antiga. */

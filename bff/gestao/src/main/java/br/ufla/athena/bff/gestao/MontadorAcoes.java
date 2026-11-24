@@ -20,6 +20,13 @@ public final class MontadorAcoes {
 
     public Resultado montar(String projetoId, String requisitoId, String situacao, String estado,
                             String loteId, String estadoLote, String submissaoId, boolean submissaoEmAndamento, Papel papel) {
+        return montar(projetoId, requisitoId, situacao, estado, loteId, estadoLote, submissaoId,
+                submissaoEmAndamento, papel, null, null);
+    }
+
+    public Resultado montar(String projetoId, String requisitoId, String situacao, String estado,
+                            String loteId, String estadoLote, String submissaoId, boolean submissaoEmAndamento,
+                            Papel papel, String publicadaId, String candidataId) {
         String colecao = Caminhos.GESTAO + projetoId + "/requisitos";
         String self = colecao + "/" + requisitoId;
         String revisao = loteId == null ? null : Caminhos.GESTAO + projetoId + "/revisoes/" + loteId;
@@ -28,6 +35,10 @@ public final class MontadorAcoes {
         Map<String, Acao> actions = new LinkedHashMap<>();
         links.put("self", new Link(self));
         links.put("colecao", new Link(colecao));
+        links.put("historico", new Link(self + "/historico"));
+        if (publicadaId != null && candidataId != null) {
+            links.put("diferencas", new Link(self + "/versoes/" + candidataId + "/diferencas?com=" + publicadaId));
+        }
         links.put("versoes", new Link(self + "/versoes"));
         links.put("comentarios", new Link(self + "/comentarios"));
         if (estado != null && !"PUBLICADA".equals(estado) && !"SEM_VERSAO".equals(estado)) {

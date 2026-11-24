@@ -67,6 +67,7 @@ public class RequisitoService {
                 entrada.responsavelId(), entrada.tipo(), entrada.titulo(), entrada.conteudo(),
                 entrada.criteriosAceite());
         Requisito salvo = repositorio.saveAndFlush(requisito);
+        Historico.registrar(banco, projetoId, salvo.getId(), null, "REQUISITO_CRIADO", usuario.obter(), null);
         emitirRequisitoAlterado(salvo);
         return new Encontrado(RequisitoResposta.de(salvo), salvo.getRevisao());
     }
@@ -111,6 +112,7 @@ public class RequisitoService {
                 patch.conteudo() == null ? versao.getConteudo() : patch.conteudo(),
                 patch.criteriosAceite() == null ? versao.getCriteriosAceite() : patch.criteriosAceite());
         repositorio.saveAndFlush(requisito);
+        Historico.editar(banco, projetoId, requisitoId, versao.getId(), usuario.obter());
         List<Map<String, Object>> ancoras = banco.queryForList(
                 "SELECT id, ancora_selecao FROM comentarios WHERE versao_id=? AND ancora_situacao='LOCALIZADA' FOR UPDATE", versao.getId());
         for (Map<String, Object> ancora : ancoras) {
@@ -145,8 +147,13 @@ public class RequisitoService {
             tipo = valor.asText();
         }
         if (corpo.has("epicoId")) validarEpico(projeto, epico);
+        List<String> campos = new java.util.ArrayList<>();
+        if (!Objects.equals(responsavel, r.getResponsavelId())) campos.add("responsavelId");
+        if (!Objects.equals(epico, r.getEpicoId())) campos.add("epicoId");
+        if (!Objects.equals(tipo, r.getTipo())) campos.add("tipo");
         r.alterarMetadados(responsavel, epico, tipo);
         repositorio.saveAndFlush(r);
+        Historico.registrar(banco, projeto, id, null, "METADADOS_ALTERADOS", usuario.obter(), String.join(", ", campos));
         emitirRequisitoAlterado(r);
         return new Encontrado(RequisitoResposta.de(r), r.getRevisao());
     }
@@ -185,6 +192,7 @@ public class RequisitoService {
         Alteracao alteracao = new Alteracao(UUID.randomUUID(), id, destino, candidata, usuario.obter(), agora);
         banco.update("INSERT INTO alteracoes_situacao (id,projeto_id,requisito_id,situacao,candidata_id,autor_id,chave_idempotencia,criado_em) VALUES (?,?,?,?,?,?,?,?)",
                 alteracao.operacaoId(), projeto, id, destino.name(), candidata, alteracao.autor(), chave, Timestamp.from(agora));
+        Historico.registrar(banco, projeto, id, candidata, destino == SituacaoRequisito.CANCELADO ? "CANCELADO" : "REATIVADO", alteracao.autor(), null);
         emitirRequisitoAlterado(r);
         return new AlteracaoEncontrada(alteracao, r.getRevisao());
     }

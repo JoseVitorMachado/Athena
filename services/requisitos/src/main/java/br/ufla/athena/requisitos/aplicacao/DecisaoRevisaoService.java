@@ -71,6 +71,9 @@ public class DecisaoRevisaoService implements ManipuladorMensagem {
                     (String) payload.get("hashConteudo"), submissaoId);
             resultado = motivo == null ? "APLICADA" : "DESCARTADA";
             if (motivo == null) {
+                UUID autor = payload.get("autorId") == null ? null : id(payload, "autorId");
+                String acao = switch (decisao) { case "APROVAR" -> "APROVADA"; case "REJEITAR" -> "REJEITADA"; default -> "CORRECOES_SOLICITADAS"; };
+                Historico.registrar(banco, projeto, requisitoId, versaoId, acao, autor, null);
                 candidata.alterarEstado("APROVAR".equals(decisao) ? EstadoVersao.APROVADA : EstadoVersao.RASCUNHO);
             }
             banco.update("INSERT INTO decisoes_aplicadas (decisao_id, versao_id, resultado, motivo) VALUES (?,?,?,?)",

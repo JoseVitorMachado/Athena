@@ -213,13 +213,18 @@ public class RequisitoService {
     }
 
     static Map<String, Object> payloadRequisitoAlterado(Requisito requisito) {
-        return Map.of(
-                "requisitoId", requisito.getId(),
-                "projetoId", requisito.getProjetoId(),
-                "codigo", requisito.getCodigo(),
-                "titulo", requisito.getTitulo(),
-                "situacao", requisito.getSituacao().name(),
-                "revisao", requisito.getRevisao());
+        Map<String, Object> payload = new java.util.LinkedHashMap<>();
+        payload.put("requisitoId", requisito.getId());
+        payload.put("projetoId", requisito.getProjetoId());
+        payload.put("codigo", requisito.getCodigo());
+        payload.put("titulo", requisito.getTitulo());
+        payload.put("situacao", requisito.getSituacao().name());
+        payload.put("revisao", requisito.getRevisao());
+        // Metadados opcionais alimentam os nós do mapa (US14); ausentes quando não definidos.
+        if (requisito.getTipo() != null) payload.put("tipo", requisito.getTipo());
+        if (requisito.getEpicoId() != null) payload.put("epicoId", requisito.getEpicoId());
+        if (requisito.getResponsavelId() != null) payload.put("responsavelId", requisito.getResponsavelId());
+        return payload;
     }
 
     private static Problema naoEncontrado() {

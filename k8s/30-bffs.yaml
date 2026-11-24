@@ -42,6 +42,11 @@ spec:
                 configMapKeyRef:
                   name: athena-config
                   key: REVISOES_URL
+            - name: RASTREABILIDADE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RASTREABILIDADE_URL
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false

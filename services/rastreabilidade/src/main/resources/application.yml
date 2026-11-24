@@ -67,6 +67,13 @@ management:
 athena:
   mensageria:
     servico: rastreabilidade
-    eventos-assinados: []
+    eventos-assinados:
+      - rastreabilidade.RelacaoCriada
+      - rastreabilidade.RelacaoAlterada
+      - rastreabilidade.RelacaoRemovida
+      - requisitos.RequisitoAlterado
     intervalo-publicacao: 500ms
     lote-publicacao: 50
+
+  mapa:
+    atraso-projecao: ${ATHENA_ATRASO_PROJECAO:0s}

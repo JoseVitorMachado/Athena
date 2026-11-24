@@ -12,6 +12,9 @@ import br.ufla.athena.requisitos.api.RequisitoResposta;
 import br.ufla.athena.requisitos.dominio.Requisito;
 import br.ufla.athena.requisitos.dominio.RequisitoRepository;
 import br.ufla.athena.requisitos.dominio.SituacaoRequisito;
+import br.ufla.athena.requisitos.mensageria.EmissorMensagens;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -23,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class RequisitoService {
 
     private final RequisitoRepository repositorio;
+    private final EmissorMensagens emissor;
 
-    public RequisitoService(RequisitoRepository repositorio) {
+    public RequisitoService(RequisitoRepository repositorio, EmissorMensagens emissor) {
         this.repositorio = repositorio;
+        this.emissor = emissor;
     }
 
     @Transactional(readOnly = true)
@@ -48,6 +53,7 @@ public class RequisitoService {
                 entrada.responsavelId(), entrada.tipo(), entrada.titulo(), entrada.conteudo(),
                 entrada.criteriosAceite());
         Requisito salvo = repositorio.saveAndFlush(requisito);
+        emitirRequisitoAlterado(salvo);
         return new Encontrado(RequisitoResposta.de(salvo), salvo.getRevisao());
     }
 
@@ -86,11 +92,30 @@ public class RequisitoService {
         if (versao.getEstadoVersao() == EstadoVersao.PUBLICADA) {
             versao = requisito.criarCandidataDaPublicada(versao);
         }
+        String tituloAnterior = requisito.getTitulo();
         requisito.editarCandidata(versao, patch.titulo() == null ? versao.getTitulo() : patch.titulo(),
                 patch.conteudo() == null ? versao.getConteudo() : patch.conteudo(),
                 patch.criteriosAceite() == null ? versao.getCriteriosAceite() : patch.criteriosAceite());
         repositorio.saveAndFlush(requisito);
+        if (!Objects.equals(tituloAnterior, requisito.getTitulo())) {
+            emitirRequisitoAlterado(requisito);
+        }
         return new CandidataEncontrada(VersaoResposta.de(versao), versao.getRevisao());
+    }
+
+    private void emitirRequisitoAlterado(Requisito requisito) {
+        emissor.evento("RequisitoAlterado", requisito.getProjetoId(), null, null, UUID.randomUUID(), null,
+                payloadRequisitoAlterado(requisito));
+    }
+
+    static Map<String, Object> payloadRequisitoAlterado(Requisito requisito) {
+        return Map.of(
+                "requisitoId", requisito.getId(),
+                "projetoId", requisito.getProjetoId(),
+                "codigo", requisito.getCodigo(),
+                "titulo", requisito.getTitulo(),
+                "situacao", requisito.getSituacao().name(),
+                "revisao", requisito.getRevisao());
     }
 
     private static Problema naoEncontrado() {

@@ -213,6 +213,9 @@ public class RequisitosGestaoController {
         if (origem.getETag() != null) {
             saida.eTag(origem.getETag());
         }
+        if (origem.getFirst(HttpHeaders.RETRY_AFTER) != null) {
+            saida.header(HttpHeaders.RETRY_AFTER, origem.getFirst(HttpHeaders.RETRY_AFTER));
+        }
         return saida.body(resposta.corpo());
     }
 }

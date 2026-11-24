@@ -115,6 +115,7 @@ services:
     environment:
       REQUISITOS_URL: http://requisitos:8080
       REVISOES_URL: http://revisoes:8080
+      RASTREABILIDADE_URL: http://rastreabilidade:8080
     depends_on:
       requisitos:
         condition: service_healthy
@@ -187,6 +188,7 @@ services:
       context: ./services/rastreabilidade
     environment:
       <<: *rabbitmq-cliente
+      REQUISITOS_URL: http://requisitos:8080
       DB_HOST: db-rastreabilidade
       DB_NAME: rastreabilidade
       DB_USER: ${RASTREABILIDADE_DB_USER:-rastreabilidade}

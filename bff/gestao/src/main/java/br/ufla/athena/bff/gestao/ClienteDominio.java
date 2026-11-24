@@ -52,6 +52,10 @@ public class ClienteDominio {
         return chamar(servico, HttpMethod.PATCH, urlBase, caminho, corpo, ifMatch, null);
     }
 
+    public Resposta delete(String servico, String urlBase, String caminho, String ifMatch) {
+        return chamar(servico, HttpMethod.DELETE, urlBase, caminho, null, ifMatch, null);
+    }
+
     private Resposta chamar(String servico, HttpMethod metodo, String urlBase, String caminho, JsonNode corpo,
                             String ifMatch, String idempotencyKey) {
         RestClient.RequestBodySpec requisicao = http.method(metodo)

@@ -291,6 +291,11 @@ spec:
             - name: http
               containerPort: 8080
           env:
+            - name: REQUISITOS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REQUISITOS_URL
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:

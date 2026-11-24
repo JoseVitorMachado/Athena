@@ -4,17 +4,20 @@ import json
 import logging
 import threading
 import uuid
+from datetime import datetime, timezone
 
 import pika
 from psycopg.types.json import Jsonb
 
-from . import config, embeddings
+from . import config, embeddings, projetos
 from .banco import pool
+from .comandos import validar_comando
 from .eventos import revisao_pode_aplicar, validar_envelope, versao_pode_ativar
 from .segmentacao import segmentar
 
 LOG = logging.getLogger("impacto_mcp.processamento")
 FILA = "impacto-mcp.eventos"
+FILA_COMANDOS = "impacto-mcp.comandos"
 ESPERAS = (2, 10, 30, 60)
 
 
@@ -36,10 +39,15 @@ def _receber(canal, metodo, propriedades, corpo):
     payload = envelope["payload"]
     try:
         with pool.connection() as conexao:
+            projetos.bloquear_acesso(conexao, envelope["projetoId"])
+            bloqueado, excluido = projetos.estado(conexao, envelope["projetoId"])
             inserido = conexao.execute(
                 "INSERT INTO inbox (message_id, tipo) VALUES (%s, %s) ON CONFLICT DO NOTHING RETURNING message_id",
                 (envelope["messageId"], envelope["messageType"])).fetchone()
-            if inserido:
+            if inserido and projetos.ignorar_evento(envelope["messageType"], bloqueado, excluido):
+                LOG.debug("Evento ignorado para projeto em exclusão: %s", envelope["projetoId"])
+                conexao.execute("UPDATE inbox SET processado_em = now() WHERE message_id = %s", (envelope["messageId"],))
+            elif inserido:
                 if envelope["messageType"] == "RequisitoAlterado":
                     _alterar_requisito(conexao, envelope["projetoId"], payload, envelope["occurredAt"])
                     conexao.execute("UPDATE inbox SET processado_em = now() WHERE message_id = %s",
@@ -63,6 +71,48 @@ def _receber(canal, metodo, propriedades, corpo):
         _publicar(canal, destino, corpo, propriedades, headers, expiracao)
     canal.basic_ack(metodo.delivery_tag)
 
+
+
+def _receber_comando(canal, metodo, propriedades, corpo):
+    headers = dict(propriedades.headers or {})
+    try:
+        envelope = validar_comando(json.loads(corpo))
+    except (ValueError, UnicodeDecodeError) as erro:
+        headers["x-athena-motivo"] = str(erro)[:1000]
+        _publicar(canal, FILA_COMANDOS + ".dlq", corpo, propriedades, headers)
+        canal.basic_ack(metodo.delivery_tag)
+        return
+    try:
+        projeto = envelope["projetoId"]
+        exclusao = envelope["payload"]["exclusaoId"]
+        with pool.connection() as conexao:
+            projetos.bloquear_acesso(conexao, projeto)
+            conexao.execute("""INSERT INTO inbox (message_id, tipo, processado_em) VALUES (%s, %s, now())
+                ON CONFLICT DO NOTHING""", (envelope["messageId"], envelope["messageType"]))
+            conexao.execute("""INSERT INTO projetos_bloqueados (projeto_id, exclusao_id) VALUES (%s, %s)
+                ON CONFLICT (projeto_id) DO NOTHING""", (projeto, exclusao))
+            if envelope["messageType"] == "FecharProjeto":
+                conexao.execute("DELETE FROM trabalhos_indexacao WHERE projeto_id = %s AND estado = 'PENDENTE'", (projeto,))
+                tipo = "ProjetoFechado"
+            else:
+                for tabela in ("trechos", "trabalhos_indexacao", "requisitos_cancelados"):
+                    conexao.execute(f"DELETE FROM {tabela} WHERE projeto_id = %s", (projeto,))
+                conexao.execute("INSERT INTO projetos_excluidos (projeto_id) VALUES (%s) ON CONFLICT DO NOTHING", (projeto,))
+                tipo = "ProjetoLimpo"
+        resposta = {"schemaVersion": 1, "messageId": str(uuid.uuid4()), "messageType": tipo,
+                    "occurredAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                    "correlationId": envelope["correlationId"], "causationId": envelope["messageId"],
+                    "projetoId": projeto, "payload": {"exclusaoId": exclusao, "projetoId": projeto,
+                                                       "servico": "impacto-mcp"}}
+        # Sem outbox: após o commit, a reentrega republica a resposta de um efeito idempotente.
+        canal.basic_publish(exchange="athena.events", routing_key="impacto-mcp." + tipo,
+                            body=json.dumps(resposta).encode(), mandatory=True,
+                            properties=pika.BasicProperties(delivery_mode=2, content_type="application/json"))
+    except Exception:
+        LOG.exception("Falha ao processar comando de exclusão")
+        canal.basic_nack(metodo.delivery_tag, requeue=True)
+        return
+    canal.basic_ack(metodo.delivery_tag)
 
 def _alterar_requisito(conexao, projeto, payload, ocorrido):
     # Usa o instante do evento (relógio de Requisitos), não o do consumo: se este serviço ficar
@@ -96,6 +146,7 @@ def consumir(parar):
             canal = conexao.channel()
             canal.confirm_delivery()
             canal.exchange_declare(exchange="athena.events", exchange_type="topic", durable=True)
+            canal.exchange_declare(exchange="athena.commands", exchange_type="topic", durable=True)
             canal.queue_declare(queue=FILA + ".dlq", durable=True)
             canal.queue_declare(queue=FILA + ".retentativa", durable=True, arguments={
                 "x-dead-letter-exchange": "", "x-dead-letter-routing-key": FILA})
@@ -103,6 +154,13 @@ def consumir(parar):
                 "x-dead-letter-exchange": "", "x-dead-letter-routing-key": FILA + ".dlq"})
             canal.queue_bind(queue=FILA, exchange="athena.events", routing_key="requisitos.VersaoPublicada")
             canal.queue_bind(queue=FILA, exchange="athena.events", routing_key="requisitos.RequisitoAlterado")
+            canal.queue_declare(queue=FILA_COMANDOS + ".dlq", durable=True)
+            canal.queue_declare(queue=FILA_COMANDOS + ".retentativa", durable=True, arguments={
+                "x-dead-letter-exchange": "", "x-dead-letter-routing-key": FILA_COMANDOS})
+            canal.queue_declare(queue=FILA_COMANDOS, durable=True, arguments={
+                "x-dead-letter-exchange": "", "x-dead-letter-routing-key": FILA_COMANDOS + ".dlq"})
+            canal.queue_bind(queue=FILA_COMANDOS, exchange="athena.commands", routing_key="impacto-mcp.#")
+            canal.basic_consume(queue=FILA_COMANDOS, on_message_callback=_receber_comando, auto_ack=False)
             canal.basic_qos(prefetch_count=1)
             canal.basic_consume(queue=FILA, on_message_callback=_receber, auto_ack=False)
             while not parar.is_set():
@@ -146,6 +204,9 @@ def _trabalho(conexao):
                            payload["criteriosAceite"], embeddings.contar_tokens)
         vetores = embeddings.gerar_trechos(textos)
         with conexao.transaction():
+            projetos.bloquear_acesso(conexao, projeto)
+            if any(projetos.estado(conexao, projeto)):
+                return True
             conexao.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 1))", (str(origem),))
             atual = conexao.execute("""SELECT max((t.payload->>'numero')::integer)
                 FROM trabalhos_indexacao t JOIN trechos s ON s.origem_id = t.origem_id AND s.versao_id = t.versao_id

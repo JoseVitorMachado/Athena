@@ -162,4 +162,6 @@ Códigos de conflito adicionais propostos nos exemplos: SUBMISSAO_ATIVA, CANDIDA
 - Recuperação de senha: código numérico de 6 dígitos (US03 e primeiro parágrafo da §7.1), guardado só como HMAC, válido por 10 minutos, de uso único, invalidado por novo pedido ou após 5 tentativas; limites por e-mail e IP.
 - Os papéis na API usam os valores do enum do contrato, como `Leitor`, `Repórter`, `Editor`, `Aprovador`, `Mantenedor` e `Owner`.
 
+- Exclusão física de projeto: o pedido exige projeto arquivado, Owner, confirmação pelo nome, `If-Match` e `Idempotency-Key`. A ausência de SAGA ou revisão ativa é verificada na fase `FECHANDO`: Requisitos só confirma a quiescência quando a SAGA termina ou compensa, e Revisões encerra (cancela) os lotes ativos. Durante e após a exclusão, o andamento pode ser acompanhado pelo solicitante ou pelo owner registrado do projeto, mesmo com o acesso ao projeto bloqueado.
+
 Essas decisões respondem às questões correspondentes registradas acima; outras perguntas continuam pendentes.

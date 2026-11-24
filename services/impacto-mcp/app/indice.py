@@ -4,7 +4,7 @@ import uuid
 
 from psycopg.types.json import Jsonb
 
-from . import embeddings
+from . import embeddings, projetos
 from .banco import pool
 
 PROJETO_DEMO = uuid.UUID("22222222-2222-4222-8222-222222222222")
@@ -24,6 +24,9 @@ def carregar_demo():
         conexao.execute("SELECT pg_advisory_xact_lock(727273)")
         if conexao.execute("SELECT EXISTS(SELECT 1 FROM trechos) OR EXISTS(SELECT 1 FROM trabalhos_indexacao)").fetchone()[0]:
             return
+        projetos.bloquear_acesso(conexao, PROJETO_DEMO)
+        if any(projetos.estado(conexao, PROJETO_DEMO)):
+            return
         for origem, versao, codigo, titulo, conteudo, criterios in PUBLICACOES_DEMO:
             payload = {"numero": 1, "codigo": codigo, "titulo": titulo, "conteudo": conteudo,
                        "criteriosAceite": criterios}
@@ -33,6 +36,9 @@ def carregar_demo():
 
 
 def buscar(projeto_id, pergunta: str, limite: int) -> list[dict]:
+    with pool.connection() as conexao:
+        if any(projetos.estado(conexao, projeto_id)):
+            return []
     vetor = embeddings.literal(embeddings.gerar_consulta(pergunta))
     with pool.connection() as conexao:
         linhas = conexao.execute(
@@ -43,6 +49,8 @@ def buscar(projeto_id, pergunta: str, limite: int) -> list[dict]:
                                   plainto_tsquery('portuguese', %(q)s)) AS relevancia_texto
                      FROM trechos
                     WHERE projeto_id = %(projeto)s AND ativo AND modelo = %(modelo)s
+                      AND NOT EXISTS (SELECT 1 FROM projetos_bloqueados WHERE projeto_id = %(projeto)s)
+                      AND NOT EXISTS (SELECT 1 FROM projetos_excluidos WHERE projeto_id = %(projeto)s)
                     ORDER BY embedding <=> %(vetor)s::vector LIMIT 50)
                SELECT origem_id, versao_id, codigo, titulo, texto, similaridade
                  FROM candidatos

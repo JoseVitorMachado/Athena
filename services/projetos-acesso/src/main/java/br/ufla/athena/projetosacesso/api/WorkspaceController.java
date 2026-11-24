@@ -39,7 +39,7 @@ public class WorkspaceController {
             @RequestParam(defaultValue = Ordenacao.PADRAO) String sort) {
         UUID usuario = identidade.usuarioAutenticado(bearer);
         String ordem = AcessoRecursos.ordem(sort, "w");
-        String filtro = " FROM workspaces w WHERE w.excluido_em IS NULL AND (w.owner_id=? OR EXISTS (SELECT 1 FROM projetos p JOIN membros m ON m.projeto_id=p.id WHERE p.workspace_id=w.id AND p.excluido_em IS NULL AND m.usuario_id=?))";
+        String filtro = " FROM workspaces w WHERE w.excluido_em IS NULL AND (w.owner_id=? OR EXISTS (SELECT 1 FROM projetos p JOIN membros m ON m.projeto_id=p.id WHERE p.workspace_id=w.id AND p.excluido_em IS NULL AND NOT p.em_exclusao AND m.usuario_id=?))";
         Long total = acesso.banco.queryForObject("SELECT count(*)" + filtro, Long.class, usuario, usuario);
         List<UUID> ids = acesso.banco.queryForList("SELECT w.id" + filtro + " ORDER BY " + ordem + " LIMIT ? OFFSET ?", UUID.class, usuario, usuario, size, (long) page * size);
         List<Resposta> itens = ids.stream().map(id -> Resposta.de(acesso.workspaces.findById(id).orElseThrow())).toList();

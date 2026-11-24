@@ -44,7 +44,15 @@ public class AutorizacaoProjeto implements HandlerInterceptor, WebMvcConfigurer 
             throw new FalhaAutorizacao(403, "SEM_ACESSO_AO_PROJETO", "Acesso ao projeto negado.");
         }
         JwtAuthenticationToken autenticacao = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        PapelAtual.Vinculo vinculo = papelAtual.consultar(projetoId, autenticacao.getToken().getSubject());
+        PapelAtual.Vinculo vinculo;
+        try {
+            vinculo = papelAtual.consultar(projetoId, autenticacao.getToken().getSubject());
+        } catch (FalhaAutorizacao falha) {
+            // Uma repetição pode chegar após o bloqueio do vínculo; o domínio valida a chave e o solicitante.
+            if (falha.status() == 403 && "POST".equals(pedido.getMethod())
+                    && caminho.matches("/api/v1/gestao/projetos/[^/]+/exclusoes")) return true;
+            throw falha;
+        }
         pedido.setAttribute(VINCULO, vinculo);
         PapelAtual.Papel minimo = PoliticaProjeto.papelMinimo(pedido.getMethod(), caminho);
         if (vinculo.arquivado() && !PoliticaProjeto.permiteArquivado(pedido.getMethod(), caminho)) {

@@ -7,6 +7,7 @@ e o endpoint MCP em /mcp, roteado pelo Gateway.
 """
 
 import logging
+import re
 import uuid
 from contextlib import asynccontextmanager
 
@@ -16,7 +17,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool
 
-from . import config, indice, mcp, processamento
+from . import config, indice, mcp, processamento, projetos
 from .banco import migrar, pool
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -52,6 +53,28 @@ def problema(status: int, titulo: str, detalhe: str, instancia: str, codigo: str
         content={"type": "about:blank", "title": titulo, "status": status, "detail": detalhe,
                  "instance": instancia, "codigo": codigo},
     )
+
+
+def _estado_projeto(projeto_id):
+    with pool.connection() as conexao:
+        return projetos.estado(conexao, projeto_id)
+
+
+@app.middleware("http")
+async def verificar_projeto(request: Request, call_next):
+    caminho = request.url.path
+    correspondencia = re.match(r"^/api/v1/projetos/([^/]+)(?:/|$)", caminho)
+    if correspondencia:
+        try:
+            projeto_id = uuid.UUID(correspondencia.group(1))
+        except ValueError:
+            return await call_next(request)
+        bloqueado, excluido = await run_in_threadpool(_estado_projeto, projeto_id)
+        if excluido and request.method == "GET":
+            return problema(404, "Projeto excluído", "Projeto excluído.", caminho, "PROJETO_EXCLUIDO")
+        if (bloqueado or excluido) and request.method != "GET":
+            return problema(409, "Projeto em exclusão", "Projeto em exclusão.", caminho, "PROJETO_EM_EXCLUSAO")
+    return await call_next(request)
 
 
 @app.exception_handler(RequestValidationError)

@@ -134,7 +134,7 @@ public class MembrosController {
     public Pagina<Convite> meusConvites(@RequestHeader(value="Authorization", required=false) String token,
             @RequestParam(defaultValue="0") @Min(0) int page, @RequestParam(defaultValue="20") @Min(1) @Max(100) int size) {
         UUID usuario=identidade.usuarioAutenticado(token);
-        var lista=acesso.banco.query("SELECT c.id,c.projeto_id,c.email,c.papel,c.aceito_em,c.atualizado_em,p.nome FROM convites c JOIN projetos p ON p.id=c.projeto_id JOIN usuarios u ON u.email=c.email WHERE u.id=? AND p.excluido_em IS NULL AND c.aceito_em IS NULL AND c.cancelado_em IS NULL AND c.expira_em>now() ORDER BY c.criado_em DESC,c.id",(rs,n)->convite(rs),usuario);
+        var lista=acesso.banco.query("SELECT c.id,c.projeto_id,c.email,c.papel,c.aceito_em,c.atualizado_em,p.nome FROM convites c JOIN projetos p ON p.id=c.projeto_id JOIN usuarios u ON u.email=c.email WHERE u.id=? AND p.excluido_em IS NULL AND NOT p.em_exclusao AND c.aceito_em IS NULL AND c.cancelado_em IS NULL AND c.expira_em>now() ORDER BY c.criado_em DESC,c.id",(rs,n)->convite(rs),usuario);
         return pagina(lista,page,size,"/api/v1/convites");
     }
     @PostMapping("/api/v1/convites/{c}/aceite")
@@ -174,7 +174,7 @@ public class MembrosController {
     public Pagina<Transferencia> minhasTransferencias(@RequestHeader(value="Authorization", required=false) String token,
             @RequestParam(defaultValue="0") @Min(0) int page, @RequestParam(defaultValue="20") @Min(1) @Max(100) int size) {
         UUID usuario=identidade.usuarioAutenticado(token);
-        var lista=acesso.banco.query("SELECT t.id,t.projeto_id,t.owner_atual_id,t.destinatario_id,t.aceita_em,t.atualizado_em,p.nome FROM transferencias_propriedade t JOIN projetos p ON p.id=t.projeto_id WHERE t.destinatario_id=? AND p.excluido_em IS NULL AND t.aceita_em IS NULL AND t.cancelada_em IS NULL ORDER BY t.criado_em DESC,t.id",(rs,n)->transferencia(rs),usuario);
+        var lista=acesso.banco.query("SELECT t.id,t.projeto_id,t.owner_atual_id,t.destinatario_id,t.aceita_em,t.atualizado_em,p.nome FROM transferencias_propriedade t JOIN projetos p ON p.id=t.projeto_id WHERE t.destinatario_id=? AND p.excluido_em IS NULL AND NOT p.em_exclusao AND t.aceita_em IS NULL AND t.cancelada_em IS NULL ORDER BY t.criado_em DESC,t.id",(rs,n)->transferencia(rs),usuario);
         return pagina(lista,page,size,"/api/v1/transferencias-propriedade");
     }
     @PostMapping("/api/v1/transferencias-propriedade/{t}/aceite")

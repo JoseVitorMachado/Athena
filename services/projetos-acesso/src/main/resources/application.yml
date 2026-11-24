@@ -99,9 +99,22 @@ athena:
     # desenvolvimento, que muda a cada subida.
     chave-privada-arquivo: ${JWT_CHAVE_PRIVADA_ARQUIVO:}
 
+  exclusao:
+    reenvio: ${ATHENA_EXCLUSAO_REENVIO:15s}
+    participantes: ${ATHENA_EXCLUSAO_PARTICIPANTES:requisitos,rastreabilidade,revisoes,integracoes,impacto-mcp}
   mensageria:
     servico: projetos-acesso
     eventos-assinados:
+      - requisitos.ProjetoFechado
+      - requisitos.ProjetoLimpo
+      - rastreabilidade.ProjetoFechado
+      - rastreabilidade.ProjetoLimpo
+      - revisoes.ProjetoFechado
+      - revisoes.ProjetoLimpo
+      - integracoes.ProjetoFechado
+      - integracoes.ProjetoLimpo
+      - impacto-mcp.ProjetoFechado
+      - impacto-mcp.ProjetoLimpo
       - requisitos.ComentarioCriado
       - requisitos.SubmissaoConcluida
       - requisitos.DecisaoRevisaoAplicada

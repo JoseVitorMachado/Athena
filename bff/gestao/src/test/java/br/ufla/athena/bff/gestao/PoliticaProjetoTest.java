@@ -32,6 +32,7 @@ class PoliticaProjetoTest {
         assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("POST", BASE + "/convites"));
         assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("DELETE", BASE + "/convites/c"));
         assertEquals(Papel.OWNER, PoliticaProjeto.papelMinimo("POST", BASE + "/transferencias-propriedade"));
+        assertEquals(Papel.OWNER, PoliticaProjeto.papelMinimo("POST", BASE + "/exclusoes"));
         assertNull(PoliticaProjeto.papelMinimo("PATCH", BASE + "/membros"));
         assertNull(PoliticaProjeto.papelMinimo("DELETE", BASE + "/convites"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/baselines"));
@@ -63,12 +64,15 @@ class PoliticaProjetoTest {
         assertFalse(PoliticaProjeto.exigeProjeto("POST", "/api/v1/gestao/projetos"));
         assertTrue(PoliticaProjeto.exigeProjeto("PATCH", "/api/v1/gestao/projetos"));
         assertTrue(PoliticaProjeto.exigeProjeto("GET", BASE));
+        assertFalse(PoliticaProjeto.exigeProjeto("GET", BASE + "/exclusoes/e"));
+        assertTrue(PoliticaProjeto.exigeProjeto("POST", BASE + "/exclusoes"));
     }
 
     @Test
     void projetoArquivadoPermiteLeituraERestauracao() {
         assertTrue(PoliticaProjeto.permiteArquivado("GET", BASE));
         assertTrue(PoliticaProjeto.permiteArquivado("POST", BASE + "/restauracoes"));
+        assertTrue(PoliticaProjeto.permiteArquivado("POST", BASE + "/exclusoes"));
         assertFalse(PoliticaProjeto.permiteArquivado("PATCH", BASE));
         assertFalse(PoliticaProjeto.permiteArquivado("POST", BASE + "/arquivamentos"));
         assertFalse(PoliticaProjeto.permiteArquivado("PATCH", BASE + "/restauracoes"));

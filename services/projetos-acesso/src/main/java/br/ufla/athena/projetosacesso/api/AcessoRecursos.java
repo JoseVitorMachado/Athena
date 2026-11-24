@@ -16,7 +16,7 @@ class AcessoRecursos {
         this.workspaces = workspaces; this.projetos = projetos; this.banco = banco;
     }
     List<String> papeis(UUID workspace, UUID usuario) {
-        return banco.queryForList("SELECT m.papel FROM membros m JOIN projetos p ON p.id=m.projeto_id WHERE p.workspace_id=? AND p.excluido_em IS NULL AND m.usuario_id=?", String.class, workspace, usuario);
+        return banco.queryForList("SELECT m.papel FROM membros m JOIN projetos p ON p.id=m.projeto_id WHERE p.workspace_id=? AND p.excluido_em IS NULL AND NOT p.em_exclusao AND m.usuario_id=?", String.class, workspace, usuario);
     }
     Workspace workspace(UUID id, UUID usuario, boolean bloquear) {
         Workspace w = (bloquear ? workspaces.buscarParaAlteracao(id) : workspaces.findById(id))
@@ -28,7 +28,7 @@ class AcessoRecursos {
     Projeto projeto(UUID id, UUID usuario, boolean escrita) {
         Projeto p = projetos.findById(id).filter(x -> x.getExcluidoEm() == null)
                 .orElseThrow(AcessoRecursos::projetoNaoEncontrado);
-        List<String> papeis = banco.queryForList("SELECT papel FROM membros WHERE projeto_id=? AND usuario_id=?", String.class, id, usuario);
+        List<String> papeis = banco.queryForList("SELECT m.papel FROM membros m JOIN projetos p ON p.id=m.projeto_id WHERE m.projeto_id=? AND m.usuario_id=? AND NOT p.em_exclusao", String.class, id, usuario);
         if (papeis.isEmpty()) throw projetoNaoEncontrado();
         if (escrita && !PoliticaWorkspace.mantenedor(papeis.get(0))) throw insuficiente();
         return p;

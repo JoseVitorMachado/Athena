@@ -44,8 +44,8 @@ public class ParticipanteSaga {
     }
 
     public void concluir(Map<String, Object> envelope, String tipo, Map<String, Object> payload, boolean silenciar) {
-        banco.update("INSERT INTO resultados_comando (command_id, message_type, resposta_tipo, resposta_payload) VALUES (?, ?, ?, CAST(? AS jsonb))",
-                id(envelope, "commandId"), envelope.get("messageType"), tipo, escrever(payload));
+        banco.update("INSERT INTO resultados_comando (command_id, message_type, resposta_tipo, resposta_payload, projeto_id) VALUES (?, ?, ?, CAST(? AS jsonb), ?)",
+                id(envelope, "commandId"), envelope.get("messageType"), tipo, escrever(payload), id(envelope, "projetoId"));
         if (!silenciar) {
             emitir(envelope, tipo, payload);
         }

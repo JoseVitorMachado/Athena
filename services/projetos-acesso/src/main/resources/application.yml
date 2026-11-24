@@ -75,5 +75,6 @@ athena:
 
   mensageria:
     servico: projetos-acesso
+    eventos-assinados: []
     intervalo-publicacao: 500ms
     lote-publicacao: 50

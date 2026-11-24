@@ -11,15 +11,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RelacaoService {
 
     private final RelacaoRepository repositorio;
+    private final JdbcTemplate banco;
 
-    public RelacaoService(RelacaoRepository repositorio) {
+    public RelacaoService(RelacaoRepository repositorio, JdbcTemplate banco) {
         this.repositorio = repositorio;
+        this.banco = banco;
     }
 
     @Transactional(readOnly = true)
@@ -39,10 +42,11 @@ public class RelacaoService {
     /**
      * Cria uma relação oficial aplicando as regras do livro §5.4 já cobertas nesta
      * etapa: sem autorrelação, RELACIONADO_A em ordem canônica e sem duplicata.
-     * A trava por projeto e a detecção de ciclos entram na Parte 4.
+     * A trava por projeto serializa as alterações e os retratos (livro §5.4).
      */
     @Transactional
     public Relacao criar(UUID projetoId, RelacaoEntrada entrada) {
+        banco.query("SELECT pg_advisory_xact_lock(hashtext(?))", rs -> { }, projetoId.toString());
         UUID origem = entrada.origemId();
         UUID destino = entrada.destinoId();
         if (origem.equals(destino)) {

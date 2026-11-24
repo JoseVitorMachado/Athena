@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,6 +57,45 @@ public class RequisitosGestaoController {
     @PostMapping
     public ResponseEntity<JsonNode> criar(@PathVariable UUID projetoId, @RequestBody JsonNode corpo) {
         return repassar(dominio.post("requisitos", requisitosUrl, colecao(projetoId), corpo));
+    }
+
+    @GetMapping("/{requisitoId}/candidata")
+    public ResponseEntity<JsonNode> obterCandidata(@PathVariable UUID projetoId, @PathVariable UUID requisitoId) {
+        return repassar(dominio.get("requisitos", requisitosUrl, caminhoRequisito(projetoId, requisitoId) + "/candidata"));
+    }
+
+    @PatchMapping("/{requisitoId}/candidata")
+    public ResponseEntity<JsonNode> editarCandidata(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch, @RequestBody JsonNode corpo) {
+        return repassar(dominio.patch("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/candidata", corpo, ifMatch));
+    }
+
+    @PostMapping("/{requisitoId}/submissoes")
+    public ResponseEntity<JsonNode> criarSubmissao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chave, @RequestBody JsonNode corpo) {
+        return repassar(dominio.post("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/submissoes", corpo, ifMatch, chave));
+    }
+
+    @GetMapping("/{requisitoId}/submissoes")
+    public ResponseEntity<JsonNode> listarSubmissoes(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            HttpServletRequest pedido) {
+        String query = pedido.getQueryString() == null ? "" : "?" + pedido.getQueryString();
+        return repassar(dominio.get("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/submissoes" + query));
+    }
+
+    @GetMapping("/{requisitoId}/submissoes/{submissaoId}")
+    public ResponseEntity<JsonNode> obterSubmissao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+                                                    @PathVariable UUID submissaoId) {
+        return repassar(dominio.get("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/submissoes/" + submissaoId));
+    }
+
+    private static String caminhoRequisito(UUID projetoId, UUID requisitoId) {
+        return colecao(projetoId) + "/" + requisitoId;
     }
 
     /** gestaoObterRequisito: composição Requisitos + Revisões. */
@@ -143,6 +184,7 @@ public class RequisitosGestaoController {
 
     /** Devolve ao cliente o que o domínio respondeu, trocando os caminhos pelos do BFF. */
     private static ResponseEntity<JsonNode> repassar(Resposta resposta) {
+        Caminhos.reescreverLinks(resposta.corpo());
         ResponseEntity.BodyBuilder saida = ResponseEntity.status(resposta.status());
         HttpHeaders origem = resposta.cabecalhos();
         MediaType tipo = origem.getContentType();

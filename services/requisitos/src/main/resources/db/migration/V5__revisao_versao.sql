@@ -1,0 +1,1 @@
+ALTER TABLE versoes ADD COLUMN revisao bigint NOT NULL DEFAULT 0;

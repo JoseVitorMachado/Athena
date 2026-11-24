@@ -10,9 +10,7 @@ import br.ufla.athena.revisoes.dominio.EstadoLote;
 import br.ufla.athena.revisoes.dominio.Lote;
 import br.ufla.athena.revisoes.dominio.LoteRepository;
 import br.ufla.athena.revisoes.dominio.TipoDecisao;
-import br.ufla.athena.revisoes.mensageria.Envelope;
-import br.ufla.athena.revisoes.mensageria.MensagemOutbox;
-import br.ufla.athena.revisoes.mensageria.OutboxRepository;
+import br.ufla.athena.revisoes.mensageria.EmissorMensagens;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -30,18 +28,15 @@ public class LoteService {
 
     private final LoteRepository lotes;
     private final DecisaoRepository decisoes;
-    private final OutboxRepository outbox;
+    private final EmissorMensagens emissor;
     private final UUID usuarioDemo;
-    private final String servico;
 
-    public LoteService(LoteRepository lotes, DecisaoRepository decisoes, OutboxRepository outbox,
-                       @Value("${athena.usuario-demo}") UUID usuarioDemo,
-                       @Value("${athena.mensageria.servico}") String servico) {
+    public LoteService(LoteRepository lotes, DecisaoRepository decisoes, EmissorMensagens emissor,
+                       @Value("${athena.usuario-demo}") UUID usuarioDemo) {
         this.lotes = lotes;
         this.decisoes = decisoes;
-        this.outbox = outbox;
+        this.emissor = emissor;
         this.usuarioDemo = usuarioDemo;
-        this.servico = servico;
     }
 
     @Transactional(readOnly = true)
@@ -110,14 +105,13 @@ public class LoteService {
 
         Decisao decisao = decisoes.save(Decisao.registrar(lote, entrada.decisao(), entrada.justificativa(), usuarioDemo));
         lote.encerrar();
-        outbox.save(eventoDe(lote, decisao));
+        emitirEvento(lote, decisao);
         decisoes.flush();
         return DecisaoResposta.de(decisao);
     }
 
     /** Envelope do evento conforme o livro §6.6. */
-    private MensagemOutbox eventoDe(Lote lote, Decisao decisao) {
-        UUID messageId = UUID.randomUUID();
+    private void emitirEvento(Lote lote, Decisao decisao) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("loteId", lote.getId().toString());
         payload.put("decisaoId", decisao.getId().toString());
@@ -127,11 +121,8 @@ public class LoteService {
         payload.put("versaoId", lote.getVersaoId().toString());
         payload.put("hashConteudo", lote.getHashConteudo());
 
-        String tipo = "DecisaoRevisaoRegistrada";
-        Map<String, Object> envelope = Envelope.criar(messageId, tipo, decisao.getData(),
-                lote.getSubmissaoId(), null, lote.getProjetoId(), null, null, payload);
-        return new MensagemOutbox(messageId, tipo, null, "athena.events",
-                servico + "." + tipo, envelope, decisao.getData());
+        emissor.evento("DecisaoRevisaoRegistrada", lote.getProjetoId(), null, null,
+                lote.getSubmissaoId(), null, payload);
     }
 
     private LoteResposta representar(Lote lote) {

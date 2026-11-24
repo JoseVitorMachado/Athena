@@ -52,6 +52,21 @@ public class Lote {
         // exigido pelo JPA
     }
 
+    public static Lote novo(UUID projetoId, UUID requisitoId, UUID submissaoId, UUID versaoId,
+                            String hashConteudo) {
+        Lote lote = new Lote();
+        lote.id = UUID.randomUUID();
+        lote.projetoId = projetoId;
+        lote.requisitoId = requisitoId;
+        lote.submissaoId = submissaoId;
+        lote.versaoId = versaoId;
+        lote.hashConteudo = hashConteudo;
+        lote.estado = EstadoLote.PREPARADO;
+        lote.criadoEm = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+        lote.atualizadoEm = lote.criadoEm;
+        return lote;
+    }
+
     /** A decisão só vale para a tentativa corrente: mesma submissão, versão e conteúdo. */
     public boolean correspondeA(UUID submissaoId, UUID versaoId, String hashConteudo) {
         return this.submissaoId.equals(submissaoId)

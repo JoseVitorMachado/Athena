@@ -34,6 +34,17 @@ public class Pendencia {
         // exigido pelo JPA
     }
 
+    public static Pendencia nova(Lote lote, String descricao) {
+        Pendencia pendencia = new Pendencia();
+        pendencia.id = UUID.randomUUID();
+        pendencia.lote = lote;
+        pendencia.descricao = descricao;
+        pendencia.bloqueante = false;
+        pendencia.resolvida = false;
+        pendencia.atualizadoEm = Instant.now();
+        return pendencia;
+    }
+
     public UUID getId() {
         return id;
     }

@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +42,9 @@ public class Versao {
 
     private Instant atualizadoEm;
 
+    @Version
+    private long revisao;
+
     protected Versao() {
         // exigido pelo JPA
     }
@@ -56,6 +60,24 @@ public class Versao {
         this.criteriosAceite = List.copyOf(criteriosAceite);
         this.hashConteudo = hashConteudo;
         this.atualizadoEm = agora;
+    }
+
+    public void editar(String titulo, String conteudo, List<String> criteriosAceite, String hash, Instant agora) {
+        this.titulo = titulo;
+        this.conteudo = conteudo;
+        this.criteriosAceite = List.copyOf(criteriosAceite);
+        this.hashConteudo = hash;
+        this.estadoVersao = EstadoVersao.RASCUNHO;
+        this.atualizadoEm = agora;
+    }
+
+    public void alterarEstado(EstadoVersao estado) {
+        this.estadoVersao = estado;
+        this.atualizadoEm = Instant.now();
+    }
+
+    public long getRevisao() {
+        return revisao;
     }
 
     public UUID getId() {

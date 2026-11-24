@@ -23,17 +23,35 @@ final class Caminhos {
                 : caminhoDeDominio;
     }
 
-    /** Reescreve os href de _links para que o cliente continue navegando pelo BFF. */
+    /**
+     * Reescreve os href de _links para que o cliente continue navegando pelo BFF.
+     * Também troca o "instance" dos Problem Details: o caminho interno do domínio
+     * não deve aparecer para o cliente.
+     */
     static void reescreverLinks(JsonNode corpo) {
-        if (corpo == null || !corpo.has("_links")) {
+        if (corpo == null) {
             return;
         }
-        Iterator<Map.Entry<String, JsonNode>> links = corpo.get("_links").fields();
-        while (links.hasNext()) {
-            JsonNode link = links.next().getValue();
-            if (link instanceof ObjectNode objeto && link.hasNonNull("href")) {
-                objeto.put("href", paraGestao(link.get("href").asText()));
+        if (corpo.isArray()) {
+            corpo.forEach(Caminhos::reescreverLinks);
+            return;
+        }
+        if (!corpo.isObject()) {
+            return;
+        }
+        if (corpo instanceof ObjectNode objeto && corpo.path("instance").isTextual()) {
+            objeto.put("instance", paraGestao(corpo.get("instance").asText()));
+        }
+        JsonNode links = corpo.get("_links");
+        if (links != null && links.isObject()) {
+            Iterator<Map.Entry<String, JsonNode>> entradas = links.fields();
+            while (entradas.hasNext()) {
+                JsonNode link = entradas.next().getValue();
+                if (link instanceof ObjectNode objeto && link.hasNonNull("href")) {
+                    objeto.put("href", paraGestao(link.get("href").asText()));
+                }
             }
         }
+        corpo.elements().forEachRemaining(Caminhos::reescreverLinks);
     }
 }

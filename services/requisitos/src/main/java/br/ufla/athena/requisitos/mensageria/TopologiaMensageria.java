@@ -11,6 +11,10 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.env.Environment;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
 
 @Configuration
 public class TopologiaMensageria {
@@ -31,9 +35,13 @@ public class TopologiaMensageria {
         return filas(servico + ".comandos", exchangeComandos, List.of(servico + ".#"));
     }
 
-    // Pode ser registrado como bean quando houver assinaturas de eventos (livro §6.8).
-    public Declarables filasEventos(List<String> routingKeys) {
-        return filas(servico + ".eventos", exchangeEventos(), routingKeys);
+    @Bean
+    @Conditional(ExisteAssinaturaEventos.class)
+    public Declarables filasEventos(TopicExchange exchangeEventos, Environment ambiente) {
+        List<String> assinaturas = Binder.get(ambiente)
+                .bind("athena.mensageria.eventos-assinados", Bindable.listOf(String.class))
+                .orElse(List.of());
+        return filas(servico + ".eventos", exchangeEventos, assinaturas);
     }
 
     private Declarables filas(String nome, TopicExchange exchange, List<String> routingKeys) {

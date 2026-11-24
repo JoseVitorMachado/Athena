@@ -14,10 +14,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from starlette.responses import Response
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool
 
-from . import config, indice, mcp, processamento, projetos
+from . import config, indice, mcp, metricas, processamento, projetos
 from .banco import migrar, pool
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -75,6 +77,14 @@ async def verificar_projeto(request: Request, call_next):
         if (bloqueado or excluido) and request.method != "GET":
             return problema(409, "Projeto em exclusão", "Projeto em exclusão.", caminho, "PROJETO_EM_EXCLUSAO")
     return await call_next(request)
+
+
+app.middleware("http")(metricas.medir_http)
+
+
+@app.get("/metrics")
+async def expor_metricas():
+    return Response(content=generate_latest(), headers={"Content-Type": CONTENT_TYPE_LATEST})
 
 
 @app.exception_handler(RequestValidationError)

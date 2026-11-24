@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import pika
 from psycopg.types.json import Jsonb
 
-from . import config, embeddings, projetos
+from . import config, embeddings, metricas, projetos
 from .banco import pool
 from .comandos import validar_comando
 from .eventos import revisao_pode_aplicar, validar_envelope, versao_pode_ativar
@@ -250,6 +250,11 @@ def trabalhar(parar):
     while not parar.is_set():
         try:
             with pool.connection() as conexao:
+                pendentes = conexao.execute(
+                    "SELECT count(*) FROM trabalhos_indexacao WHERE estado = 'PENDENTE'"
+                ).fetchone()[0]
+                conexao.commit()
+                metricas.INDEXACAO_PENDENTES.set(pendentes)
                 trabalhou = _trabalho(conexao) or _reindexar(conexao)
             if not trabalhou:
                 parar.wait(1)

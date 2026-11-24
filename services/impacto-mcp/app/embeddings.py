@@ -3,6 +3,8 @@
 import os
 import threading
 
+from . import metricas
+
 DIMENSAO = 384
 MODELO = "intfloat/multilingual-e5-small@614241f"
 _lock = threading.Lock()
@@ -65,10 +67,12 @@ def _gerar(textos: list[str]) -> list[list[float]]:
     return (media / norma).tolist()
 
 
+@metricas.EMBEDDINGS_SEGUNDOS.time()
 def gerar_consulta(texto: str) -> list[float]:
     return _gerar(["query: " + texto])[0]
 
 
+@metricas.EMBEDDINGS_SEGUNDOS.time()
 def gerar_trechos(textos: list[str]) -> list[list[float]]:
     return _gerar(["passage: " + texto for texto in textos])
 

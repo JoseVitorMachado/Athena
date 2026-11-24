@@ -31,8 +31,8 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-            # Actuator: usado só pelas probes, não faz parte do Service.
-            - name: gestao
+            # Actuator: acesso interno para probes e monitoramento.
+            - name: gerencia
               containerPort: 8081
           env:
             - name: PROJETOS_ACESSO_URL
@@ -72,19 +72,19 @@ spec:
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: gestao
+              port: gerencia
             periodSeconds: 5
             failureThreshold: 36
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: gestao
+              port: gerencia
             periodSeconds: 10
             failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: gestao
+              port: gerencia
             periodSeconds: 20
             failureThreshold: 3
 ---
@@ -105,6 +105,9 @@ spec:
     - name: http
       port: 8080
       targetPort: http
+    - name: gerencia
+      port: 8081
+      targetPort: gerencia
 ---
 # Cliente Gestao: nginx servindo o Angular em /gestao/.
 apiVersion: apps/v1

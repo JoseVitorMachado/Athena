@@ -56,6 +56,41 @@ services:
       - app
       - edge
 
+  # --------------------------------------------------------- monitoramento
+  # As interfaces do Prometheus e do Grafana ficam acessíveis só no localhost.
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-dados:/prometheus
+    networks:
+      - app
+      - edge
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_SENHA:-athena}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-dados:/var/lib/grafana
+    networks:
+      - app
+      - edge
+
   # ---------------------------------------------------------------- clientes
   # nginx servindo o Angular. Encaminha /api ao Gateway: o navegador vê uma só origem.
 
@@ -96,6 +131,12 @@ services:
   gateway:
     <<: *java
     image: athena/gateway:0.3.0
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
     build:
       context: ./gateway
     environment:
@@ -389,3 +430,5 @@ volumes:
   db-revisoes-dados:
   db-integracoes-dados:
   db-impacto-mcp-dados:
+  prometheus-dados:
+  grafana-dados:

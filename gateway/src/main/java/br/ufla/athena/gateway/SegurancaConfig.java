@@ -121,7 +121,7 @@ public class SegurancaConfig {
                         .pathMatchers(HttpMethod.GET, "/api/v1/gestao/docs", "/api/v1/gestao/docs/**",
                                 "/api/v1/livro/docs", "/api/v1/livro/docs/**",
                                 "/api/v1/autenticacao/docs", "/api/v1/autenticacao/docs/**").permitAll()
-                        .pathMatchers(HttpMethod.GET, "/oauth2/jwks", "/actuator/health", "/actuator/health/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/oauth2/jwks", "/actuator", "/actuator/**").permitAll()
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}).authenticationEntryPoint((exchange, ex) -> problema(exchange, HttpStatus.UNAUTHORIZED, "NAO_AUTENTICADO")))
                 .exceptionHandling(ex -> ex.authenticationEntryPoint((exchange, erro) -> problema(exchange, HttpStatus.UNAUTHORIZED, "NAO_AUTENTICADO")))

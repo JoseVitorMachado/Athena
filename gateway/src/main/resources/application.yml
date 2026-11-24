@@ -34,12 +34,18 @@ athena:
 # O Actuator fica em outra porta, que não é publicada nem roteada: endpoints
 # técnicos não saem pela entrada pública (livro §6.1).
 management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
   server:
     port: ${MANAGEMENT_PORT:8081}
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info,gateway,prometheus
   endpoint:
     gateway:
       access: read-only

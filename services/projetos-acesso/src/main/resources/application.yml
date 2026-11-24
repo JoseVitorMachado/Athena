@@ -2,6 +2,10 @@
 # no compose, do docker-compose.yml; no Kubernetes, de ConfigMap e Secret.
 
 server:
+  # Redirecionamentos relativos (Location sem host): atrás do Gateway, do nginx
+  # dos clientes ou do Ingress, o navegador nunca recebe o nome interno do container.
+  tomcat:
+    use-relative-redirects: true
   port: ${SERVER_PORT:8080}
   shutdown: graceful
 
@@ -78,3 +82,19 @@ athena:
     eventos-assinados: []
     intervalo-publicacao: 500ms
     lote-publicacao: 50
+
+# O Gateway encaminha apenas os prefixos dos módulos; inclusive os recursos da
+# interface e sua configuração precisam permanecer sob o mesmo prefixo.
+springdoc:
+  paths-to-match: /api/v1/autenticacao/**,/api/v1/usuarios/**
+  api-docs:
+    path: /api/v1/autenticacao/docs/openapi.json
+  swagger-ui:
+    path: /api/v1/autenticacao/docs/index.html
+    url: /api/v1/autenticacao/docs/openapi.json
+    config-url: /api/v1/autenticacao/docs/openapi.json/swagger-config
+    disable-swagger-default-url: true
+    oauth2-redirect-url: /api/v1/autenticacao/docs/swagger-ui/oauth2-redirect.html
+    try-it-out-enabled: true
+    persist-authorization: true
+    with-credentials: true

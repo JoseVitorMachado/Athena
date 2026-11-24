@@ -117,6 +117,9 @@ public class SegurancaConfig {
         return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .securityContextRepository(org.springframework.security.web.server.context.NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(reg -> reg.pathMatchers(HttpMethod.POST, "/api/v1/autenticacao/cadastro", "/api/v1/autenticacao/login", "/api/v1/autenticacao/renovacao", "/api/v1/autenticacao/logout").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/gestao/docs", "/api/v1/gestao/docs/**",
+                                "/api/v1/livro/docs", "/api/v1/livro/docs/**",
+                                "/api/v1/autenticacao/docs", "/api/v1/autenticacao/docs/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/oauth2/jwks", "/actuator/health", "/actuator/health/**").permitAll()
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}).authenticationEntryPoint((exchange, ex) -> problema(exchange, HttpStatus.UNAUTHORIZED, "NAO_AUTENTICADO")))

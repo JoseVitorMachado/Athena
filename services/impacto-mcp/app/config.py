@@ -23,3 +23,8 @@ DSN = (
     f"host={DB_HOST} port={DB_PORT} dbname={DB_NAME} "
     f"user={DB_USER} password={DB_PASSWORD} connect_timeout=5"
 )
+
+RABBITMQ_HOST = _obrigatoria("RABBITMQ_HOST")
+RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
+RABBITMQ_USER = _obrigatoria("RABBITMQ_USER")
+RABBITMQ_PASSWORD = _obrigatoria("RABBITMQ_PASSWORD")

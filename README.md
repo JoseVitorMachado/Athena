@@ -50,7 +50,7 @@
 
 ## Como executar
 
-O sistema roda de duas formas: **Docker Compose** (um comando, ideal para desenvolvimento) e **Kubernetes** local com minikube. As duas sobem os mesmos 18 containers: 6 serviços de domínio, 6 PostgreSQL, RabbitMQ, Gateway, 2 BFFs e 2 clientes Angular. Os bancos já sobem com um projeto de demonstração.
+O sistema roda de duas formas: **Docker Compose** (um comando, ideal para desenvolvimento) e **Kubernetes** local com minikube. As duas sobem os mesmos containers: 6 serviços de domínio, 6 PostgreSQL, RabbitMQ, Gateway, 2 BFFs e 2 clientes Angular; no compose há ainda o Mailpit, caixa de e-mails de desenvolvimento (19 no total). Os bancos já sobem com um projeto de demonstração.
 
 ### Pré-requisitos
 
@@ -66,35 +66,62 @@ Não é preciso Java, Maven, Node nem Python na máquina: tudo é compilado dent
 Na raiz do repositório:
 
 ```sh
-docker compose up --build
+docker compose up -d --build --wait
 ```
 
-A primeira vez leva alguns minutos (download das imagens base e compilação). Quando todos os containers ficarem `healthy` (`docker compose ps`), acesse:
+A primeira vez leva alguns minutos (download das imagens base, compilação e o modelo de embeddings do RAG, que vai dentro da imagem do impacto-mcp). O `--wait` só devolve o terminal quando os 19 containers estiverem `healthy`. Depois, acesse:
 
 | O quê | Endereço |
 |---|---|
-| Cliente Gestão (lista, detalhe e criação de requisitos) | http://localhost:4200 |
+| Cliente Gestão | http://localhost:4200 |
 | Cliente Livro (conteúdo publicado) | http://localhost:4300 |
-| API pelo Gateway | http://localhost:8080/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos |
+| Swagger da autenticação (cadastro, login, recuperação de senha) | http://localhost:8080/api/v1/autenticacao/docs |
+| Swagger da Gestão | http://localhost:8080/api/v1/gestao/docs |
+| Swagger do Livro | http://localhost:8080/api/v1/livro/docs |
 | MCP pelo Gateway | `POST http://localhost:8080/mcp` |
+| Caixa de e-mails de desenvolvimento (códigos de recuperação de senha) | http://localhost:8025 |
 
-Teste rápido pelo terminal:
+**Usuários de demonstração.** Todos com a senha `Athena@2026`, membros do projeto `22222222-2222-4222-8222-222222222222` com o papel indicado no nome:
+
+| E-mail | Papel |
+|---|---|
+| `owner@athena.dev` | Owner (também dono do workspace "Equipe ATHENA") |
+| `mantenedor@athena.dev` | Mantenedor |
+| `aprovador@athena.dev` | Aprovador |
+| `editor@athena.dev` | Editor |
+| `reporter@athena.dev` | Repórter |
+| `leitor@athena.dev` | Leitor |
+
+Eles só existem com `ATHENA_USUARIOS_DEMO=true`, ligado no compose e no Kubernetes de desenvolvimento.
+
+**Usar o Swagger.** Na página da autenticação, execute `POST /login` com um dos usuários acima e copie o `accessToken` da resposta. Nas páginas da Gestão e do Livro, clique em **Authorize** e cole o token. Ele vale 15 minutos.
+
+**Teste rápido pelo terminal.** Toda rota da API exige o JWT, exceto cadastro, login, renovação, logout e recuperação de senha:
 
 ```sh
-# Gestão: navegador -> Gateway -> BFF Gestão -> Requisitos -> banco
-curl http://localhost:8080/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos
+API=http://localhost:8080/api/v1
+P=22222222-2222-4222-8222-222222222222
 
-# Composição do BFF: requisito (Requisitos) + lote e pendências (Revisões)
-curl http://localhost:8080/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111112
+# Login: devolve o JWT de acesso (15 min) e põe o refresh em cookie HttpOnly
+TOKEN=$(curl -s -X POST $API/autenticacao/login -H 'Content-Type: application/json' \
+  -d '{"email":"editor@athena.dev","senha":"Athena@2026"}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["accessToken"])')
+AUTH="Authorization: Bearer $TOKEN"
 
-# Livro: versão publicada (Requisitos) + referências (Rastreabilidade)
-curl http://localhost:8080/api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos
+curl -s -H "$AUTH" $API/gestao/workspaces                               # meus workspaces
+curl -s -H "$AUTH" "$API/gestao/projetos"                               # meus projetos
+curl -s -H "$AUTH" "$API/gestao/projetos/$P/requisitos?q=export"        # lista com filtros
+curl -s -H "$AUTH" $API/gestao/projetos/$P/requisitos/11111111-1111-4111-8111-111111111112   # detalhe com _links e _actions
+curl -s -H "$AUTH" $API/gestao/projetos/$P/mapa                         # mapa (projeção CQRS)
+curl -s -H "$AUTH" $API/livro/projetos/$P/livro/requisitos              # Livro: só o publicado
+curl -s -H "$AUTH" $API/gestao/notificacoes                             # caixa de notificações
 
-# MCP: ferramentas disponíveis no impacto-mcp
-curl -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' http://localhost:8080/mcp
+# MCP: busca de contexto no índice RAG (só conteúdo publicado)
+curl -s -H "$AUTH" -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"buscar_contexto","arguments":{"projetoId":"'$P'","q":"exportar documento"}}}' \
+  http://localhost:8080/mcp
 
-# Serviço de domínio não é exposto: 404
-curl -i http://localhost:8080/api/v1/projetos/22222222-2222-4222-8222-222222222222/requisitos
+curl -i $API/gestao/projetos                                            # sem token: 401
+curl -i -H "$AUTH" $API/projetos/$P/requisitos                          # serviço de domínio não é exposto: 404
 ```
 
 Para parar: `docker compose down` (mantém os dados). Para apagar também os volumes dos bancos: `docker compose down -v`. Senhas e portas podem ser trocadas copiando `.env.example` para `.env`.
@@ -103,11 +130,49 @@ Para parar: `docker compose down` (mantém os dados). Para apagar também os vol
 
 | Rede | Quem está nela | Acesso externo |
 |---|---|---|
-| `edge` | clientes Gestão e Livro, Gateway | portas 4200, 4300 e 8080 publicadas |
-| `app` | Gateway, BFFs, serviços de domínio, RabbitMQ | nenhum (`internal`) |
+| `edge` | clientes Gestão e Livro, Gateway, Mailpit | portas 4200, 4300 e 8080; a 8025 do Mailpit só em `127.0.0.1` |
+| `app` | Gateway, BFFs, serviços de domínio, RabbitMQ, Mailpit (SMTP) | nenhum (`internal`) |
 | `dados-<serviço>` | um serviço e o seu banco | nenhum (`internal`) |
 
 Cada banco só é alcançável pelo próprio serviço, e o Gateway é a única ponte entre a borda e a aplicação.
+
+### Demonstrações
+
+Os comandos abaixo usam `API`, `P` e `AUTH` do teste rápido. Para acompanhar o que acontece, deixe os logs abertos noutro terminal: `docker compose logs -f requisitos revisoes rastreabilidade`.
+
+**SAGA de submissão com falha e compensação.** A submissão é orquestrada por Requisitos: Rastreabilidade cria o retrato e Revisões abre o lote. Para forçar a falha, Revisões passa a criar o lote e "perder" a resposta:
+
+```sh
+docker compose exec revisoes wget -qO- --header 'content-type: application/json' \
+  --post-data '{"abrirLote":"SILENCIAR"}' http://127.0.0.1:8080/api/v1/internal/falhas
+```
+
+Submeta um requisito pela Gestão (ação `submeter` do detalhe). Depois de 3 tentativas de 10 s, os logs de Requisitos mostram `EM_ANDAMENTO -> COMPENSANDO`, o cancelamento do lote e do retrato, e por fim `COMPENSADA`. A candidata volta a `RASCUNHO`. O modo `RECUSAR` faz Revisões recusar na hora. Para voltar ao normal, use `{"abrirLote":"NENHUMA"}`.
+
+**Consistência eventual do mapa (CQRS).** A escrita de relações é síncrona, e a projeção do mapa é atualizada só por eventos. Para atrasar a projeção:
+
+```sh
+docker compose exec rastreabilidade wget -qO- --header 'content-type: application/json' \
+  --post-data '{"atrasoSegundos":6}' http://127.0.0.1:8080/api/v1/internal/projecao
+```
+
+Crie uma relação (`POST $API/gestao/projetos/$P/relacoes`) e consulte o mapa logo em seguida: ele aparece como `ATUALIZACAO_PENDENTE` e, após alguns segundos, `ATUALIZADO` com a aresta nova. Volte com `{"atrasoSegundos":0}`.
+
+**Ciclo de vida completo de um requisito.** Na Gestão: editar a candidata, submeter, aprovar (como `aprovador@athena.dev`) e publicar. O requisito passa a aparecer no Livro e no `buscar_contexto` do MCP. Ao cancelá-lo (`POST .../cancelamentos` com `{"confirmacao":true}`), ele sai do Livro e do índice RAG. Ao reativá-lo, ele só volta depois de uma nova aprovação e publicação.
+
+**Notificações.** Mencionar alguém num comentário, concluir uma submissão (Aprovadores são avisados) e decidir a revisão (quem submeteu é avisado) geram entradas em `GET $API/gestao/notificacoes`. Convites, transferências de propriedade e mudanças de papel também geram.
+
+**Recuperação de senha.** `POST $API/autenticacao/recuperacao` com `{"email":"..."}` responde sempre 202. O código de 6 dígitos chega em http://localhost:8025 e vale 10 minutos. A conclusão (`POST $API/autenticacao/recuperacao/conclusao` com `email`, `codigo` e `novaSenha`) encerra todas as sessões da conta.
+
+**Testar do zero sem perder os dados locais:**
+
+```sh
+docker compose stop
+docker compose -p athena-limpo up -d --build --wait
+# ... testes ...
+docker compose -p athena-limpo down -v
+docker compose up -d --wait
+```
 
 ### 2. Kubernetes (minikube)
 
@@ -196,6 +261,7 @@ minikube -p athena stop           # ou "minikube -p athena delete" para remover 
 | `45-ingress.yaml` | Ingress: `/gestao`, `/livro` para os clientes; `/api` e `/mcp` para o Gateway |
 | `50-network-policies.yaml` | Isolamento: banco só do seu serviço, broker só do domínio, domínio só de BFF e Gateway |
 | `extras/hpa-bff-gestao.yaml` | HPA opcional do BFF Gestão |
+| `extras/mailpit.yaml` | Caixa de e-mails de desenvolvimento (SMTP para a recuperação de senha) |
 
 Todos os containers têm requests e limits, usuário sem privilégios nas aplicações (PostgreSQL e RabbitMQ seguem o modelo de usuários das imagens oficiais) e probes de startup, readiness e liveness. A liveness dos serviços não depende do banco, para uma falha de dependência não reiniciar tudo em cascata.
 
@@ -213,14 +279,16 @@ As aplicações usam build em dois estágios: o primeiro tem as ferramentas de c
 
 Além do tamanho, a imagem final tem menos pacotes para manter atualizados e não oferece compilador nem gerenciador de pacotes a quem invadir o container.
 
-### Limites desta etapa
+### O que está implementado
 
-Implementado agora: a infraestrutura completa e um esqueleto real de cada serviço, com leitura e escrita no próprio banco. Fica para a Parte 4:
+- **Autenticação e autorização.** Cadastro, login, renovação com rotação do refresh token, logout e recuperação de senha. JWT RS256 de 15 minutos, validado no Gateway (sessão ativa a cada chamada) e nos BFFs (papel atual no projeto a cada chamada).
+- **Mensageria confiável.** Outbox com confirmação do broker e retentativas (2, 10, 30 e 60 s); inbox idempotente; filas de retentativa e DLQ por serviço.
+- **SAGA orquestrada de submissão** com prazos, compensação e marca durável de cancelamento.
+- **CQRS do mapa de rastreabilidade**, com projeção atualizada por eventos e estados `ATUALIZADO`, `ATUALIZACAO_PENDENTE` e `RECONSTRUINDO`.
+- **Índice RAG** com `multilingual-e5-small` (ONNX, dentro da imagem), alimentado só por conteúdo publicado e exposto pela tool MCP `buscar_contexto`.
+- **Gestão:** workspaces, projetos (arquivar e restaurar), membros, convites e transferência de propriedade; épicos; requisitos com filtros, metadados, cancelamento e reativação; comentários com menções e âncoras; revisão e publicação; notificações; HATEOAS (`_links` e `_actions` conforme estado e papel).
 
-- **Autenticação.** Os endpoints ainda não validam JWT. O emissor já publica a chave pública em `/oauth2/jwks`, com a chave privada vinda do Secret `athena-jwt`.
-- **SAGA, outbox e CQRS em execução.** As tabelas `outbox` e `inbox` e as exchanges do RabbitMQ já existem; o publicador e os consumidores não.
-- **Embeddings.** O impacto-mcp usa um embedding por hashing com a mesma dimensão (384) do `multilingual-e5-small` previsto no livro. A coluna `vector(384)`, o índice HNSW e a busca por cosseno já são os definitivos.
-- **Referências do Livro.** Vêm das relações atuais; as do retrato da publicação dependem da SAGA.
+Ainda não implementado: integrações com GitHub, OpenProject e Google Drive (o serviço `integracoes` é só esqueleto), baselines, exclusão física coordenada de projeto, OAuth do agente MCP com confirmação humana, e monitoramento com Prometheus e Grafana.
 
 ### Contratos de API
 

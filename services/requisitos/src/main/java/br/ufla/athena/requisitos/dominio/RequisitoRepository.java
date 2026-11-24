@@ -10,7 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface RequisitoRepository extends JpaRepository<Requisito, UUID> {
+public interface RequisitoRepository extends JpaRepository<Requisito, UUID>,
+        org.springframework.data.jpa.repository.JpaSpecificationExecutor<Requisito> {
 
     Page<Requisito> findByProjetoIdAndSituacao(UUID projetoId, SituacaoRequisito situacao, Pageable pageable);
 

@@ -62,7 +62,18 @@ public class RequisitosGestaoController {
 
     /** gestaoListarRequisitos */
     @Tag(name = "Requisitos")
-    @Operation(summary = "Listar requisitos", description = "Papel mínimo: Leitor. Lista os itens disponíveis.")
+    @Operation(summary = "Listar requisitos", description = "Papel mínimo: Leitor. Lista os itens disponíveis; "
+            + "os filtros são opcionais e combinados.", parameters = {
+            @Parameter(name = "page", in = ParameterIn.QUERY, example = "0"),
+            @Parameter(name = "size", in = ParameterIn.QUERY, example = "20"),
+            @Parameter(name = "sort", in = ParameterIn.QUERY, example = "atualizadoEm,desc"),
+            @Parameter(name = "situacao", in = ParameterIn.QUERY, description = "ATIVO (padrão) ou CANCELADO."),
+            @Parameter(name = "estadoVersao", in = ParameterIn.QUERY,
+                    description = "RASCUNHO, EM_SUBMISSAO, AGUARDANDO_REVISAO, APROVADA ou PUBLICADA."),
+            @Parameter(name = "tipo", in = ParameterIn.QUERY, example = "FUNCIONAL"),
+            @Parameter(name = "epicoId", in = ParameterIn.QUERY),
+            @Parameter(name = "responsavelId", in = ParameterIn.QUERY),
+            @Parameter(name = "q", in = ParameterIn.QUERY, description = "Busca no título e no código.")})
     @ApiResponse(responseCode = "200", description = "Operação concluída")
     @ApiResponse(responseCode = "400", description = "Erro 400",
             content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))

@@ -83,6 +83,10 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios | gestaoListarComentarios | Repórter | athena:read | Não | Definida |
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios | gestaoCriarComentario | Repórter | athena:write | Não | Definida |
 | bff-gestao.yaml | PATCH | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId} | gestaoEditarComentario | Repórter | athena:write | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/baselines | gestaoListarBaselines | Leitor | athena:read | Não | Definida |
+| bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/baselines | gestaoCriarBaseline | Editor | athena:write | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/baselines/{baselineId} | gestaoObterBaseline | Leitor | athena:read | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}/comparacao | gestaoCompararBaseline | Leitor | athena:read | Não | Definida |
 | bff-livro.yaml | GET | /api/v1/livro/projetos/{projetoId}/livro | obterLivro | Leitor | athena:read | Não | Definida |
 | bff-livro.yaml | GET | /api/v1/livro/projetos/{projetoId}/livro/requisitos | listarRequisitosLivro | Leitor | athena:read | Não | Definida |
 | bff-livro.yaml | GET | /api/v1/livro/projetos/{projetoId}/livro/requisitos/{requisitoId} | obterRequisitoLivro | Leitor | athena:read | Não | Definida |
@@ -199,6 +203,7 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/baselines | listarBaselines | Leitor | athena:read | Não | Definida |
 | requisitos.yaml | POST | /api/v1/projetos/{projetoId}/baselines | criarBaseline | Editor | athena:write | Não | Definida |
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/baselines/{baselineId} | obterBaseline | Leitor | athena:read | Não | Definida |
+| requisitos.yaml | GET | /api/v1/projetos/{projetoId}/baselines/{baselineId}/comparacao | compararBaseline | Leitor | athena:read | Não | Definida |
 | requisitos.yaml | POST | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao | criarConfirmacaoPublicacao | Aprovador | athena:publish | Não | Pendente |
 | revisoes.yaml | GET | /api/v1/projetos/{projetoId}/lotes | listarLotes | Leitor | athena:read | Não | Pendente |
 | revisoes.yaml | GET | /api/v1/projetos/{projetoId}/lotes/{loteId} | obterLote | Leitor | athena:read | Não | Pendente |

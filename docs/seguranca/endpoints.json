@@ -792,6 +792,46 @@
       "politica": "Definida"
     },
     {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/baselines",
+      "operacaoDominio": "gestaoListarBaselines",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/baselines",
+      "operacaoDominio": "gestaoCriarBaseline",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}",
+      "operacaoDominio": "gestaoObterBaseline",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}/comparacao",
+      "operacaoDominio": "gestaoCompararBaseline",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
       "contrato": "bff-livro.yaml",
       "metodo": "GET",
       "rota": "/api/v1/livro/projetos/{projetoId}/livro",
@@ -1946,6 +1986,16 @@
       "metodo": "GET",
       "rota": "/api/v1/projetos/{projetoId}/baselines/{baselineId}",
       "operacaoDominio": "obterBaseline",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/baselines/{baselineId}/comparacao",
+      "operacaoDominio": "compararBaseline",
       "papelMinimo": "Leitor",
       "escopo": "athena:read",
       "interno": "Não",

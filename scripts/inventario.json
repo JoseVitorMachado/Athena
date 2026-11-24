@@ -2104,5 +2104,55 @@
     "cabecalhos": [
       "IfMatch"
     ]
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/baselines/{baselineId}/comparacao",
+    "operationId": "compararBaseline",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/baselines",
+    "operationId": "gestaoListarBaselines",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/baselines",
+    "operationId": "gestaoCriarBaseline",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}",
+    "operationId": "gestaoObterBaseline",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}/comparacao",
+    "operationId": "gestaoCompararBaseline",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
   }
 ]

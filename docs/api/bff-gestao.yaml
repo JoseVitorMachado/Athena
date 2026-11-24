@@ -16,6 +16,8 @@ servers:
 security:
   - bearerJwt: []
 tags:
+  - name: baselines
+    description: Repasse de baselines de requisitos
   - name: requisitos
     description: Repasse de requisitos
   - name: candidata
@@ -4440,6 +4442,188 @@ paths:
         negócio seguem o livro e lacunas usam x-decidir.
       security:
         - bearerJwt: []
+  /api/v1/gestao/projetos/{projetoId}/baselines:
+    get:
+      operationId: gestaoListarBaselines
+      summary: Listar baselines
+      description: Lista resumos com quantidade de itens, sem versoes.
+      tags:
+        - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+        - $ref: ./_shared/components.yaml#/components/parameters/Page
+        - $ref: ./_shared/components.yaml#/components/parameters/Size
+        - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/PaginaBaselines
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarBaseline
+      summary: Criar baseline
+      description: §§5.1, 7.4. Baseline imutável; versoes vazia captura todo o Livro corrente. Cada item deve identificar uma versão PUBLICADA do requisito e o retrato dessa publicação, sem requisito repetido; máximo de 500 itens informados. Item inválido retorna 400 ITEM_BASELINE_INVALIDO; nome duplicado no projeto retorna 409 BASELINE_DUPLICADA e ausência de conteúdo publicado retorna 409 BASELINE_VAZIA.
+      tags:
+        - baselines
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-proposta: true
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./requisitos.yaml#/components/schemas/BaselineEntrada
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: ./_shared/components.yaml#/components/headers/Location
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Baseline
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}:
+    get:
+      operationId: gestaoObterBaseline
+      summary: Obter baseline
+      description: Consulta a baseline imutável e suas versões congeladas; retorna ETag.
+      tags:
+        - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+        - name: baselineId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/Baseline
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}/comparacao:
+    get:
+      operationId: gestaoCompararBaseline
+      summary: Comparar baseline com o Livro
+      description: Compara as versões congeladas com o Livro corrente; números de versão são retornados para itens alterados.
+      tags:
+        - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+        - name: baselineId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              description: Cabeçalho opcional quando disponibilizado pela infraestrutura.
+              schema:
+                type: string
+                example: '"rev-7"'
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/ComparacaoBaseline
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
 components:
   schemas:
     RequisitoGestao:

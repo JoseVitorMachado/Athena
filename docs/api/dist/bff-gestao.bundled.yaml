@@ -11,6 +11,8 @@ servers:
 security:
   - bearerJwt: []
 tags:
+  - name: baselines
+    description: Repasse de baselines de requisitos
   - name: requisitos
     description: Repasse de requisitos
   - name: candidata
@@ -4038,6 +4040,184 @@ paths:
       x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
       security:
         - bearerJwt: []
+  /api/v1/gestao/projetos/{projetoId}/baselines:
+    get:
+      operationId: gestaoListarBaselines
+      summary: Listar baselines
+      description: Lista resumos com quantidade de itens, sem versoes.
+      tags:
+        - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaBaselines'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+    post:
+      operationId: gestaoCriarBaseline
+      summary: Criar baseline
+      description: §§5.1, 7.4. Baseline imutável; versoes vazia captura todo o Livro corrente. Cada item deve identificar uma versão PUBLICADA do requisito e o retrato dessa publicação, sem requisito repetido; máximo de 500 itens informados. Item inválido retorna 400 ITEM_BASELINE_INVALIDO; nome duplicado no projeto retorna 409 BASELINE_DUPLICADA e ausência de conteúdo publicado retorna 409 BASELINE_VAZIA.
+      tags:
+        - baselines
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      x-proposta: true
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaselineEntrada'
+      responses:
+        '201':
+          description: Criação síncrona (§6.2).
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Baseline'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}:
+    get:
+      operationId: gestaoObterBaseline
+      summary: Obter baseline
+      description: Consulta a baseline imutável e suas versões congeladas; retorna ETag.
+      tags:
+        - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: baselineId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Baseline'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/baselines/{baselineId}/comparacao:
+    get:
+      operationId: gestaoCompararBaseline
+      summary: Comparar baseline com o Livro
+      description: Compara as versões congeladas com o Livro corrente; números de versão são retornados para itens alterados.
+      tags:
+        - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: baselineId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              description: Cabeçalho opcional quando disponibilizado pela infraestrutura.
+              schema:
+                type: string
+                example: '"rev-7"'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparacaoBaseline'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
 components:
   schemas:
     RequisitoGestao:
@@ -7057,6 +7237,284 @@ components:
       minProperties: 1
       example:
         texto: Critério esclarecido.
+    Baseline:
+      type: object
+      properties:
+        baselineId:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        projetoId:
+          type: string
+          example: 22222222-2222-4222-8222-222222222222
+          format: uuid
+        nome:
+          type: string
+          example: Entrega 1
+        versoes:
+          description: Itens com código, título e número congelados na criação.
+          type: array
+          items:
+            type: object
+            properties:
+              requisitoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+              versaoId:
+                type: string
+                example: 33333333-3333-4333-8333-333333333333
+                format: uuid
+              retratoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+              codigo:
+                type: string
+                example: REQ-42
+              titulo:
+                type: string
+                example: Exportar documento
+              numero:
+                type: integer
+                example: 1
+                minimum: 1
+            additionalProperties: false
+            required:
+              - requisitoId
+              - versaoId
+              - retratoId
+              - codigo
+              - titulo
+              - numero
+            example:
+              requisitoId: 11111111-1111-4111-8111-111111111111
+              versaoId: 33333333-3333-4333-8333-333333333333
+              retratoId: 11111111-1111-4111-8111-111111111111
+              codigo: REQ-42
+              titulo: Exportar documento
+              numero: 1
+          example:
+            - requisitoId: 11111111-1111-4111-8111-111111111111
+              versaoId: 33333333-3333-4333-8333-333333333333
+              retratoId: 11111111-1111-4111-8111-111111111111
+              codigo: REQ-42
+              titulo: Exportar documento
+              numero: 1
+          minItems: 1
+        quantidade:
+          type: integer
+          minimum: 0
+          example: 1
+          description: Quantidade de itens no resumo da listagem.
+        autor:
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        data:
+          type: string
+          example: '2026-10-21T15:00:00Z'
+          format: date-time
+          pattern: Z$
+      additionalProperties: false
+      required:
+        - baselineId
+        - projetoId
+        - nome
+        - autor
+        - data
+      example:
+        baselineId: 11111111-1111-4111-8111-111111111111
+        projetoId: 22222222-2222-4222-8222-222222222222
+        nome: Entrega 1
+        versoes:
+          - requisitoId: 11111111-1111-4111-8111-111111111111
+            versaoId: 33333333-3333-4333-8333-333333333333
+            retratoId: 11111111-1111-4111-8111-111111111111
+            codigo: REQ-42
+            titulo: Exportar documento
+            numero: 1
+        autor: 11111111-1111-4111-8111-111111111111
+        data: '2026-10-21T15:00:00Z'
+    PaginaBaselines:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Baseline'
+          example: []
+        page:
+          type: integer
+          example: 0
+          minimum: 0
+        size:
+          type: integer
+          example: 20
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          example: 0
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 0
+          minimum: 0
+        _links:
+          $ref: '#/components/schemas/Links'
+      additionalProperties: false
+      required:
+        - items
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - _links
+      example:
+        items: []
+        page: 0
+        size: 20
+        totalElements: 0
+        totalPages: 0
+        _links: {}
+    BaselineEntrada:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: Entrega 1
+        versoes:
+          type: array
+          description: Lista vazia captura todo o Livro corrente; cada item deve corresponder à publicação do requisito.
+          items:
+            type: object
+            properties:
+              requisitoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+              versaoId:
+                type: string
+                example: 33333333-3333-4333-8333-333333333333
+                format: uuid
+              retratoId:
+                type: string
+                example: 11111111-1111-4111-8111-111111111111
+                format: uuid
+            additionalProperties: false
+            required:
+              - requisitoId
+              - versaoId
+              - retratoId
+            example:
+              requisitoId: 11111111-1111-4111-8111-111111111111
+              versaoId: 33333333-3333-4333-8333-333333333333
+              retratoId: 11111111-1111-4111-8111-111111111111
+          example:
+            - requisitoId: 11111111-1111-4111-8111-111111111111
+              versaoId: 33333333-3333-4333-8333-333333333333
+              retratoId: 11111111-1111-4111-8111-111111111111
+          maxItems: 500
+      additionalProperties: false
+      required:
+        - nome
+        - versoes
+      example:
+        nome: Entrega 1
+        versoes:
+          - requisitoId: 11111111-1111-4111-8111-111111111111
+            versaoId: 33333333-3333-4333-8333-333333333333
+            retratoId: 11111111-1111-4111-8111-111111111111
+    ComparacaoBaseline:
+      type: object
+      properties:
+        itens:
+          type: array
+          items:
+            type: object
+            properties:
+              requisitoId:
+                type: string
+                format: uuid
+                example: 11111111-1111-4111-8111-111111111111
+              codigo:
+                type: string
+                example: REQ-42
+              titulo:
+                type: string
+                example: Exportar documento
+              situacao:
+                type: string
+                enum:
+                  - INALTERADO
+                  - ALTERADO
+                  - FORA_DO_LIVRO
+                  - NOVO
+                example: ALTERADO
+              numeroBaseline:
+                type: integer
+                minimum: 1
+                example: 1
+              numeroAtual:
+                type: integer
+                minimum: 1
+                example: 2
+            required:
+              - requisitoId
+              - codigo
+              - titulo
+              - situacao
+            additionalProperties: false
+            example:
+              requisitoId: 11111111-1111-4111-8111-111111111111
+              codigo: REQ-42
+              titulo: Exportar documento
+              situacao: ALTERADO
+              numeroBaseline: 1
+              numeroAtual: 2
+          example: []
+        contagens:
+          type: object
+          properties:
+            INALTERADO:
+              type: integer
+              minimum: 0
+              example: 0
+            ALTERADO:
+              type: integer
+              minimum: 0
+              example: 0
+            FORA_DO_LIVRO:
+              type: integer
+              minimum: 0
+              example: 0
+            NOVO:
+              type: integer
+              minimum: 0
+              example: 0
+          required:
+            - INALTERADO
+            - ALTERADO
+            - FORA_DO_LIVRO
+            - NOVO
+          additionalProperties: false
+          example:
+            INALTERADO: 0
+            ALTERADO: 0
+            FORA_DO_LIVRO: 0
+            NOVO: 0
+      required:
+        - itens
+        - contagens
+      additionalProperties: false
+      example:
+        itens: []
+        contagens:
+          INALTERADO: 0
+          ALTERADO: 0
+          FORA_DO_LIVRO: 0
+          NOVO: 0
   securitySchemes:
     bearerJwt:
       type: http

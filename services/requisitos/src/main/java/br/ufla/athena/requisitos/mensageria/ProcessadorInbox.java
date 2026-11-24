@@ -16,6 +16,10 @@ public class ProcessadorInbox {
 
     public ProcessadorInbox(JdbcTemplate banco) { this.banco = banco; }
 
+    public static boolean ignorar(String tipo, boolean projetoExcluido) {
+        return projetoExcluido && !"FecharProjeto".equals(tipo) && !"LimparProjeto".equals(tipo);
+    }
+
     @Transactional
     public void processar(Map<String, Object> envelope, ManipuladorMensagem manipulador) {
         UUID id = UUID.fromString(envelope.get("messageId").toString());
@@ -32,6 +36,19 @@ public class ProcessadorInbox {
             log.debug("Mensagem {} já processada", id);
             return;
         }
+        Object projeto = envelope.get("projetoId");
+        if (projeto != null) {
+            UUID projetoId = UUID.fromString(projeto.toString());
+            banco.query("SELECT pg_advisory_xact_lock(hashtext(?))", rs -> { }, "exclusao:" + projetoId);
+            boolean excluido = Boolean.TRUE.equals(banco.queryForObject(
+                    "SELECT EXISTS (SELECT 1 FROM projetos_excluidos WHERE projeto_id = ?)", Boolean.class, projetoId));
+            if (ignorar(envelope.get("messageType").toString(), excluido)) {
+                log.debug("Mensagem {} ignorada para projeto excluído", id);
+                banco.update("UPDATE inbox SET processado_em = now() WHERE message_id = ?", id);
+                return;
+            }
+        }
+        if (manipulador == null) throw new MensagemInvalidaException("sem manipulador");
         manipulador.tratar(envelope);
         banco.update("UPDATE inbox SET processado_em = now() WHERE message_id = ?", id);
     }

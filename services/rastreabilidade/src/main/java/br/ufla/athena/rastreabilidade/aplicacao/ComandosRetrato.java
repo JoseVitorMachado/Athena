@@ -84,7 +84,7 @@ public class ComandosRetrato {
         if (participante.repetir(envelope, false)) {
             return;
         }
-        banco.update("INSERT INTO cancelamentos_submissao (submissao_id) VALUES (?) ON CONFLICT DO NOTHING", submissao);
+        banco.update("INSERT INTO cancelamentos_submissao (submissao_id, projeto_id) VALUES (?, ?) ON CONFLICT DO NOTHING", submissao, id(envelope, "projetoId"));
         List<UUID> retratos = banco.query("UPDATE retratos SET estado = 'CANCELADO', atualizado_em = now() WHERE submissao_id = ? AND projeto_id = ? RETURNING id",
                 (rs, n) -> rs.getObject(1, UUID.class), submissao, id(envelope, "projetoId"));
         Map<String, Object> resposta = new LinkedHashMap<>();

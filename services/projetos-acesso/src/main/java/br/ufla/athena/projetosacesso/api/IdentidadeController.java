@@ -270,7 +270,7 @@ public class IdentidadeController {
 
     @GetMapping("/api/v1/internal/projetos/{projetoId}/membros/{usuarioId}")
     public Map<String, Object> membro(@PathVariable UUID projetoId, @PathVariable UUID usuarioId) {
-        return banco.query("SELECT m.papel,p.arquivado FROM membros m JOIN projetos p ON p.id=m.projeto_id WHERE m.projeto_id=? AND m.usuario_id=? AND p.excluido_em IS NULL", (rs, n) -> Map.<String, Object>of("projetoId", projetoId, "usuarioId", usuarioId, "papel", rs.getString(1), "arquivado", rs.getBoolean(2)), projetoId, usuarioId).stream().findFirst().orElseThrow(() -> new Problema(HttpStatus.NOT_FOUND, "MEMBRO_NAO_ENCONTRADO", "Membro não encontrado."));
+        return banco.query("SELECT m.papel,p.arquivado FROM membros m JOIN projetos p ON p.id=m.projeto_id WHERE m.projeto_id=? AND m.usuario_id=? AND p.excluido_em IS NULL AND NOT p.em_exclusao", (rs, n) -> Map.<String, Object>of("projetoId", projetoId, "usuarioId", usuarioId, "papel", rs.getString(1), "arquivado", rs.getBoolean(2)), projetoId, usuarioId).stream().findFirst().orElseThrow(() -> new Problema(HttpStatus.NOT_FOUND, "MEMBRO_NAO_ENCONTRADO", "Membro não encontrado."));
     }
 
     private Estado estado(String refresh) {

@@ -11,12 +11,13 @@ public final class PoliticaProjeto {
 
     public static boolean exigeProjeto(String metodo, String caminho) {
         return !(caminho.equals("/api/v1/gestao/projetos")
-                && ("GET".equals(metodo) || "POST".equals(metodo)));
+                && ("GET".equals(metodo) || "POST".equals(metodo)))
+                && !("GET".equals(metodo) && caminho.matches(BASE + "/exclusoes/[^/]+"));
     }
 
     public static boolean permiteArquivado(String metodo, String caminho) {
         return "GET".equals(metodo)
-                || ("POST".equals(metodo) && caminho.matches(BASE + "/restauracoes"));
+                || ("POST".equals(metodo) && (caminho.matches(BASE + "/restauracoes") || caminho.matches(BASE + "/exclusoes")));
     }
 
     public static Papel papelMinimo(String metodo, String caminho) {
@@ -26,7 +27,7 @@ public final class PoliticaProjeto {
         if ("DELETE".equals(metodo) && caminho.matches(BASE + "/membros/[^/]+")) {
             return Papel.LEITOR;
         }
-        if ("POST".equals(metodo) && caminho.matches(BASE + "/transferencias-propriedade")) {
+        if ("POST".equals(metodo) && (caminho.matches(BASE + "/transferencias-propriedade") || caminho.matches(BASE + "/exclusoes"))) {
             return Papel.OWNER;
         }
         if ((("GET".equals(metodo) || "POST".equals(metodo))

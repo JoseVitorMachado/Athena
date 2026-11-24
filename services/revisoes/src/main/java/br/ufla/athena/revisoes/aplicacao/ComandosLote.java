@@ -94,7 +94,7 @@ public class ComandosLote {
         if (participante.repetir(envelope, false)) {
             return;
         }
-        banco.update("INSERT INTO cancelamentos_submissao (submissao_id) VALUES (?) ON CONFLICT DO NOTHING", submissao);
+        banco.update("INSERT INTO cancelamentos_submissao (submissao_id, projeto_id) VALUES (?, ?) ON CONFLICT DO NOTHING", submissao, id(envelope, "projetoId"));
         List<UUID> lotes = banco.query("SELECT id FROM lotes WHERE submissao_id = ? AND projeto_id = ? FOR UPDATE",
                 (rs, n) -> rs.getObject(1, UUID.class), submissao, id(envelope, "projetoId"));
         banco.update("UPDATE lotes SET estado = 'CANCELADO', atualizado_em = now(), revisao = revisao + 1 WHERE submissao_id = ? AND projeto_id = ? AND estado NOT IN ('ENCERRADO', 'CANCELADO')",

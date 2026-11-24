@@ -38,7 +38,6 @@ public class DespachanteMensagens {
         try {
             Map<String, Object> envelope = lerEnvelope(mensagem);
             ManipuladorMensagem manipulador = manipuladores.get(envelope.get("messageType"));
-            if (manipulador == null) throw new MensagemInvalidaException("sem manipulador");
             inbox.processar(envelope, manipulador);
         } catch (MensagemInvalidaException erro) {
             // Sem retentativa: vai direto para a DLQ, mas fica registrado para diagnóstico.

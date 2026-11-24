@@ -34,7 +34,7 @@ public class ProjetoController {
             @RequestParam(defaultValue = "false") boolean arquivado) {
         UUID usuario = identidade.usuarioAutenticado(bearer);
         String ordem = AcessoRecursos.ordem(sort, "p");
-        String filtro = " FROM projetos p JOIN membros m ON m.projeto_id=p.id WHERE m.usuario_id=? AND p.excluido_em IS NULL AND p.arquivado=?" + (workspaceId == null ? "" : " AND p.workspace_id=?");
+        String filtro = " FROM projetos p JOIN membros m ON m.projeto_id=p.id WHERE m.usuario_id=? AND p.excluido_em IS NULL AND NOT p.em_exclusao AND p.arquivado=?" + (workspaceId == null ? "" : " AND p.workspace_id=?");
         List<Object> argumentos = new ArrayList<>(List.of(usuario, arquivado));
         if (workspaceId != null) argumentos.add(workspaceId);
         Long total = acesso.banco.queryForObject("SELECT count(*)" + filtro, Long.class, argumentos.toArray());

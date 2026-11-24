@@ -81,9 +81,16 @@ public class DecisaoRevisaoService implements ManipuladorMensagem {
         resposta.put("loteId", loteId.toString());
         resposta.put("submissaoId", submissaoId.toString());
         resposta.put("resultado", resultado);
+        resposta.put("decisao", decisao);
+        resposta.put("requisitoId", requisitoId.toString());
         if (motivo != null) {
             resposta.put("motivo", motivo);
         }
+        requisitos.findByIdAndProjetoId(requisitoId, projeto)
+                .map(Requisito::getCodigo).ifPresent(codigo -> resposta.put("codigo", codigo));
+        List<UUID> autores = banco.query("SELECT autor_id FROM submissoes WHERE id=? AND requisito_id=? AND projeto_id=?",
+                (rs, n) -> rs.getObject("autor_id", UUID.class), submissaoId, requisitoId, projeto);
+        if (!autores.isEmpty() && autores.get(0) != null) resposta.put("submissorId", autores.get(0).toString());
         emissor.evento("DecisaoRevisaoAplicada", projeto, null, null, submissaoId,
                 id(envelope, "messageId"), resposta);
         log.info("Decisão {}: {} {}", decisaoId, resultado, motivo == null ? "" : motivo);

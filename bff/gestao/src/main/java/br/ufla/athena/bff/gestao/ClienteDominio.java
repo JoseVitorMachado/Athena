@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Chamadas REST aos serviços de domínio. Devolve status, cabeçalhos e corpo como
@@ -103,6 +105,10 @@ public class ClienteDominio {
         if (autenticacao instanceof JwtAuthenticationToken jwt && jwt.isAuthenticated()
                 && jwt.getToken().getSubject() != null) {
             requisicao.header("X-Athena-Usuario", jwt.getToken().getSubject());
+        }
+        if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes atributos
+                && atributos.getRequest().getAttribute(AutorizacaoProjeto.VINCULO) instanceof PapelAtual.Vinculo vinculo) {
+            requisicao.header("X-Athena-Papel", vinculo.papel().name());
         }
         if (authorization != null) {
             requisicao.header(HttpHeaders.AUTHORIZATION, authorization);

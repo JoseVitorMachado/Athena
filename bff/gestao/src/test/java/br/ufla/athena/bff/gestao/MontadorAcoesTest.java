@@ -15,12 +15,25 @@ class MontadorAcoesTest {
     @Test
     void rascunhoDependeDoPapel() {
         var editor = montar("ATIVO", "RASCUNHO", null, Papel.EDITOR);
-        assertEquals(4, editor.actions().size());
+        assertEquals(5, editor.actions().size());
         assertTrue(editor.actions().containsKey("editar-metadados"));
         assertTrue(editor.actions().containsKey("cancelar"));
         assertTrue(editor.actions().containsKey("editar-candidata"));
         assertTrue(editor.actions().containsKey("submeter"));
         assertTrue(montar("ATIVO", "RASCUNHO", null, Papel.LEITOR).actions().isEmpty());
+    }
+
+    @Test
+    void comentariosDependemDaSituacaoEDoPapel() {
+        var reporter = montar("ATIVO", "RASCUNHO", null, Papel.REPORTER);
+        assertEquals("/api/v1/gestao/projetos/p/requisitos/r/comentarios", reporter.links().get("comentarios").href());
+        var acao = reporter.actions().get("comentar");
+        assertEquals("POST", acao.method());
+        assertEquals(List.of("versaoId", "texto", "ancora", "mencoes"), acao.campos());
+        assertFalse(montar("ATIVO", "RASCUNHO", null, Papel.LEITOR).actions().containsKey("comentar"));
+        var cancelado = montar("CANCELADO", "RASCUNHO", null, Papel.REPORTER);
+        assertTrue(cancelado.links().containsKey("comentarios"));
+        assertFalse(cancelado.actions().containsKey("comentar"));
     }
 
     @Test

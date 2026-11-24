@@ -111,6 +111,13 @@ public class RequisitoService {
                 patch.conteudo() == null ? versao.getConteudo() : patch.conteudo(),
                 patch.criteriosAceite() == null ? versao.getCriteriosAceite() : patch.criteriosAceite());
         repositorio.saveAndFlush(requisito);
+        List<Map<String, Object>> ancoras = banco.queryForList(
+                "SELECT id, ancora_selecao FROM comentarios WHERE versao_id=? AND ancora_situacao='LOCALIZADA' FOR UPDATE", versao.getId());
+        for (Map<String, Object> ancora : ancoras) {
+            if (!ComentarioService.localizada(versao, (String) ancora.get("ancora_selecao"))) {
+                banco.update("UPDATE comentarios SET ancora_situacao='NAO_LOCALIZADA', revisao=revisao+1, atualizado_em=now() WHERE id=?", ancora.get("id"));
+            }
+        }
         if (!Objects.equals(tituloAnterior, requisito.getTitulo())) {
             emitirRequisitoAlterado(requisito);
         }

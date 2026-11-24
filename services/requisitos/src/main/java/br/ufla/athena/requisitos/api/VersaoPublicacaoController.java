@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,10 +37,11 @@ public class VersaoPublicacaoController {
     /** obterVersao */
     @GetMapping("/versoes/{versaoId}")
     @Transactional(readOnly = true)
-    public VersaoResposta versao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
-                                 @PathVariable UUID versaoId) {
+    public ResponseEntity<VersaoResposta> versao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+                                                 @PathVariable UUID versaoId) {
+        // O ETag da versão publicada é o If-Match usado para abrir uma nova candidata a partir dela.
         return versoes.findByIdAndRequisito_IdAndRequisito_ProjetoId(versaoId, requisitoId, projetoId)
-                .map(VersaoResposta::de)
+                .map(versao -> ResponseEntity.ok().eTag("\"" + versao.getRevisao() + "\"").body(VersaoResposta.de(versao)))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Versão não encontrada"));
     }
 

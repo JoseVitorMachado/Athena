@@ -26,11 +26,12 @@ final class Caminhos {
             }
             if (corresponde(caminho, "/api/v1/projetos") || corresponde(caminho, "/api/v1/workspaces")
                     || corresponde(caminho, "/api/v1/convites")
+                    || corresponde(caminho, "/api/v1/notificacoes")
                     || corresponde(caminho, "/api/v1/transferencias-propriedade")) {
                 return paraGestao(caminho);
             }
         }
-        for (String base : new String[]{"/api/v1/convites", "/api/v1/transferencias-propriedade"}) {
+        for (String base : new String[]{"/api/v1/convites", "/api/v1/notificacoes", "/api/v1/transferencias-propriedade"}) {
             if (corresponde(caminhoDeDominio, base)) {
                 return "/api/v1/gestao" + caminhoDeDominio.substring("/api/v1".length());
             }

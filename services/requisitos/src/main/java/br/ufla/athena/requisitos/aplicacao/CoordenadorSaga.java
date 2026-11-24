@@ -41,6 +41,7 @@ public class CoordenadorSaga {
     private final VersaoRepository versoes;
     private final EmissorMensagens emissor;
     private final ObjectMapper json;
+    private final UsuarioAtual usuario;
     private final Duration prazoTotal;
     private final Duration espera;
     private final List<Duration> intervalos;
@@ -49,7 +50,7 @@ public class CoordenadorSaga {
     private final MaquinaSaga maquina = new MaquinaSaga();
 
     public CoordenadorSaga(JdbcTemplate banco, RequisitoRepository requisitos, VersaoRepository versoes,
-                           EmissorMensagens emissor, ObjectMapper json,
+                           EmissorMensagens emissor, ObjectMapper json, UsuarioAtual usuario,
                            @Value("${athena.saga.prazo-total:90s}") Duration prazoTotal,
                            @Value("${athena.saga.espera-por-tentativa:10s}") Duration espera,
                            @Value("${athena.saga.intervalos:2s,4s}") List<Duration> intervalos,
@@ -60,6 +61,7 @@ public class CoordenadorSaga {
         this.versoes = versoes;
         this.emissor = emissor;
         this.json = json;
+        this.usuario = usuario;
         this.prazoTotal = prazoTotal;
         this.espera = espera;
         this.intervalos = intervalos;
@@ -98,9 +100,9 @@ public class CoordenadorSaga {
         UUID saga = UUID.randomUUID();
         UUID comando = UUID.randomUUID();
         Map<String, Object> snapshot = Map.of("titulo", candidata.getTitulo(), "conteudo", candidata.getConteudo(), "criteriosAceite", candidata.getCriteriosAceite());
-        int inseridas = banco.update("INSERT INTO submissoes (id,saga_id,projeto_id,requisito_id,versao_id,hash_conteudo,snapshot,estado_saga,etapa_saga,comando_esperado_id,comando_retrato_id,tentativas,proxima_acao_em,prazo,criado_em,atualizado_em) VALUES (?,?,?,?,?,?,?::jsonb,'EM_ANDAMENTO','AGUARDANDO_RETRATO',?,?,1,?,?,?,?) ON CONFLICT (requisito_id) WHERE estado_saga IN ('EM_ANDAMENTO','COMPENSANDO','COMPENSACAO_PENDENTE') DO NOTHING",
+        int inseridas = banco.update("INSERT INTO submissoes (id,saga_id,projeto_id,requisito_id,versao_id,hash_conteudo,snapshot,estado_saga,etapa_saga,comando_esperado_id,comando_retrato_id,tentativas,proxima_acao_em,prazo,criado_em,atualizado_em,autor_id) VALUES (?,?,?,?,?,?,?::jsonb,'EM_ANDAMENTO','AGUARDANDO_RETRATO',?,?,1,?,?,?,?,?) ON CONFLICT (requisito_id) WHERE estado_saga IN ('EM_ANDAMENTO','COMPENSANDO','COMPENSACAO_PENDENTE') DO NOTHING",
                 id, saga, projeto, requisitoId, versaoId, candidata.getHashConteudo(), escrever(snapshot), comando, comando,
-                Timestamp.from(proxima(agora, 1, agora.plus(prazoTotal))), Timestamp.from(agora.plus(prazoTotal)), Timestamp.from(agora), Timestamp.from(agora));
+                Timestamp.from(proxima(agora, 1, agora.plus(prazoTotal))), Timestamp.from(agora.plus(prazoTotal)), Timestamp.from(agora), Timestamp.from(agora), usuario.obter());
         if (inseridas == 0) throw problema(HttpStatus.CONFLICT, "SUBMISSAO_ATIVA", "Já existe submissão ativa.");
         banco.update("INSERT INTO chaves_idempotencia VALUES (?,?,?,?,?,?)", chave, OPERACAO, projeto, impressao, id, Timestamp.from(agora));
         candidata.alterarEstado(EstadoVersao.EM_SUBMISSAO);
@@ -167,6 +169,17 @@ public class CoordenadorSaga {
                 r.comando = null;
                 r.proxima = null;
                 mudarVersao(r, EstadoVersao.AGUARDANDO_REVISAO);
+                Requisito requisito = requisitos.findByIdAndProjetoId(r.requisito, r.projeto)
+                        .orElseThrow(() -> new IllegalStateException("Requisito da submissão não encontrado"));
+                Map<String, Object> evento = new LinkedHashMap<>();
+                evento.put("projetoId", r.projeto.toString());
+                evento.put("requisitoId", r.requisito.toString());
+                evento.put("codigo", requisito.getCodigo());
+                evento.put("titulo", requisito.getTitulo());
+                evento.put("submissaoId", r.id.toString());
+                evento.put("loteId", r.lote.toString());
+                if (r.autor != null) evento.put("submissorId", r.autor.toString());
+                emissor.evento("SubmissaoConcluida", r.projeto, r.saga, null, r.id, causa, evento);
                 emissor.comando("revisoes", "AtivarLoteRevisao", r.projeto, r.saga, UUID.randomUUID(), r.id, causa,
                         Map.of("submissaoId", r.id.toString(), "loteId", r.lote.toString()));
             }
@@ -292,6 +305,7 @@ public class CoordenadorSaga {
         r.projeto = rs.getObject("projeto_id", UUID.class);
         r.requisito = rs.getObject("requisito_id", UUID.class);
         r.versao = rs.getObject("versao_id", UUID.class);
+        r.autor = rs.getObject("autor_id", UUID.class);
         r.hash = rs.getString("hash_conteudo");
         r.estado = rs.getString("estado_saga");
         r.etapa = rs.getString("etapa_saga");
@@ -345,7 +359,7 @@ public class CoordenadorSaga {
 
     private static class Registro {
         UUID id, saga, projeto, requisito, versao, comando, comandoLote, comandoCancelarLote,
-                comandoCancelarRetrato, retrato, lote;
+                comandoCancelarRetrato, retrato, lote, autor;
         String hash, estado, etapa, motivo;
         int tentativas;
         Instant proxima, prazo, atualizado;

@@ -29,6 +29,7 @@ public final class MontadorAcoes {
         links.put("self", new Link(self));
         links.put("colecao", new Link(colecao));
         links.put("versoes", new Link(self + "/versoes"));
+        links.put("comentarios", new Link(self + "/comentarios"));
         if (estado != null && !"PUBLICADA".equals(estado) && !"SEM_VERSAO".equals(estado)) {
             links.put("candidata", new Link(self + "/candidata"));
         }
@@ -37,6 +38,11 @@ public final class MontadorAcoes {
         }
         if (revisao != null) {
             links.put("revisao", new Link(revisao));
+        }
+        if ("ATIVO".equals(situacao) && papel.permite(Papel.REPORTER)) {
+            actions.put("comentar", acao(self + "/comentarios", "POST",
+                    List.of("versaoId", "texto", "ancora", "mencoes"),
+                    List.of("Requisito ATIVO", "Papel Repórter ou superior")));
         }
         if (!papel.permite(Papel.EDITOR)) {
             return new Resultado(links, actions);

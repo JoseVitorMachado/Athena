@@ -55,6 +55,14 @@ public class Relacao {
         return relacao;
     }
 
+    public void alterar(UUID origemId, UUID destinoId, TipoRelacao tipo, String justificativa) {
+        this.origemId = origemId;
+        this.destinoId = destinoId;
+        this.tipo = tipo;
+        this.justificativa = justificativa;
+        this.atualizadoEm = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    }
+
     public UUID getId() {
         return id;
     }

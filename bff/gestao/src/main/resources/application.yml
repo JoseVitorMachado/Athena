@@ -18,6 +18,7 @@ athena:
   servicos:
     requisitos: ${REQUISITOS_URL}
     revisoes: ${REVISOES_URL}
+    rastreabilidade: ${RASTREABILIDADE_URL}
   http:
     timeout-conexao: ${HTTP_TIMEOUT_CONEXAO:2s}
     timeout-leitura: ${HTTP_TIMEOUT_LEITURA:5s}

@@ -19,6 +19,7 @@ public record RequisitoResposta(
         SituacaoRequisito situacao,
         VersaoResposta candidata,
         UUID versaoPublicadaId,
+        boolean noLivro,
         Instant atualizadoEm) {
 
     public static RequisitoResposta de(Requisito requisito) {
@@ -34,6 +35,8 @@ public record RequisitoResposta(
                 requisito.getSituacao(),
                 requisito.candidata().map(VersaoResposta::de).orElse(null),
                 requisito.versaoPublicada().map(Versao::getId).orElse(null),
+                br.ufla.athena.requisitos.aplicacao.RegrasSituacao.noLivro(requisito.getSituacao(),
+                        requisito.versaoPublicada().isPresent(), requisito.isForaDoLivro()),
                 requisito.getAtualizadoEm());
     }
 }

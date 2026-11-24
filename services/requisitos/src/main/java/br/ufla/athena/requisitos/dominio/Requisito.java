@@ -41,6 +41,8 @@ public class Requisito {
 
     private String titulo;
 
+    private boolean foraDoLivro;
+
     @Enumerated(EnumType.STRING)
     private SituacaoRequisito situacao;
 
@@ -109,6 +111,38 @@ public class Requisito {
         this.titulo = titulo;
         this.atualizadoEm = agora;
     }
+
+    /** Atualiza os metadados sem alterar a candidata. */
+    public void alterarMetadados(UUID responsavel, UUID epico, String tipo) {
+        this.responsavelId = responsavel;
+        this.epicoId = epico;
+        this.tipo = tipo;
+        this.atualizadoEm = Instant.now();
+    }
+
+    /** Retira o requisito do escopo e do Livro. */
+    public void cancelar() {
+        situacao = SituacaoRequisito.CANCELADO;
+        foraDoLivro = true;
+        atualizadoEm = Instant.now();
+    }
+
+    /** Reabre a candidata e exige nova aprovação. */
+    public Versao reativar() {
+        Versao candidata = candidata().orElseGet(() -> criarCandidataDaPublicada(versaoPublicada().orElseThrow()));
+        candidata.alterarEstado(EstadoVersao.RASCUNHO);
+        situacao = SituacaoRequisito.ATIVO;
+        atualizadoEm = Instant.now();
+        return candidata;
+    }
+
+    /** Recoloca o requisito no Livro após publicação. */
+    public void registrarPublicacao() {
+        foraDoLivro = false;
+        atualizadoEm = Instant.now();
+    }
+
+    public boolean isForaDoLivro() { return foraDoLivro; }
 
     private static String sha256(String texto) {
         try {

@@ -71,6 +71,9 @@ public class CoordenadorSaga {
     public SubmissaoResposta criar(UUID projeto, UUID requisitoId, UUID versaoId, String chave, String ifMatch) {
         if (chave == null || chave.isBlank()) throw problema(HttpStatus.PRECONDITION_REQUIRED, "IDEMPOTENCY_KEY_AUSENTE", "Informe Idempotency-Key.");
         if (chave.length() > 200) throw problema(HttpStatus.BAD_REQUEST, "REQUISICAO_INVALIDA", "Chave muito longa.");
+        Requisito requisito = requisitos.buscarParaEdicao(requisitoId, projeto)
+                .orElseThrow(() -> problema(HttpStatus.NOT_FOUND, "REQUISITO_NAO_ENCONTRADO", "Requisito não encontrado."));
+        if (requisito.getSituacao() != SituacaoRequisito.ATIVO) throw problema(HttpStatus.CONFLICT, "REQUISITO_CANCELADO", "Requisito cancelado.");
         String impressao = IdempotenciaSubmissao.impressao(requisitoId, versaoId);
         banco.queryForObject("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", (rs, n) -> 0,
                 projeto + ":" + OPERACAO + ":" + chave);
@@ -83,9 +86,6 @@ public class CoordenadorSaga {
             }
             return buscar(projeto, requisitoId, (UUID) anterior.get("recurso_id"));
         }
-        Requisito requisito = requisitos.buscarParaEdicao(requisitoId, projeto)
-                .orElseThrow(() -> problema(HttpStatus.NOT_FOUND, "REQUISITO_NAO_ENCONTRADO", "Requisito não encontrado."));
-        if (requisito.getSituacao() != SituacaoRequisito.ATIVO) throw problema(HttpStatus.CONFLICT, "REQUISITO_CANCELADO", "Requisito cancelado.");
         Versao candidata = requisito.candidata().orElseThrow(() -> problema(HttpStatus.CONFLICT, "VERSAO_NAO_E_CANDIDATA", "Não há candidata."));
         if (ifMatch == null || ifMatch.isBlank()) throw problema(HttpStatus.PRECONDITION_REQUIRED, "PRECONDICAO_AUSENTE", "Informe If-Match.");
         if (!ifMatch.trim().equals("\"" + candidata.getRevisao() + "\"")) throw problema(HttpStatus.PRECONDITION_FAILED, "REVISAO_DESATUALIZADA", "A candidata foi alterada.");

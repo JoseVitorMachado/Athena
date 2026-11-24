@@ -15,7 +15,9 @@ class MontadorAcoesTest {
     @Test
     void rascunhoDependeDoPapel() {
         var editor = montar("ATIVO", "RASCUNHO", null, Papel.EDITOR);
-        assertEquals(2, editor.actions().size());
+        assertEquals(4, editor.actions().size());
+        assertTrue(editor.actions().containsKey("editar-metadados"));
+        assertTrue(editor.actions().containsKey("cancelar"));
         assertTrue(editor.actions().containsKey("editar-candidata"));
         assertTrue(editor.actions().containsKey("submeter"));
         assertTrue(montar("ATIVO", "RASCUNHO", null, Papel.LEITOR).actions().isEmpty());
@@ -40,11 +42,25 @@ class MontadorAcoesTest {
     }
 
     @Test
-    void canceladoNaoOfereceEscrita() {
-        assertTrue(montar("CANCELADO", "APROVADA", "ATIVO", Papel.OWNER).actions().isEmpty());
+    void canceladoOfereceApenasReativacaoParaEditor() {
+        var actions = montar("CANCELADO", "APROVADA", "ATIVO", Papel.OWNER).actions();
+        assertEquals(1, actions.size());
+        assertEquals("POST", actions.get("reativar").method());
+        assertTrue(montar("CANCELADO", "RASCUNHO", null, Papel.LEITOR).actions().isEmpty());
+    }
+
+    @Test
+    void cancelamentoExigeAusenciaDeSubmissaoERevisao() {
+        assertFalse(montar("ATIVO", "EM_SUBMISSAO", null, Papel.EDITOR).actions().containsKey("cancelar"));
+        assertFalse(montar("ATIVO", "AGUARDANDO_REVISAO", "ATIVO", Papel.EDITOR).actions().containsKey("cancelar"));
+        var emAndamento = montador.montar("p", "r", "ATIVO", "RASCUNHO", null, null, "s", true, Papel.EDITOR);
+        assertFalse(emAndamento.actions().containsKey("cancelar"));
+        var acao = montar("ATIVO", "RASCUNHO", null, Papel.EDITOR).actions().get("cancelar");
+        assertEquals("/api/v1/gestao/projetos/p/requisitos/r/cancelamentos", acao.href());
+        assertEquals(List.of("confirmacao"), acao.campos());
     }
 
     private MontadorAcoes.Resultado montar(String situacao, String estado, String lote, Papel papel) {
-        return montador.montar("p", "r", situacao, estado, "l", lote, "s", papel);
+        return montador.montar("p", "r", situacao, estado, "l", lote, "s", false, papel);
     }
 }

@@ -1,6 +1,8 @@
 package br.ufla.athena.bff.gestao;
 
 import br.ufla.athena.bff.gestao.docs.ProblemaDoc;
+import br.ufla.athena.bff.gestao.docs.MetadadosPatchDoc;
+import br.ufla.athena.bff.gestao.docs.ConfirmacaoDoc;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -47,11 +49,13 @@ public class RequisitosGestaoController {
 
     private final ClienteDominio dominio;
     private final String requisitosUrl;
+    private final PapelAtual papelAtual;
     private final String revisoesUrl;
     private final MontadorAcoes montador = new MontadorAcoes();
 
-    public RequisitosGestaoController(ClienteDominio dominio, AthenaProperties propriedades) {
+    public RequisitosGestaoController(ClienteDominio dominio, AthenaProperties propriedades, PapelAtual papelAtual) {
         this.dominio = dominio;
+        this.papelAtual = papelAtual;
         this.requisitosUrl = propriedades.servicos().requisitos();
         this.revisoesUrl = propriedades.servicos().revisoes();
     }
@@ -107,6 +111,88 @@ public class RequisitosGestaoController {
     @PostMapping
     public ResponseEntity<JsonNode> criar(@PathVariable UUID projetoId, @RequestBody JsonNode corpo) {
         return repassar(dominio.post("requisitos", requisitosUrl, colecao(projetoId), corpo));
+    }
+
+    /** Atualiza os metadados do requisito. */
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Editar metadados", description = "Papel mínimo: Editor.", parameters = {
+            @Parameter(name = "If-Match", in = ParameterIn.HEADER, required = true),
+            @Parameter(name = "Idempotency-Key", in = ParameterIn.HEADER)})
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = MetadadosPatchDoc.class)))
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Responsável inválido", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Serviço indisponível", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "412", description = "ETag divergente", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "428", description = "If-Match ausente", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @PatchMapping("/{requisitoId}")
+    public ResponseEntity<JsonNode> editarMetadados(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chave, @RequestBody JsonNode corpo) {
+        if (corpo.hasNonNull("responsavelId")) {
+            String responsavel;
+            try {
+                if (!corpo.get("responsavelId").isTextual()) throw new IllegalArgumentException();
+                responsavel = UUID.fromString(corpo.get("responsavelId").asText()).toString();
+            } catch (IllegalArgumentException e) {
+                throw new FalhaAutorizacao(400, "RESPONSAVEL_INVALIDO", "O responsável deve ser membro do projeto.");
+            }
+            try {
+                papelAtual.consultar(projetoId.toString(), responsavel);
+            } catch (FalhaAutorizacao e) {
+                if (e.status() != 403) throw e;
+                throw new FalhaAutorizacao(400, "RESPONSAVEL_INVALIDO", "O responsável deve ser membro do projeto.");
+            }
+        }
+        return repassar(dominio.patch("requisitos", requisitosUrl, caminhoRequisito(projetoId, requisitoId),
+                corpo, ifMatch, chave, null));
+    }
+
+    /** Cancela o requisito mediante confirmação. */
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Criar cancelamento", description = "Papel mínimo: Editor.", parameters = {
+            @Parameter(name = "If-Match", in = ParameterIn.HEADER, required = true),
+            @Parameter(name = "Idempotency-Key", in = ParameterIn.HEADER)})
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = ConfirmacaoDoc.class)))
+    @ApiResponse(responseCode = "201", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Conflito de estado", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "412", description = "ETag divergente", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "428", description = "If-Match ausente", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Serviço indisponível", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @PostMapping("/{requisitoId}/cancelamentos")
+    public ResponseEntity<JsonNode> cancelar(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chave, @RequestBody JsonNode corpo) {
+        return repassar(dominio.post("requisitos", requisitosUrl, caminhoRequisito(projetoId, requisitoId)
+                + "/cancelamentos", corpo, ifMatch, chave));
+    }
+
+    /** Reativa o requisito cancelado. */
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Criar reativação", description = "Papel mínimo: Editor.", parameters = {
+            @Parameter(name = "If-Match", in = ParameterIn.HEADER, required = true),
+            @Parameter(name = "Idempotency-Key", in = ParameterIn.HEADER)})
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, content = @Content(schema = @Schema(type = "object")))
+    @ApiResponse(responseCode = "201", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Conflito de estado", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "412", description = "ETag divergente", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "428", description = "If-Match ausente", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Serviço indisponível", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @PostMapping("/{requisitoId}/reativacoes")
+    public ResponseEntity<JsonNode> reativar(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chave,
+            @RequestBody(required = false) JsonNode corpo) {
+        return repassar(dominio.post("requisitos", requisitosUrl, caminhoRequisito(projetoId, requisitoId)
+                + "/reativacoes", corpo, ifMatch, chave));
+    }
+
+    /** SAGA ainda não terminou (inclui compensação em curso): cancelamento seria recusado. */
+    static boolean sagaEmAndamento(String estadoSaga) {
+        return estadoSaga != null && !"CONCLUIDA".equals(estadoSaga) && !"COMPENSADA".equals(estadoSaga);
     }
 
     @Tag(name = "Candidata")
@@ -382,7 +468,7 @@ public class RequisitosGestaoController {
         JsonNode origem = requisito.corpo();
         ObjectNode visao = JSON.objectNode();
         ArrayNode avisos = JSON.arrayNode();
-        copiar(origem, visao, "requisitoId", "projetoId", "codigo", "titulo", "situacao");
+        copiar(origem, visao, "requisitoId", "projetoId", "codigo", "titulo", "situacao", "noLivro", "responsavelId", "epicoId", "tipo", "versaoPublicadaId");
 
         JsonNode candidata = origem.get("candidata");
         if (candidata != null && candidata.isObject()) {
@@ -407,7 +493,8 @@ public class RequisitosGestaoController {
         }
         MontadorAcoes.Resultado navegacao = montador.montar(projetoId.toString(), requisitoId.toString(),
                 texto(origem, "situacao"), estado, texto(lote, "loteId"),
-                texto(lote, "estado"), texto(submissao, "submissaoId"), ((PapelAtual.Vinculo) pedido.getAttribute(AutorizacaoProjeto.VINCULO)).papel());
+                texto(lote, "estado"), texto(submissao, "submissaoId"),
+                sagaEmAndamento(texto(submissao, "estadoSaga")), ((PapelAtual.Vinculo) pedido.getAttribute(AutorizacaoProjeto.VINCULO)).papel());
         visao.set("_links", JSON.pojoNode(navegacao.links()));
         visao.set("_actions", JSON.pojoNode(navegacao.actions()));
         visao.set("avisos", avisos);

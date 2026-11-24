@@ -19,7 +19,7 @@ public final class MontadorAcoes {
     }
 
     public Resultado montar(String projetoId, String requisitoId, String situacao, String estado,
-                            String loteId, String estadoLote, String submissaoId, Papel papel) {
+                            String loteId, String estadoLote, String submissaoId, boolean submissaoEmAndamento, Papel papel) {
         String colecao = Caminhos.GESTAO + projetoId + "/requisitos";
         String self = colecao + "/" + requisitoId;
         String revisao = loteId == null ? null : Caminhos.GESTAO + projetoId + "/revisoes/" + loteId;
@@ -38,8 +38,23 @@ public final class MontadorAcoes {
         if (revisao != null) {
             links.put("revisao", new Link(revisao));
         }
-        if (!"ATIVO".equals(situacao) || !papel.permite(Papel.EDITOR)) {
+        if (!papel.permite(Papel.EDITOR)) {
             return new Resultado(links, actions);
+        }
+        if ("CANCELADO".equals(situacao)) {
+            actions.put("reativar", acao(self + "/reativacoes", "POST", List.of(),
+                    List.of("If-Match", "Idempotency-Key", "Requisito CANCELADO", "Papel Editor ou superior")));
+            return new Resultado(links, actions);
+        }
+        if (!"ATIVO".equals(situacao)) {
+            return new Resultado(links, actions);
+        }
+        actions.put("editar-metadados", acao(self, "PATCH", List.of("responsavelId", "epicoId", "tipo"),
+                List.of("If-Match", "Requisito ATIVO", "Papel Editor ou superior")));
+        if (!submissaoEmAndamento && !"EM_SUBMISSAO".equals(estado) && !"AGUARDANDO_REVISAO".equals(estado)) {
+            actions.put("cancelar", acao(self + "/cancelamentos", "POST", List.of("confirmacao"),
+                    List.of("If-Match", "Idempotency-Key", "Confirmação verdadeira", "Requisito ATIVO",
+                            "Sem submissão ou revisão em andamento", "Papel Editor ou superior")));
         }
         if (estado == null || "PUBLICADA".equals(estado) || "RASCUNHO".equals(estado) || "APROVADA".equals(estado)) {
             List<String> condicoes = "APROVADA".equals(estado)

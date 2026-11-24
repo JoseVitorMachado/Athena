@@ -77,6 +77,42 @@ public class RequisitoController {
         return ResponseEntity.ok().eTag("\"" + encontrada.revisao() + "\"").body(encontrada.versao());
     }
 
+    /** Atualiza os metadados do requisito. */
+    @PatchMapping("/{requisitoId}")
+    public ResponseEntity<RequisitoResposta> alterarMetadados(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = "If-Match", required = false) String ifMatch,
+            @RequestBody com.fasterxml.jackson.databind.JsonNode corpo) {
+        Encontrado r = servico.alterarMetadados(projetoId, requisitoId, ifMatch, corpo);
+        return ResponseEntity.ok().eTag(etag(r)).body(r.requisito());
+    }
+
+    /** Cancela o requisito mediante confirmação explícita. */
+    @PostMapping("/{requisitoId}/cancelamentos")
+    public ResponseEntity<RequisitoService.Alteracao> cancelar(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = "If-Match", required = false) String ifMatch,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chave,
+            @RequestBody(required = false) com.fasterxml.jackson.databind.JsonNode corpo) {
+        boolean confirmado = corpo != null && corpo.isObject() && corpo.size() == 1 && corpo.has("confirmacao")
+                && corpo.get("confirmacao").isBoolean() && corpo.get("confirmacao").booleanValue();
+        return respostaSituacao(projetoId, requisitoId, "cancelamentos", servico.alterarSituacao(
+                projetoId, requisitoId, ifMatch, chave, SituacaoRequisito.CANCELADO, confirmado));
+    }
+
+    /** Reativa o requisito e abre uma candidata em rascunho. */
+    @PostMapping("/{requisitoId}/reativacoes")
+    public ResponseEntity<RequisitoService.Alteracao> reativar(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = "If-Match", required = false) String ifMatch,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chave) {
+        return respostaSituacao(projetoId, requisitoId, "reativacoes", servico.alterarSituacao(
+                projetoId, requisitoId, ifMatch, chave, SituacaoRequisito.ATIVO, true));
+    }
+
+    private static ResponseEntity<RequisitoService.Alteracao> respostaSituacao(UUID projeto, UUID requisito,
+            String operacao, RequisitoService.AlteracaoEncontrada resultado) {
+        URI local = URI.create(caminhoColecao(projeto) + "/" + requisito + "/" + operacao + "/" + resultado.alteracao().operacaoId());
+        return ResponseEntity.created(local).eTag("\"" + resultado.revisao() + "\"").body(resultado.alteracao());
+    }
+
     private static String caminhoColecao(UUID projetoId) {
         return "/api/v1/projetos/" + projetoId + "/requisitos";
     }

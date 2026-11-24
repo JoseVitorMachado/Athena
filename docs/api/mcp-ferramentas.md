@@ -48,6 +48,7 @@ Erros: devolver falha MCP estruturada com codigo, traceId e status de domínio, 
 | listarBaselines | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/baselines |
 | criarBaseline | requisitos | Editor | athena:write | POST /api/v1/projetos/{projetoId}/baselines |
 | obterBaseline | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/baselines/{baselineId} |
+| compararBaseline | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/baselines/{baselineId}/comparacao |
 | listarRelacoes | rastreabilidade | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/relacoes |
 | criarRelacao | rastreabilidade | Editor | athena:write | POST /api/v1/projetos/{projetoId}/relacoes |
 | obterRelacao | rastreabilidade | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/relacoes/{relacaoId} |
@@ -1710,7 +1711,7 @@ Papel mínimo: **Repórter**; escopo **athena:write**; projeto **projetoId**.
 
 Papel mínimo: **Leitor**; escopo **athena:read**; projeto **projetoId**.
 
-Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+Lista resumos com quantidade de itens, sem versoes.
 
 ```json
 {
@@ -1762,7 +1763,7 @@ Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domíni
 
 Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
 
-§§5.1, 7.4. Conjunto imutável de versões e retratos autorizados.
+§§5.1, 7.4. Baseline imutável; versoes vazia captura todo o Livro corrente. Cada item deve identificar uma versão PUBLICADA do requisito e o retrato dessa publicação, sem requisito repetido; máximo de 500 itens informados. Item inválido retorna 400 ITEM_BASELINE_INVALIDO; nome duplicado no projeto retorna 409 BASELINE_DUPLICADA e ausência de conteúdo publicado retorna 409 BASELINE_VAZIA.
 
 ```json
 {
@@ -1784,6 +1785,7 @@ Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
         },
         "versoes": {
           "type": "array",
+          "description": "Lista vazia captura todo o Livro corrente; cada item deve corresponder à publicação do requisito.",
           "items": {
             "type": "object",
             "properties": {
@@ -1822,7 +1824,7 @@ Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
               "retratoId": "11111111-1111-4111-8111-111111111111"
             }
           ],
-          "minItems": 1
+          "maxItems": 500
         }
       },
       "additionalProperties": false,
@@ -1854,7 +1856,39 @@ Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
 
 Papel mínimo: **Leitor**; escopo **athena:read**; projeto **projetoId**.
 
-Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+Consulta a baseline imutável e suas versões congeladas; retorna ETag.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "projetoId": {
+      "type": "string",
+      "example": "22222222-2222-4222-8222-222222222222",
+      "format": "uuid",
+      "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+    },
+    "baselineId": {
+      "type": "string",
+      "example": "11111111-1111-4111-8111-111111111111",
+      "format": "uuid",
+      "description": "UUID do recurso (§5.1). Encaminhar em path como baselineId."
+    }
+  },
+  "required": [
+    "projetoId",
+    "baselineId"
+  ],
+  "additionalProperties": false
+}
+```
+
+## compararBaseline
+
+Papel mínimo: **Leitor**; escopo **athena:read**; projeto **projetoId**.
+
+Compara as versões congeladas com o Livro corrente; números de versão são retornados para itens alterados.
 
 ```json
 {

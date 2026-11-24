@@ -52,6 +52,7 @@ public final class PoliticaProjeto {
         }
         if (("POST".equals(metodo) && (caminho.matches(BASE + "/requisitos")
                 || caminho.matches(BASE + "/epicos")
+                || caminho.matches(BASE + "/baselines")
                 || caminho.matches(BASE + "/requisitos/[^/]+/(cancelamentos|reativacoes)")
                 || caminho.matches(BASE + "/requisitos/[^/]+/submissoes")
                 || caminho.matches(BASE + "/relacoes")))

@@ -34,6 +34,11 @@ class PoliticaProjetoTest {
         assertEquals(Papel.OWNER, PoliticaProjeto.papelMinimo("POST", BASE + "/transferencias-propriedade"));
         assertNull(PoliticaProjeto.papelMinimo("PATCH", BASE + "/membros"));
         assertNull(PoliticaProjeto.papelMinimo("DELETE", BASE + "/convites"));
+        assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/baselines"));
+        assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/baselines/b"));
+        assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/baselines/b/comparacao"));
+        assertEquals(Papel.EDITOR, PoliticaProjeto.papelMinimo("POST", BASE + "/baselines"));
+        assertNull(PoliticaProjeto.papelMinimo("DELETE", BASE + "/baselines/b"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/epicos"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/epicos/e"));
         assertEquals(Papel.EDITOR, PoliticaProjeto.papelMinimo("POST", BASE + "/epicos"));

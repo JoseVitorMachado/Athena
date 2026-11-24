@@ -1482,7 +1482,7 @@ paths:
     get:
       operationId: listarBaselines
       summary: Listar baselines
-      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      description: Lista resumos com quantidade de itens, sem versoes.
       tags:
         - baselines
       x-papel-minimo: Leitor
@@ -1520,7 +1520,7 @@ paths:
     post:
       operationId: criarBaseline
       summary: Criar baseline
-      description: §§5.1, 7.4. Conjunto imutável de versões e retratos autorizados.
+      description: §§5.1, 7.4. Baseline imutável; versoes vazia captura todo o Livro corrente. Cada item deve identificar uma versão PUBLICADA do requisito e o retrato dessa publicação, sem requisito repetido; máximo de 500 itens informados. Item inválido retorna 400 ITEM_BASELINE_INVALIDO; nome duplicado no projeto retorna 409 BASELINE_DUPLICADA e ausência de conteúdo publicado retorna 409 BASELINE_VAZIA.
       tags:
         - baselines
       x-papel-minimo: Editor
@@ -1541,6 +1541,8 @@ paths:
           headers:
             Location:
               $ref: ./_shared/components.yaml#/components/headers/Location
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
           content:
             application/json:
               schema:
@@ -1565,7 +1567,7 @@ paths:
     get:
       operationId: obterBaseline
       summary: Obter baseline
-      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      description: Consulta a baseline imutável e suas versões congeladas; retorna ETag.
       tags:
         - baselines
       x-papel-minimo: Leitor
@@ -1591,6 +1593,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Baseline'
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/baselines/{baselineId}/comparacao:
+    get:
+      operationId: compararBaseline
+      summary: Comparar baseline com o Livro
+      description: Compara as versões congeladas com o Livro corrente; números de versão são retornados para itens alterados.
+      tags:
+        - baselines
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+        - name: baselineId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          headers:
+            ETag:
+              description: Cabeçalho opcional quando disponibilizado pela infraestrutura.
+              schema:
+                type: string
+                example: '"rev-7"'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparacaoBaseline'
         '400':
           $ref: ./_shared/components.yaml#/components/responses/Erro400
         '401':
@@ -2328,6 +2380,7 @@ components:
           example: Entrega 1
         versoes:
           type: array
+          description: Lista vazia captura todo o Livro corrente; cada item deve corresponder à publicação do requisito.
           items:
             type: object
             properties:
@@ -2356,7 +2409,7 @@ components:
             - requisitoId: 11111111-1111-4111-8111-111111111111
               versaoId: 33333333-3333-4333-8333-333333333333
               retratoId: 11111111-1111-4111-8111-111111111111
-          minItems: 1
+          maxItems: 500
       additionalProperties: false
       required:
         - nome
@@ -2379,6 +2432,7 @@ components:
           type: string
           example: Entrega 1
         versoes:
+          description: Itens com código, título e número congelados na criação.
           type: array
           items:
             type: object
@@ -2395,20 +2449,44 @@ components:
                 type: string
                 example: 11111111-1111-4111-8111-111111111111
                 format: uuid
+              codigo:
+                type: string
+                example: REQ-42
+              titulo:
+                type: string
+                example: Exportar documento
+              numero:
+                type: integer
+                example: 1
+                minimum: 1
             additionalProperties: false
             required:
               - requisitoId
               - versaoId
               - retratoId
+              - codigo
+              - titulo
+              - numero
             example:
               requisitoId: 11111111-1111-4111-8111-111111111111
               versaoId: 33333333-3333-4333-8333-333333333333
               retratoId: 11111111-1111-4111-8111-111111111111
+              codigo: REQ-42
+              titulo: Exportar documento
+              numero: 1
           example: &id003
             - requisitoId: 11111111-1111-4111-8111-111111111111
               versaoId: 33333333-3333-4333-8333-333333333333
               retratoId: 11111111-1111-4111-8111-111111111111
+              codigo: REQ-42
+              titulo: Exportar documento
+              numero: 1
           minItems: 1
+        quantidade:
+          type: integer
+          minimum: 0
+          example: 1
+          description: Quantidade de itens no resumo da listagem.
         autor:
           type: string
           example: 11111111-1111-4111-8111-111111111111
@@ -2423,7 +2501,6 @@ components:
         - baselineId
         - projetoId
         - nome
-        - versoes
         - autor
         - data
       example:
@@ -2433,6 +2510,53 @@ components:
         versoes: *id003
         autor: 11111111-1111-4111-8111-111111111111
         data: '2026-10-21T15:00:00Z'
+    ComparacaoBaseline:
+      type: object
+      properties:
+        itens:
+          type: array
+          items:
+            type: object
+            properties:
+              requisitoId:
+                type: string
+                format: uuid
+                example: 11111111-1111-4111-8111-111111111111
+              codigo:
+                type: string
+                example: REQ-42
+              titulo:
+                type: string
+                example: Exportar documento
+              situacao:
+                type: string
+                enum: [INALTERADO, ALTERADO, FORA_DO_LIVRO, NOVO]
+                example: ALTERADO
+              numeroBaseline:
+                type: integer
+                minimum: 1
+                example: 1
+              numeroAtual:
+                type: integer
+                minimum: 1
+                example: 2
+            required: [requisitoId, codigo, titulo, situacao]
+            additionalProperties: false
+            example: {requisitoId: 11111111-1111-4111-8111-111111111111, codigo: REQ-42, titulo: Exportar documento, situacao: ALTERADO, numeroBaseline: 1, numeroAtual: 2}
+          example: []
+        contagens:
+          type: object
+          properties:
+            INALTERADO: {type: integer, minimum: 0, example: 0}
+            ALTERADO: {type: integer, minimum: 0, example: 0}
+            FORA_DO_LIVRO: {type: integer, minimum: 0, example: 0}
+            NOVO: {type: integer, minimum: 0, example: 0}
+          required: [INALTERADO, ALTERADO, FORA_DO_LIVRO, NOVO]
+          additionalProperties: false
+          example: {INALTERADO: 0, ALTERADO: 0, FORA_DO_LIVRO: 0, NOVO: 0}
+      required: [itens, contagens]
+      additionalProperties: false
+      example: {itens: [], contagens: {INALTERADO: 0, ALTERADO: 0, FORA_DO_LIVRO: 0, NOVO: 0}}
     Historico:
       type: object
       properties:

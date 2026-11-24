@@ -24,6 +24,10 @@ escapar() {
 }
 
 destino=/tmp/athena-definitions.json
+# Num restart do container o arquivo da subida anterior continua em /tmp, com dono
+# rabbitmq; com fs.protected_regular o kernel impede até o root de reabri-lo para
+# escrita. Remover antes de gerar de novo.
+rm -f "$destino"
 umask 077
 sed -e "s|__USUARIO__|$(escapar "$RABBITMQ_DEFAULT_USER")|g" \
     -e "s|__SENHA__|$(escapar "$RABBITMQ_DEFAULT_PASS")|g" \

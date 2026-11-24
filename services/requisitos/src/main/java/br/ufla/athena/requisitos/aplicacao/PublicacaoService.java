@@ -18,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -32,17 +31,17 @@ public class PublicacaoService {
     private final JdbcTemplate banco;
     private final EmissorMensagens emissor;
     private final EntityManager entidades;
-    private final UUID autor;
+    private final UsuarioAtual usuario;
 
     public PublicacaoService(RequisitoRepository requisitos, PublicacaoRepository publicacoes,
                              JdbcTemplate banco, EmissorMensagens emissor, EntityManager entidades,
-                             @Value("${athena.usuario-demo}") UUID autor) {
+                             UsuarioAtual usuario) {
         this.requisitos = requisitos;
         this.publicacoes = publicacoes;
         this.banco = banco;
         this.emissor = emissor;
         this.entidades = entidades;
-        this.autor = autor;
+        this.usuario = usuario;
     }
 
     @Transactional
@@ -100,7 +99,7 @@ public class PublicacaoService {
             throw new IllegalStateException("Submissão concluída sem retrato");
         }
         Instant agora = Instant.now().truncatedTo(ChronoUnit.MICROS);
-        Publicacao publicacao = Publicacao.criar(requisitoId, candidata.getId(), entrada.submissaoId(), retrato, autor, agora);
+        Publicacao publicacao = Publicacao.criar(requisitoId, candidata.getId(), entrada.submissaoId(), retrato, usuario.obter(), agora);
         entidades.persist(publicacao);
         candidata.alterarEstado(EstadoVersao.PUBLICADA);
         requisito.registrarPublicacao();

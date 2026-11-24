@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,16 +34,16 @@ public class LoteService {
     private final LoteRepository lotes;
     private final DecisaoRepository decisoes;
     private final EmissorMensagens emissor;
-    private final UUID usuarioDemo;
+    private final UsuarioAtual usuario;
     private final JdbcTemplate banco;
     private final ObjectMapper json;
 
     public LoteService(LoteRepository lotes, DecisaoRepository decisoes, EmissorMensagens emissor,
-                       @Value("${athena.usuario-demo}") UUID usuarioDemo, JdbcTemplate banco, ObjectMapper json) {
+                       UsuarioAtual usuario, JdbcTemplate banco, ObjectMapper json) {
         this.lotes = lotes;
         this.decisoes = decisoes;
         this.emissor = emissor;
-        this.usuarioDemo = usuarioDemo;
+        this.usuario = usuario;
         this.banco = banco;
         this.json = json;
     }
@@ -134,7 +133,7 @@ public class LoteService {
                     "Há pendência bloqueante não resolvida neste lote.");
         }
 
-        Decisao decisao = decisoes.save(Decisao.registrar(lote, entrada.decisao(), entrada.justificativa(), usuarioDemo));
+        Decisao decisao = decisoes.save(Decisao.registrar(lote, entrada.decisao(), entrada.justificativa(), usuario.obter()));
         lote.encerrar();
         emitirEvento(lote, decisao);
         decisoes.flush();

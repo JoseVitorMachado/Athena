@@ -26,7 +26,7 @@ class LoteServiceIdempotenciaTest {
     void chaveAusenteRetornaPrecondicao() {
         JdbcTemplate banco = mock(JdbcTemplate.class);
         LoteService servico = new LoteService(mock(LoteRepository.class), mock(DecisaoRepository.class),
-                mock(EmissorMensagens.class), UUID.randomUUID(), banco, new ObjectMapper());
+                mock(EmissorMensagens.class), new UsuarioAtual(UUID.randomUUID()), banco, new ObjectMapper());
         Problema erro = assertThrows(Problema.class, () -> servico.decidir(UUID.randomUUID(), UUID.randomUUID(),
                 null, null, entrada()));
         assertEquals("IDEMPOTENCY_KEY_AUSENTE", erro.getBody().getProperties().get("codigo"));
@@ -45,7 +45,7 @@ class LoteServiceIdempotenciaTest {
             return List.of(mapper.mapRow(linha, 0));
         });
         LoteService servico = new LoteService(lotes, mock(DecisaoRepository.class), mock(EmissorMensagens.class),
-                UUID.randomUUID(), banco, new ObjectMapper());
+                new UsuarioAtual(UUID.randomUUID()), banco, new ObjectMapper());
         Problema erro = assertThrows(Problema.class, () -> servico.decidir(UUID.randomUUID(), UUID.randomUUID(),
                 null, "chave", entrada()));
         assertEquals("IDEMPOTENCY_KEY_REUTILIZADA", erro.getBody().getProperties().get("codigo"));
@@ -75,7 +75,7 @@ class LoteServiceIdempotenciaTest {
         });
         when(decisoes.findById(decisao.getId())).thenReturn(Optional.of(decisao));
         LoteService servico = new LoteService(lotes, decisoes, mock(EmissorMensagens.class),
-                UUID.randomUUID(), banco, json);
+                new UsuarioAtual(UUID.randomUUID()), banco, json);
 
         assertEquals(decisao.getId(), servico.decidir(projeto, lote.getId(), null, "chave", entrada).decisaoId());
         verifyNoInteractions(lotes);

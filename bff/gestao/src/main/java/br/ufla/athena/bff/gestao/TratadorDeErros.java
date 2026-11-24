@@ -9,12 +9,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class TratadorDeErros extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler(FalhaAutorizacao.class)
+    public ProblemDetail falhaAutorizacao(FalhaAutorizacao e) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(e.status()), e.getMessage());
+        problema.setProperty("codigo", e.codigo());
+        return problema;
+    }
+
     /** Sem o serviço dono do dado o BFF não inventa resposta: 503 em Problem Details. */
     @ExceptionHandler(DominioIndisponivelException.class)
     public ProblemDetail dominioIndisponivel(DominioIndisponivelException e) {
         ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
                 "O serviço " + e.getServico() + " não respondeu. Tente novamente em instantes.");
         problema.setTitle("Serviço indisponível");
+        problema.setProperty("codigo", "DOMINIO_INDISPONIVEL");
         return problema;
     }
 }

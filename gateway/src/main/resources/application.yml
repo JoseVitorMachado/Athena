@@ -25,6 +25,11 @@ athena:
     bff-gestao: ${BFF_GESTAO_URL}
     bff-livro: ${BFF_LIVRO_URL}
     impacto-mcp: ${IMPACTO_MCP_URL}
+    projetos-acesso: ${PROJETOS_ACESSO_URL}
+  # Origens extras aceitas em renovação e logout, separadas por vírgula. A origem
+  # do próprio Host já é aceita (acesso direto e Ingress); aqui entram os clientes
+  # servidos em outra porta, como no compose (livro §7.3: lista configurada, sem curinga).
+  origens-permitidas: ${ATHENA_ORIGENS_PERMITIDAS:}
 
 # O Actuator fica em outra porta, que não é publicada nem roteada: endpoints
 # técnicos não saem pela entrada pública (livro §6.1).

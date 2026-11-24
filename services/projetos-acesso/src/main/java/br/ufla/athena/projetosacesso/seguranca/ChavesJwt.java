@@ -32,11 +32,13 @@ public class ChavesJwt {
     private static final Logger LOG = LoggerFactory.getLogger(ChavesJwt.class);
 
     private final RSAPublicKey chavePublica;
+    private final RSAPrivateCrtKey chavePrivada;
     private final String kid;
 
     public ChavesJwt(@Value("${athena.jwt.chave-privada-arquivo:}") String arquivo) {
         try {
             RSAPrivateCrtKey privada = arquivo.isBlank() ? gerarEfemera() : ler(Path.of(arquivo));
+            this.chavePrivada = privada;
             KeyFactory fabrica = KeyFactory.getInstance("RSA");
             this.chavePublica = (RSAPublicKey) fabrica.generatePublic(
                     new RSAPublicKeySpec(privada.getModulus(), privada.getPublicExponent()));
@@ -46,6 +48,10 @@ public class ChavesJwt {
         } catch (GeneralSecurityException | IOException e) {
             throw new IllegalStateException("Não foi possível carregar a chave JWT", e);
         }
+    }
+
+    public RSAPrivateCrtKey chavePrivada() {
+        return chavePrivada;
     }
 
     public RSAPublicKey chavePublica() {

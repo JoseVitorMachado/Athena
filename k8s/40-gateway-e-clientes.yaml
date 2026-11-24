@@ -35,6 +35,11 @@ spec:
             - name: gestao
               containerPort: 8081
           env:
+            - name: PROJETOS_ACESSO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: PROJETOS_ACESSO_URL
             - name: BFF_GESTAO_URL
               valueFrom:
                 configMapKeyRef:

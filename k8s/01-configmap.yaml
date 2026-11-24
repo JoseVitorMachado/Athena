@@ -12,6 +12,7 @@ data:
   REQUISITOS_URL: http://requisitos:8080
   REVISOES_URL: http://revisoes:8080
   RASTREABILIDADE_URL: http://rastreabilidade:8080
+  PROJETOS_ACESSO_URL: http://projetos-acesso:8080
   BFF_GESTAO_URL: http://bff-gestao:8080
   BFF_LIVRO_URL: http://bff-livro:8080
   IMPACTO_MCP_URL: http://impacto-mcp:8000

@@ -91,9 +91,14 @@ services:
       BFF_GESTAO_URL: http://bff-gestao:8080
       BFF_LIVRO_URL: http://bff-livro:8080
       IMPACTO_MCP_URL: http://impacto-mcp:8000
+      PROJETOS_ACESSO_URL: http://projetos-acesso:8080
+      # Os clientes ficam em outras portas; o nginx deles repassa /api ao Gateway.
+      ATHENA_ORIGENS_PERMITIDAS: http://localhost:${FRONTEND_GESTAO_PORT:-4200},http://localhost:${FRONTEND_LIVRO_PORT:-4300}
     ports:
       - "${GATEWAY_PORT:-8080}:8080"
     depends_on:
+      projetos-acesso:
+        condition: service_healthy
       bff-gestao:
         condition: service_healthy
       bff-livro:
@@ -113,9 +118,9 @@ services:
     build:
       context: ./bff/gestao
     environment:
+      PROJETOS_ACESSO_URL: http://projetos-acesso:8080
       REQUISITOS_URL: http://requisitos:8080
       REVISOES_URL: http://revisoes:8080
-      ATHENA_PAPEL_DEMO: ${ATHENA_PAPEL_DEMO:-OWNER}
       RASTREABILIDADE_URL: http://rastreabilidade:8080
     depends_on:
       requisitos:
@@ -129,6 +134,7 @@ services:
     build:
       context: ./bff/livro
     environment:
+      PROJETOS_ACESSO_URL: http://projetos-acesso:8080
       REQUISITOS_URL: http://requisitos:8080
       RASTREABILIDADE_URL: http://rastreabilidade:8080
     depends_on:
@@ -147,6 +153,9 @@ services:
       context: ./services/projetos-acesso
     environment:
       <<: *rabbitmq-cliente
+      ATHENA_USUARIOS_DEMO: "true"
+      # HTTP local; em produção o cookie deve usar Secure.
+      ATHENA_COOKIE_SEGURO: "false"
       DB_HOST: db-projetos-acesso
       DB_NAME: projetos_acesso
       DB_USER: ${PROJETOS_ACESSO_DB_USER:-projetos_acesso}

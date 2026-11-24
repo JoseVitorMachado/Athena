@@ -298,7 +298,7 @@ paths:
     patch:
       operationId: editarEpico
       summary: Editar epico
-      description: §§5.2, 6.3, 7.4. PATCH de requisito altera somente responsavelId, epicoId e tipo; metadados não contornam bloqueios. Organização de documentos/épicos conforme inventário; confirmar fronteira com Mantenedor.
+      description: §§5.2, 6.3 e 7.4. Edita o épico mediante If-Match da revisão atual. BFF Gestão encaminha a operação ao domínio (§4.2).
       tags:
         - epicos
       x-papel-minimo: Editor
@@ -314,6 +314,7 @@ paths:
             type: string
             example: 11111111-1111-4111-8111-111111111111
             format: uuid
+        - $ref: '#/components/parameters/IfMatch'
       requestBody:
         required: true
         content:
@@ -337,12 +338,110 @@ paths:
           $ref: '#/components/responses/Erro404'
         '409':
           $ref: '#/components/responses/Erro409'
+        '412':
+          $ref: '#/components/responses/Erro412'
+        '428':
+          $ref: '#/components/responses/Erro428'
         '429':
           $ref: '#/components/responses/Erro429'
         '503':
           $ref: '#/components/responses/Erro503'
       x-proposta: true
       x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+      security:
+        - bearerJwt: []
+    get:
+      operationId: obterEpico
+      summary: Obter épico
+      description: §§5.2 e 6.3. Consulta o épico e retorna ETag da revisão. BFF Gestão encaminha a operação ao domínio (§4.2).
+      tags:
+        - epicos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: epicoId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Epico'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+      security:
+        - bearerJwt: []
+    delete:
+      operationId: excluirEpico
+      summary: Excluir épico
+      description: §§5.2 e 6.3. Exige If-Match. Retorna 409 se houver requisito ATIVO vinculado; requisitos cancelados são desvinculados. BFF Gestão encaminha a operação ao domínio (§4.2).
+      tags:
+        - epicos
+      x-papel-minimo: Editor
+      x-escopo-mcp: athena:write
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+        - name: epicoId
+          in: path
+          required: true
+          description: UUID do recurso (§5.1).
+          schema:
+            type: string
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '204':
+          description: Épico excluído (§6.2).
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '404':
+          $ref: '#/components/responses/Erro404'
+        '409':
+          $ref: '#/components/responses/Erro409'
+        '412':
+          $ref: '#/components/responses/Erro412'
+        '428':
+          $ref: '#/components/responses/Erro428'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+      security:
+        - bearerJwt: []
   /api/v1/projetos/{projetoId}/requisitos:
     get:
       operationId: listarRequisitos
@@ -676,7 +775,7 @@ paths:
     get:
       operationId: obterVersao
       summary: Obter versao
-      description: §§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis.
+      description: §§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis. O ETag identifica a revisão da versão e serve como If-Match para abrir candidata a partir da versão publicada (§6.3).
       tags:
         - versoes
       x-papel-minimo: Leitor
@@ -1185,7 +1284,7 @@ paths:
     get:
       operationId: listarComentarios
       summary: Listar comentarios
-      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF Gestão encaminha a operação ao domínio (§4.2).
       tags:
         - comentarios
       x-papel-minimo: Repórter
@@ -1197,6 +1296,12 @@ paths:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
         - $ref: '#/components/parameters/Sort'
+        - name: resolvido
+          in: query
+          description: Filtra comentários pelo estado de resolução (§7.4).
+          schema:
+            type: boolean
+            example: false
       responses:
         '200':
           description: Consulta ou alteração concluída (§6.2).
@@ -1220,10 +1325,12 @@ paths:
           $ref: '#/components/responses/Erro503'
       x-proposta: true
       x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+      security:
+        - bearerJwt: []
     post:
       operationId: criarComentario
       summary: Criar comentario
-      description: §7.4. Vincula versão e menções; âncora perdida fica NAO_LOCALIZADA, nunca reassociada silenciosamente.
+      description: §7.4. Vincula versão e menções; âncora perdida fica NAO_LOCALIZADA, nunca reassociada silenciosamente. Menções devem identificar membros do projeto; caso contrário, retorna 400. BFF Gestão encaminha a operação ao domínio (§4.2).
       tags:
         - comentarios
       x-papel-minimo: Repórter
@@ -1264,6 +1371,8 @@ paths:
           $ref: '#/components/responses/Erro503'
       x-proposta: true
       x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
+      security:
+        - bearerJwt: []
   /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId}:
     patch:
       operationId: editarComentario
@@ -1585,17 +1694,24 @@ components:
           example: '2026-10-21T15:00:00Z'
           format: date-time
           pattern: Z$
+        quantidadeRequisitos:
+          type: integer
+          minimum: 0
+          example: 0
+          description: Quantidade de requisitos ATIVOS vinculados (§5.2).
       additionalProperties: false
       required:
         - epicoId
         - projetoId
         - titulo
         - atualizadoEm
+        - quantidadeRequisitos
       example:
         epicoId: 11111111-1111-4111-8111-111111111111
         projetoId: 22222222-2222-4222-8222-222222222222
         titulo: Documentação
         atualizadoEm: '2026-10-21T15:00:00Z'
+        quantidadeRequisitos: 0
     EpicoPatch:
       type: object
       properties:
@@ -1798,6 +1914,10 @@ components:
           example: '2026-10-21T15:00:00Z'
           format: date-time
           pattern: Z$
+        noLivro:
+          type: boolean
+          example: false
+          description: §5.3. Indica requisito ATIVO com versão publicada e não cancelado depois da última publicação; após reativação só volta ao Livro mediante nova publicação.
       additionalProperties: false
       required:
         - requisitoId
@@ -1806,6 +1926,7 @@ components:
         - titulo
         - situacao
         - atualizadoEm
+        - noLivro
       example:
         requisitoId: 11111111-1111-4111-8111-111111111111
         projetoId: 22222222-2222-4222-8222-222222222222
@@ -1813,6 +1934,7 @@ components:
         titulo: Exportar documento de requisitos.
         situacao: ATIVO
         atualizadoEm: '2026-10-21T15:00:00Z'
+        noLivro: false
     SubmissaoEntrada:
       type: object
       properties:
@@ -2117,6 +2239,10 @@ components:
           example: '2026-10-21T15:00:00Z'
           format: date-time
           pattern: Z$
+        requisitoId:
+          type: string
+          format: uuid
+          example: 11111111-1111-4111-8111-111111111111
       additionalProperties: false
       required:
         - comentarioId
@@ -2124,12 +2250,14 @@ components:
         - autor
         - texto
         - atualizadoEm
+        - requisitoId
       example:
         comentarioId: 11111111-1111-4111-8111-111111111111
         versaoId: 33333333-3333-4333-8333-333333333333
         autor: 11111111-1111-4111-8111-111111111111
         texto: Rever este critério.
         atualizadoEm: '2026-10-21T15:00:00Z'
+        requisitoId: 11111111-1111-4111-8111-111111111111
     BaselineEntrada:
       type: object
       properties:
@@ -2882,6 +3010,14 @@ components:
           - atualizadoEm,asc
           - id,asc
           - id,desc
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      description: §6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo.
+      schema:
+        type: string
+        example: '"rev-7"'
     RequisitoId:
       name: requisitoId
       in: path
@@ -2891,14 +3027,6 @@ components:
         type: string
         example: 11111111-1111-4111-8111-111111111111
         format: uuid
-    IfMatch:
-      name: If-Match
-      in: header
-      required: true
-      description: §6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo.
-      schema:
-        type: string
-        example: '"rev-7"'
     IdempotencyKey:
       name: Idempotency-Key
       in: header

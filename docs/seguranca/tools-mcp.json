@@ -294,7 +294,7 @@
     },
     {
       "name": "editarEpico",
-      "description": "§§5.2, 6.3, 7.4. PATCH de requisito altera somente responsavelId, epicoId e tipo; metadados não contornam bloqueios. Organização de documentos/épicos conforme inventário; confirmar fronteira com Mantenedor.",
+      "description": "§§5.2, 6.3 e 7.4. Edita o épico mediante If-Match da revisão atual. BFF Gestão encaminha a operação ao domínio (§4.2).",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -310,6 +310,11 @@
             "example": "11111111-1111-4111-8111-111111111111",
             "format": "uuid",
             "description": "UUID do recurso (§5.1). Encaminhar em path como epicoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
           },
           "corpo": {
             "type": "object",
@@ -333,6 +338,7 @@
         "required": [
           "projetoId",
           "epicoId",
+          "ifMatch",
           "corpo"
         ],
         "additionalProperties": false
@@ -340,6 +346,80 @@
       "x-dominio": "requisitos",
       "x-operacao-dominio": "editarEpico",
       "x-metodo": "PATCH",
+      "x-rota": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Editor",
+      "x-escopo": "athena:write"
+    },
+    {
+      "name": "obterEpico",
+      "description": "§§5.2 e 6.3. Consulta o épico e retorna ETag da revisão. BFF Gestão encaminha a operação ao domínio (§4.2).",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "epicoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como epicoId."
+          }
+        },
+        "required": [
+          "projetoId",
+          "epicoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "obterEpico",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
+      "name": "excluirEpico",
+      "description": "§§5.2 e 6.3. Exige If-Match. Retorna 409 se houver requisito ATIVO vinculado; requisitos cancelados são desvinculados. BFF Gestão encaminha a operação ao domínio (§4.2).",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "epicoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID do recurso (§5.1). Encaminhar em path como epicoId."
+          },
+          "ifMatch": {
+            "type": "string",
+            "example": "\"rev-7\"",
+            "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+          }
+        },
+        "required": [
+          "projetoId",
+          "epicoId",
+          "ifMatch"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "excluirEpico",
+      "x-metodo": "DELETE",
       "x-rota": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
       "x-projeto": "projetoId",
       "x-papel-minimo": "Editor",
@@ -796,7 +876,7 @@
     },
     {
       "name": "obterVersao",
-      "description": "§§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis.",
+      "description": "§§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis. O ETag identifica a revisão da versão e serve como If-Match para abrir candidata a partir da versão publicada (§6.3).",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -1364,7 +1444,7 @@
     },
     {
       "name": "listarComentarios",
-      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
+      "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF Gestão encaminha a operação ao domínio (§4.2).",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -1407,6 +1487,11 @@
               "id,desc"
             ],
             "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+          },
+          "resolvido": {
+            "type": "boolean",
+            "example": false,
+            "description": "Filtra comentários pelo estado de resolução (§7.4). Encaminhar em query como resolvido."
           }
         },
         "required": [
@@ -1425,7 +1510,7 @@
     },
     {
       "name": "criarComentario",
-      "description": "§7.4. Vincula versão e menções; âncora perdida fica NAO_LOCALIZADA, nunca reassociada silenciosamente.",
+      "description": "§7.4. Vincula versão e menções; âncora perdida fica NAO_LOCALIZADA, nunca reassociada silenciosamente. Menções devem identificar membros do projeto; caso contrário, retorna 400. BFF Gestão encaminha a operação ao domínio (§4.2).",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -2636,7 +2721,7 @@
     },
     {
       "name": "criarArquivamento",
-      "description": "§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.",
+      "description": "§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações. O arquivamento é síncrono; o BFF recusa escritas em projeto arquivado com 409, exceto a restauração.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -2671,7 +2756,7 @@
     },
     {
       "name": "criarRestauracao",
-      "description": "§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.",
+      "description": "§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações. O arquivamento é síncrono; o BFF recusa escritas em projeto arquivado com 409, exceto a restauração.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",

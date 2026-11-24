@@ -692,6 +692,106 @@
       "politica": "Definida"
     },
     {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/convites",
+      "operacaoDominio": "gestaoListarConvitesRecebidos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/transferencias-propriedade",
+      "operacaoDominio": "gestaoListarTransferenciasRecebidos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/epicos",
+      "operacaoDominio": "gestaoListarEpicos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/epicos",
+      "operacaoDominio": "gestaoCriarEpico",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/epicos/{epicoId}",
+      "operacaoDominio": "gestaoObterEpico",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/epicos/{epicoId}",
+      "operacaoDominio": "gestaoEditarEpico",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/epicos/{epicoId}",
+      "operacaoDominio": "gestaoExcluirEpico",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+      "operacaoDominio": "gestaoListarComentarios",
+      "papelMinimo": "Repórter",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+      "operacaoDominio": "gestaoCriarComentario",
+      "papelMinimo": "Repórter",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
+      "metodo": "PATCH",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId}",
+      "operacaoDominio": "gestaoEditarComentario",
+      "papelMinimo": "Repórter",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
       "contrato": "bff-livro.yaml",
       "metodo": "GET",
       "rota": "/api/v1/livro/projetos/{projetoId}/livro",
@@ -1422,6 +1522,26 @@
       "politica": "Pendente"
     },
     {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/convites",
+      "operacaoDominio": "listarConvitesRecebidos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "projetos-acesso.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/transferencias-propriedade",
+      "operacaoDominio": "listarTransferenciasRecebidos",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
       "contrato": "rastreabilidade.yaml",
       "metodo": "GET",
       "rota": "/api/v1/projetos/{projetoId}/relacoes",
@@ -1573,9 +1693,29 @@
     },
     {
       "contrato": "requisitos.yaml",
+      "metodo": "GET",
+      "rota": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+      "operacaoDominio": "obterEpico",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
       "metodo": "PATCH",
       "rota": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
       "operacaoDominio": "editarEpico",
+      "papelMinimo": "Editor",
+      "escopo": "athena:write",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "requisitos.yaml",
+      "metodo": "DELETE",
+      "rota": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+      "operacaoDominio": "excluirEpico",
       "papelMinimo": "Editor",
       "escopo": "athena:write",
       "interno": "Não",

@@ -23,6 +23,8 @@ Erros: devolver falha MCP estruturada com codigo, traceId e status de domínio, 
 | listarEpicos | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/epicos |
 | criarEpico | requisitos | Editor | athena:write | POST /api/v1/projetos/{projetoId}/epicos |
 | editarEpico | requisitos | Editor | athena:write | PATCH /api/v1/projetos/{projetoId}/epicos/{epicoId} |
+| obterEpico | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/epicos/{epicoId} |
+| excluirEpico | requisitos | Editor | athena:write | DELETE /api/v1/projetos/{projetoId}/epicos/{epicoId} |
 | listarRequisitos | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/requisitos |
 | criarRequisito | requisitos | Editor | athena:write | POST /api/v1/projetos/{projetoId}/requisitos |
 | obterRequisito | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/requisitos/{requisitoId} |
@@ -381,7 +383,7 @@ Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domíni
 
 Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
 
-§§5.2, 6.3, 7.4. PATCH de requisito altera somente responsavelId, epicoId e tipo; metadados não contornam bloqueios. Organização de documentos/épicos conforme inventário; confirmar fronteira com Mantenedor.
+§§5.2, 6.3 e 7.4. Edita o épico mediante If-Match da revisão atual. BFF Gestão encaminha a operação ao domínio (§4.2).
 
 ```json
 {
@@ -399,6 +401,11 @@ Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
       "example": "11111111-1111-4111-8111-111111111111",
       "format": "uuid",
       "description": "UUID do recurso (§5.1). Encaminhar em path como epicoId."
+    },
+    "ifMatch": {
+      "type": "string",
+      "example": "\"rev-7\"",
+      "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
     },
     "corpo": {
       "type": "object",
@@ -422,7 +429,78 @@ Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
   "required": [
     "projetoId",
     "epicoId",
+    "ifMatch",
     "corpo"
+  ],
+  "additionalProperties": false
+}
+```
+
+## obterEpico
+
+Papel mínimo: **Leitor**; escopo **athena:read**; projeto **projetoId**.
+
+§§5.2 e 6.3. Consulta o épico e retorna ETag da revisão. BFF Gestão encaminha a operação ao domínio (§4.2).
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "projetoId": {
+      "type": "string",
+      "example": "22222222-2222-4222-8222-222222222222",
+      "format": "uuid",
+      "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+    },
+    "epicoId": {
+      "type": "string",
+      "example": "11111111-1111-4111-8111-111111111111",
+      "format": "uuid",
+      "description": "UUID do recurso (§5.1). Encaminhar em path como epicoId."
+    }
+  },
+  "required": [
+    "projetoId",
+    "epicoId"
+  ],
+  "additionalProperties": false
+}
+```
+
+## excluirEpico
+
+Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
+
+§§5.2 e 6.3. Exige If-Match. Retorna 409 se houver requisito ATIVO vinculado; requisitos cancelados são desvinculados. BFF Gestão encaminha a operação ao domínio (§4.2).
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "projetoId": {
+      "type": "string",
+      "example": "22222222-2222-4222-8222-222222222222",
+      "format": "uuid",
+      "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+    },
+    "epicoId": {
+      "type": "string",
+      "example": "11111111-1111-4111-8111-111111111111",
+      "format": "uuid",
+      "description": "UUID do recurso (§5.1). Encaminhar em path como epicoId."
+    },
+    "ifMatch": {
+      "type": "string",
+      "example": "\"rev-7\"",
+      "description": "§6.3. ETag forte do recurso alvo da ação. Comparação e gravação atômicas; ausente 428, divergente 412. A revisão técnica não é a versão do conteúdo. Encaminhar em header como If-Match."
+    }
+  },
+  "required": [
+    "projetoId",
+    "epicoId",
+    "ifMatch"
   ],
   "additionalProperties": false
 }
@@ -869,7 +947,7 @@ Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domíni
 
 Papel mínimo: **Leitor**; escopo **athena:read**; projeto **projetoId**.
 
-§§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis.
+§§5.2, 6.5–6.9. Registro histórico preservado; versão PUBLICADA e registro de publicação imutáveis. O ETag identifica a revisão da versão e serve como If-Match para abrir candidata a partir da versão publicada (§6.3).
 
 ```json
 {
@@ -1417,7 +1495,7 @@ Papel mínimo: **Editor**; escopo **athena:write**; projeto **projetoId**.
 
 Papel mínimo: **Repórter**; escopo **athena:read**; projeto **projetoId**.
 
-Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário. BFF Gestão encaminha a operação ao domínio (§4.2).
 
 ```json
 {
@@ -1462,6 +1540,11 @@ Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domíni
         "id,desc"
       ],
       "description": "§6.2: id é desempate estável; valor fora do enum retorna 400. Operações especializam o enum. Encaminhar em query como sort."
+    },
+    "resolvido": {
+      "type": "boolean",
+      "example": false,
+      "description": "Filtra comentários pelo estado de resolução (§7.4). Encaminhar em query como resolvido."
     }
   },
   "required": [
@@ -1476,7 +1559,7 @@ Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domíni
 
 Papel mínimo: **Repórter**; escopo **athena:write**; projeto **projetoId**.
 
-§7.4. Vincula versão e menções; âncora perdida fica NAO_LOCALIZADA, nunca reassociada silenciosamente.
+§7.4. Vincula versão e menções; âncora perdida fica NAO_LOCALIZADA, nunca reassociada silenciosamente. Menções devem identificar membros do projeto; caso contrário, retorna 400. BFF Gestão encaminha a operação ao domínio (§4.2).
 
 ```json
 {
@@ -2651,7 +2734,7 @@ Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domíni
 
 Papel mínimo: **Mantenedor**; escopo **athena:admin**; projeto **projetoId**.
 
-§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.
+§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações. O arquivamento é síncrono; o BFF recusa escritas em projeto arquivado com 409, exceto a restauração.
 
 Decisão pendente: Arquivamento assíncrono exige recurso de acompanhamento? 201 só após quiescência confirmada.
 
@@ -2685,7 +2768,7 @@ Decisão pendente: Arquivamento assíncrono exige recurso de acompanhamento? 201
 
 Papel mínimo: **Mantenedor**; escopo **athena:admin**; projeto **projetoId**.
 
-§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações.
+§§5.6, 9.2. Arquivar permite consulta e bloqueia escritas; restaurar reabre projeto. Barreira persistida bloqueia novas admissões e aguarda quiescência; não anunciar conclusão antes das confirmações. O arquivamento é síncrono; o BFF recusa escritas em projeto arquivado com 409, exceto a restauração.
 
 Decisão pendente: Arquivamento assíncrono exige recurso de acompanhamento? 201 só após quiescência confirmada.
 

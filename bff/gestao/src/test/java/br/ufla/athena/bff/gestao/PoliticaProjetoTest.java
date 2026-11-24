@@ -20,6 +20,16 @@ class PoliticaProjetoTest {
         assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("POST", BASE + "/restauracoes"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/requisitos/r"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/mapa"));
+        assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/membros"));
+        assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/historico-membros"));
+        assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("GET", BASE + "/convites"));
+        assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("PATCH", BASE + "/membros/m"));
+        assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("DELETE", BASE + "/membros/m"));
+        assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("POST", BASE + "/convites"));
+        assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("DELETE", BASE + "/convites/c"));
+        assertEquals(Papel.OWNER, PoliticaProjeto.papelMinimo("POST", BASE + "/transferencias-propriedade"));
+        assertNull(PoliticaProjeto.papelMinimo("PATCH", BASE + "/membros"));
+        assertNull(PoliticaProjeto.papelMinimo("DELETE", BASE + "/convites"));
         assertEquals(Papel.EDITOR, PoliticaProjeto.papelMinimo("POST", BASE + "/requisitos"));
         assertEquals(Papel.EDITOR, PoliticaProjeto.papelMinimo("PATCH", BASE + "/requisitos/r/candidata"));
         assertEquals(Papel.EDITOR, PoliticaProjeto.papelMinimo("POST", BASE + "/requisitos/r/submissoes"));

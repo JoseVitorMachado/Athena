@@ -24,8 +24,15 @@ final class Caminhos {
             if (uri.getRawQuery() != null) {
                 caminho += "?" + uri.getRawQuery();
             }
-            if (corresponde(caminho, "/api/v1/projetos") || corresponde(caminho, "/api/v1/workspaces")) {
+            if (corresponde(caminho, "/api/v1/projetos") || corresponde(caminho, "/api/v1/workspaces")
+                    || corresponde(caminho, "/api/v1/convites")
+                    || corresponde(caminho, "/api/v1/transferencias-propriedade")) {
                 return paraGestao(caminho);
+            }
+        }
+        for (String base : new String[]{"/api/v1/convites", "/api/v1/transferencias-propriedade"}) {
+            if (corresponde(caminhoDeDominio, base)) {
+                return "/api/v1/gestao" + caminhoDeDominio.substring("/api/v1".length());
             }
         }
         if (corresponde(caminhoDeDominio, "/api/v1/workspaces")) {

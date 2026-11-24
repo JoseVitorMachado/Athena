@@ -36,8 +36,10 @@ public class MapaService {
                 throw new Problema(HttpStatus.SERVICE_UNAVAILABLE, "MAPA_INDISPONIVEL", "Projeção do mapa indisponível.");
             }
             Estado estado = estados.get(0);
-            List<No> nos = banco.query("SELECT requisito_id, titulo, situacao FROM mapa_nos WHERE projeto_id = ? ORDER BY requisito_id LIMIT 501",
-                    (rs, n) -> new No(rs.getObject(1, UUID.class), rs.getString(2), rs.getString(3)), projeto);
+            List<No> nos = banco.query("SELECT requisito_id, titulo, situacao, codigo, tipo, epico_id, responsavel_id FROM mapa_nos "
+                    + "WHERE projeto_id = ? ORDER BY requisito_id LIMIT 501",
+                    (rs, n) -> new No(rs.getObject(1, UUID.class), rs.getString(2), rs.getString(3), rs.getString(4),
+                            rs.getString(5), rs.getObject(6, UUID.class), rs.getObject(7, UUID.class)), projeto);
             List<Aresta> arestas = banco.query("SELECT relacao_id, projeto_id, origem_id, destino_id, tipo, justificativa, atualizado_em "
                     + "FROM mapa_arestas WHERE projeto_id = ? AND NOT removida ORDER BY relacao_id LIMIT 1001",
                     (rs, n) -> new Aresta(rs.getObject(1, UUID.class), rs.getObject(2, UUID.class), rs.getObject(3, UUID.class),
@@ -108,7 +110,10 @@ public class MapaService {
         }
     }
 
-    public record No(UUID requisitoId, String titulo, String situacao) { }
+    /** Nó do mapa; tipo, épico e responsável ficam ausentes quando não definidos. */
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+    public record No(UUID requisitoId, String titulo, String situacao, String codigo, String tipo, UUID epicoId,
+                     UUID responsavelId) { }
     public record Aresta(UUID relacaoId, UUID projetoId, UUID origemId, UUID destinoId, String tipo, String justificativa, Instant atualizadoEm) { }
     public record Mapa(List<No> nos, List<Aresta> arestas, boolean truncado, Instant ultimaAtualizacao, String situacaoProjecao, UUID geracao) { }
     public record Resultado(Mapa mapa, String etag) { }

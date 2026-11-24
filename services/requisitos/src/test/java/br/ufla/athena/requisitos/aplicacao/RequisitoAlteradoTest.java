@@ -24,6 +24,20 @@ class RequisitoAlteradoTest {
                 "codigo", "REQ-7",
                 "titulo", "Título",
                 "situacao", "ATIVO",
-                "revisao", requisito.getRevisao()), payload);
+                "revisao", requisito.getRevisao(),
+                "tipo", "FUNCIONAL",
+                "epicoId", requisito.getEpicoId(),
+                "responsavelId", requisito.getResponsavelId()), payload);
+    }
+
+    @Test
+    void omiteMetadadosAusentes() {
+        Requisito requisito = Requisito.novo(UUID.randomUUID(), 8, UUID.randomUUID(), null, null, null,
+                "Título", "Conteúdo", List.of("Critério"));
+
+        Map<String, Object> payload = RequisitoService.payloadRequisitoAlterado(requisito);
+
+        assertEquals(java.util.Set.of("requisitoId", "projetoId", "codigo", "titulo", "situacao", "revisao"),
+                payload.keySet());
     }
 }

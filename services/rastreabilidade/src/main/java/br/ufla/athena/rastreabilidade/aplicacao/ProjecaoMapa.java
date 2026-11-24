@@ -33,12 +33,14 @@ public class ProjecaoMapa {
             return;
         }
         if (tipo.equals("RequisitoAlterado")) {
-            banco.update("INSERT INTO mapa_nos (projeto_id, requisito_id, codigo, titulo, situacao, revisao_origem, atualizado_em) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, now()) ON CONFLICT (projeto_id, requisito_id) DO UPDATE SET "
+            banco.update("INSERT INTO mapa_nos (projeto_id, requisito_id, codigo, titulo, situacao, tipo, epico_id, responsavel_id, revisao_origem, atualizado_em) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, now()) ON CONFLICT (projeto_id, requisito_id) DO UPDATE SET "
                     + "codigo = EXCLUDED.codigo, titulo = EXCLUDED.titulo, situacao = EXCLUDED.situacao, "
+                    + "tipo = EXCLUDED.tipo, epico_id = EXCLUDED.epico_id, responsavel_id = EXCLUDED.responsavel_id, "
                     + "revisao_origem = EXCLUDED.revisao_origem, atualizado_em = now() "
                     + "WHERE mapa_nos.revisao_origem < EXCLUDED.revisao_origem", projeto, id(dados, "requisitoId"),
-                    dados.get("codigo"), dados.get("titulo"), dados.get("situacao"), revisao);
+                    dados.get("codigo"), dados.get("titulo"), dados.get("situacao"), dados.get("tipo"),
+                    idOpcional(dados, "epicoId"), idOpcional(dados, "responsavelId"), revisao);
         } else {
             boolean removida = tipo.equals("RelacaoRemovida");
             banco.update("INSERT INTO mapa_arestas (relacao_id, projeto_id, origem_id, destino_id, tipo, justificativa, revisao_origem, atualizado_em, removida) "
@@ -60,6 +62,10 @@ public class ProjecaoMapa {
 
     private static UUID id(Map<String, Object> dados, String campo) {
         return UUID.fromString(dados.get(campo).toString());
+    }
+
+    private static UUID idOpcional(Map<String, Object> dados, String campo) {
+        return dados.get(campo) == null ? null : id(dados, campo);
     }
 
     private static long numero(Map<String, Object> dados, String campo) {

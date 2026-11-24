@@ -35,9 +35,12 @@ public class RequisitosGestaoController {
     private final ClienteDominio dominio;
     private final String requisitosUrl;
     private final String revisoesUrl;
+    private final PapelAtual papelAtual;
+    private final MontadorAcoes montador = new MontadorAcoes();
 
-    public RequisitosGestaoController(ClienteDominio dominio, AthenaProperties propriedades) {
+    public RequisitosGestaoController(ClienteDominio dominio, AthenaProperties propriedades, PapelAtual papelAtual) {
         this.dominio = dominio;
+        this.papelAtual = papelAtual;
         this.requisitosUrl = propriedades.servicos().requisitos();
         this.revisoesUrl = propriedades.servicos().revisoes();
     }
@@ -94,6 +97,21 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/submissoes/" + submissaoId));
     }
 
+    @GetMapping("/{requisitoId}/versoes")
+    public ResponseEntity<JsonNode> listarVersoes(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+                                                   HttpServletRequest pedido) {
+        String query = pedido.getQueryString() == null ? "" : "?" + pedido.getQueryString();
+        return repassar(dominio.get("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/versoes" + query));
+    }
+
+    @GetMapping("/{requisitoId}/versoes/{versaoId}")
+    public ResponseEntity<JsonNode> obterVersao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+                                                @PathVariable UUID versaoId) {
+        return repassar(dominio.get("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/versoes/" + versaoId));
+    }
+
     @GetMapping("/{requisitoId}/publicacoes")
     public ResponseEntity<JsonNode> listarPublicacoes(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
                                                        HttpServletRequest pedido) {
@@ -128,23 +146,31 @@ public class RequisitosGestaoController {
         copiar(origem, visao, "requisitoId", "projetoId", "codigo", "titulo", "situacao");
 
         JsonNode candidata = origem.get("candidata");
-        if (candidata != null) {
+        if (candidata != null && candidata.isObject()) {
             visao.set("versaoEmEdicao", candidata.get("numero"));
             visao.set("versaoId", candidata.get("versaoId"));
             visao.set("estadoVersao", candidata.get("estadoVersao"));
         }
 
-        acrescentarRevisao(projetoId, requisitoId, visao, avisos);
+        Resposta submissoes = dominio.get("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/submissoes?size=1");
+        if (!submissoes.sucesso()) {
+            return repassar(submissoes);
+        }
+        JsonNode submissao = submissoes.corpo().path("items").path(0);
+        JsonNode lote = acrescentarRevisao(projetoId, requisitoId, submissao, visao, avisos);
 
         visao.set("atualizadoEm", origem.get("atualizadoEm"));
 
-        String self = Caminhos.GESTAO + projetoId + "/requisitos/" + requisitoId;
-        ObjectNode links = visao.putObject("_links");
-        links.putObject("self").put("href", self);
-        links.putObject("colecao").put("href", Caminhos.GESTAO + projetoId + "/requisitos");
-        // As ações (submeter, publicar...) dependem de estado e papel; entram junto
-        // com as operações de escrita e a autenticação, na Parte 4.
-        visao.putObject("_actions");
+        String estado = texto(candidata, "estadoVersao");
+        if (estado == null && !origem.hasNonNull("versaoPublicadaId")) {
+            estado = "SEM_VERSAO";
+        }
+        MontadorAcoes.Resultado navegacao = montador.montar(projetoId.toString(), requisitoId.toString(),
+                texto(origem, "situacao"), estado, texto(lote, "loteId"),
+                texto(lote, "estado"), texto(submissao, "submissaoId"), papelAtual.obter());
+        visao.set("_links", JSON.pojoNode(navegacao.links()));
+        visao.set("_actions", JSON.pojoNode(navegacao.actions()));
         visao.set("avisos", avisos);
 
         // O ETag é o do requisito no serviço proprietário; o BFF não calcula outro.
@@ -161,17 +187,25 @@ public class RequisitosGestaoController {
      * requisito é entregue mesmo assim, com um aviso, e sem presumir nada sobre a
      * revisão (docs/api/README.md, "Mesmo requisito nos dois clientes").
      */
-    private void acrescentarRevisao(UUID projetoId, UUID requisitoId, ObjectNode visao, ArrayNode avisos) {
+    private JsonNode acrescentarRevisao(UUID projetoId, UUID requisitoId, JsonNode submissao,
+                                        ObjectNode visao, ArrayNode avisos) {
         try {
-            Resposta lotes = dominio.get("revisoes", revisoesUrl,
-                    Caminhos.DOMINIO + projetoId + "/lotes?requisitoId=" + requisitoId + "&size=1");
+            String loteId = texto(submissao, "loteId");
+            String caminho = Caminhos.DOMINIO + projetoId + "/lotes";
+            Resposta lotes = dominio.get("revisoes", revisoesUrl, loteId == null
+                    ? caminho + "?requisitoId=" + requisitoId + "&size=1"
+                    : caminho + "/" + loteId);
             if (!lotes.sucesso()) {
                 avisos.add("Não foi possível consultar a revisão deste requisito.");
-                return;
+                return null;
             }
-            JsonNode lote = lotes.corpo().path("items").path(0);
+            JsonNode lote = loteId == null ? lotes.corpo().path("items").path(0) : lotes.corpo();
             if (lote.isMissingNode()) {
-                return;
+                return null;
+            }
+            if (texto(submissao, "submissaoId") == null
+                    || !texto(submissao, "submissaoId").equals(texto(lote, "submissaoId"))) {
+                return null;
             }
             visao.set("loteId", lote.get("loteId"));
             int abertas = 0;
@@ -181,9 +215,15 @@ public class RequisitosGestaoController {
                 }
             }
             visao.put("pendenciasAbertas", abertas);
+            return lote;
         } catch (DominioIndisponivelException e) {
             avisos.add("Revisões indisponível: lote e pendências não foram consultados.");
+            return null;
         }
+    }
+
+    private static String texto(JsonNode origem, String campo) {
+        return origem != null && origem.hasNonNull(campo) ? origem.get(campo).asText() : null;
     }
 
     private static void copiar(JsonNode origem, ObjectNode destino, String... campos) {

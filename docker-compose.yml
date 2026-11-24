@@ -115,6 +115,7 @@ services:
     environment:
       REQUISITOS_URL: http://requisitos:8080
       REVISOES_URL: http://revisoes:8080
+      ATHENA_PAPEL_DEMO: ${ATHENA_PAPEL_DEMO:-OWNER}
       RASTREABILIDADE_URL: http://rastreabilidade:8080
     depends_on:
       requisitos:

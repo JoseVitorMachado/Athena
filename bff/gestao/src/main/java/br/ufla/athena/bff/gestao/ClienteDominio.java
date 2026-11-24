@@ -60,6 +60,12 @@ public class ClienteDominio {
         return chamar(servico, HttpMethod.GET, urlBase, caminho, null, null, null, authorization);
     }
 
+    /** Encaminha os cabeçalhos condicionais de uma consulta autenticada. */
+    public Resposta get(String servico, String urlBase, String caminho, String ifMatch,
+                        String idempotencyKey, String authorization) {
+        return chamar(servico, HttpMethod.GET, urlBase, caminho, null, ifMatch, idempotencyKey, authorization);
+    }
+
     public Resposta post(String servico, String urlBase, String caminho, JsonNode corpo,
                          String ifMatch, String idempotencyKey, String authorization) {
         return chamar(servico, HttpMethod.POST, urlBase, caminho, corpo, ifMatch, idempotencyKey, authorization);
@@ -68,6 +74,17 @@ public class ClienteDominio {
     public Resposta patch(String servico, String urlBase, String caminho, JsonNode corpo,
                           String ifMatch, String idempotencyKey, String authorization) {
         return chamar(servico, HttpMethod.PATCH, urlBase, caminho, corpo, ifMatch, idempotencyKey, authorization);
+    }
+
+    /** Encaminha uma exclusão autenticada ao domínio. */
+    public Resposta delete(String servico, String urlBase, String caminho, String ifMatch, String authorization) {
+        return delete(servico, urlBase, caminho, ifMatch, null, authorization);
+    }
+
+    /** Encaminha também a chave de idempotência, quando informada. */
+    public Resposta delete(String servico, String urlBase, String caminho, String ifMatch,
+                           String idempotencyKey, String authorization) {
+        return chamar(servico, HttpMethod.DELETE, urlBase, caminho, null, ifMatch, idempotencyKey, authorization);
     }
 
     private Resposta chamar(String servico, HttpMethod metodo, String urlBase, String caminho, JsonNode corpo,

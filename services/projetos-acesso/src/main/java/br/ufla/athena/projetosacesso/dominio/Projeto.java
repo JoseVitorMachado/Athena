@@ -60,6 +60,9 @@ public class Projeto {
         this.atualizadoEm = Instant.now();
     }
 
+    /** Transfere a propriedade e atualiza a revisão do projeto. */
+    public void transferirPropriedade(UUID novoOwner) { this.ownerId = novoOwner; this.atualizadoEm = Instant.now(); }
+
     public void arquivar() { this.arquivado = true; this.atualizadoEm = Instant.now(); }
     public void restaurar() { this.arquivado = false; this.atualizadoEm = Instant.now(); }
     public void excluirLogicamente(Instant instante) { this.excluidoEm = instante; this.atualizadoEm = instante; }

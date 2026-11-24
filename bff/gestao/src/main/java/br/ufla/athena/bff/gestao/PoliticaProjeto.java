@@ -20,10 +20,22 @@ public final class PoliticaProjeto {
     }
 
     public static Papel papelMinimo(String metodo, String caminho) {
+        if ("GET".equals(metodo) && caminho.matches(BASE + "/convites")) {
+            return Papel.MANTENEDOR;
+        }
+        if ("DELETE".equals(metodo) && caminho.matches(BASE + "/membros/[^/]+")) {
+            return Papel.LEITOR;
+        }
+        if ("POST".equals(metodo) && caminho.matches(BASE + "/transferencias-propriedade")) {
+            return Papel.OWNER;
+        }
         if ("GET".equals(metodo)) {
             return Papel.LEITOR;
         }
-        if (("PATCH".equals(metodo) && caminho.matches(BASE))
+        if (("PATCH".equals(metodo) && caminho.matches(BASE + "/membros/[^/]+"))
+                || ("POST".equals(metodo) && caminho.matches(BASE + "/convites"))
+                || ("DELETE".equals(metodo) && caminho.matches(BASE + "/convites/[^/]+"))
+                || ("PATCH".equals(metodo) && caminho.matches(BASE))
                 || ("POST".equals(metodo) && (caminho.matches(BASE + "/arquivamentos")
                 || caminho.matches(BASE + "/restauracoes")))) {
             return Papel.MANTENEDOR;

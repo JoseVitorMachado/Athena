@@ -32,6 +32,8 @@ spec:
             - name: http
               containerPort: 8080
           env:
+            - name: ATHENA_PAPEL_DEMO
+              value: OWNER
             - name: REQUISITOS_URL
               valueFrom:
                 configMapKeyRef:

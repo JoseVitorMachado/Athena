@@ -43,6 +43,23 @@ public class VersaoPublicacaoController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Versão não encontrada"));
     }
 
+    /** listarVersoes: por padrão, da mais recente para a mais antiga. */
+    @GetMapping("/versoes")
+    @Transactional(readOnly = true)
+    public Pagina<VersaoResposta> versoes(
+            @PathVariable UUID projetoId,
+            @PathVariable UUID requisitoId,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @RequestParam(defaultValue = Ordenacao.PADRAO) String sort) {
+        requisitos.findByIdAndProjetoId(requisitoId, projetoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Requisito não encontrado"));
+        PageRequest paginacao = PageRequest.of(page, size, Ordenacao.de(sort));
+        String self = "/api/v1/projetos/" + projetoId + "/requisitos/" + requisitoId + "/versoes?page=" + page
+                + "&size=" + size + "&sort=" + sort;
+        return Pagina.de(versoes.findByRequisito_Id(requisitoId, paginacao).map(VersaoResposta::de), self);
+    }
+
     /** listarPublicacoes: da mais recente para a mais antiga. */
     @GetMapping("/publicacoes")
     @Transactional(readOnly = true)

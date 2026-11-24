@@ -682,6 +682,21 @@ spec:
                 secretKeyRef:
                   name: db-impacto-mcp-credenciais
                   key: senha
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: usuario
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credenciais
+                  key: senha
             - name: CARREGAR_DEMO
               valueFrom:
                 configMapKeyRef:
@@ -694,11 +709,11 @@ spec:
               drop: ["ALL"]
           resources:
             requests:
-              cpu: 50m
-              memory: 96Mi
+              cpu: 100m
+              memory: 512Mi
             limits:
-              cpu: 500m
-              memory: 256Mi
+              cpu: "1"
+              memory: 1Gi
           startupProbe:
             httpGet:
               path: /saude/pronto

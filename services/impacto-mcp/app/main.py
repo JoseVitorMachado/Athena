@@ -16,10 +16,12 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool
 
-from . import config, indice, mcp
+from . import config, indice, mcp, processamento
 from .banco import migrar, pool
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+# O cliente do RabbitMQ registra cada passo da conexão em INFO; só avisos e erros interessam.
+logging.getLogger("pika").setLevel(logging.WARNING)
 
 
 @asynccontextmanager
@@ -28,8 +30,14 @@ async def ciclo_de_vida(_app: FastAPI):
     migrar()
     if config.CARREGAR_DEMO:
         indice.carregar_demo()
-    yield
-    pool.close()
+    parar, threads = processamento.iniciar()
+    try:
+        yield
+    finally:
+        parar.set()
+        for thread in threads:
+            thread.join()
+        pool.close()
 
 
 app = FastAPI(title="ATHENA - Análise de Impacto/MCP", version="0.3.0", lifespan=ciclo_de_vida)

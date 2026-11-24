@@ -73,6 +73,16 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/tarefas-externas | gestaoCriarTarefaExterna | Editor | athena:write | Não | Pendente |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes | gestaoListarVersoes | Leitor | athena:read | Não | Definida |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId} | gestaoObterVersao | Leitor | athena:read | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/convites | gestaoListarConvitesRecebidos | Leitor | athena:read | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/transferencias-propriedade | gestaoListarTransferenciasRecebidos | Leitor | athena:read | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/epicos | gestaoListarEpicos | Leitor | athena:read | Não | Definida |
+| bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/epicos | gestaoCriarEpico | Editor | athena:write | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/epicos/{epicoId} | gestaoObterEpico | Leitor | athena:read | Não | Definida |
+| bff-gestao.yaml | PATCH | /api/v1/gestao/projetos/{projetoId}/epicos/{epicoId} | gestaoEditarEpico | Editor | athena:write | Não | Definida |
+| bff-gestao.yaml | DELETE | /api/v1/gestao/projetos/{projetoId}/epicos/{epicoId} | gestaoExcluirEpico | Editor | athena:write | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios | gestaoListarComentarios | Repórter | athena:read | Não | Definida |
+| bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios | gestaoCriarComentario | Repórter | athena:write | Não | Definida |
+| bff-gestao.yaml | PATCH | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId} | gestaoEditarComentario | Repórter | athena:write | Não | Definida |
 | bff-livro.yaml | GET | /api/v1/livro/projetos/{projetoId}/livro | obterLivro | Leitor | athena:read | Não | Definida |
 | bff-livro.yaml | GET | /api/v1/livro/projetos/{projetoId}/livro/requisitos | listarRequisitosLivro | Leitor | athena:read | Não | Definida |
 | bff-livro.yaml | GET | /api/v1/livro/projetos/{projetoId}/livro/requisitos/{requisitoId} | obterRequisitoLivro | Leitor | athena:read | Não | Definida |
@@ -146,6 +156,8 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | projetos-acesso.yaml | GET | /oauth2/authorize | autorizarAgente | Leitor | athena:read | Não | Pendente |
 | projetos-acesso.yaml | POST | /oauth2/token | emitirTokenOAuth | Leitor | athena:read | Não | Pendente |
 | projetos-acesso.yaml | POST | /oauth2/revoke | revogarTokenOAuth | Leitor | athena:admin | Não | Pendente |
+| projetos-acesso.yaml | GET | /api/v1/convites | listarConvitesRecebidos | Leitor | athena:read | Não | Definida |
+| projetos-acesso.yaml | GET | /api/v1/transferencias-propriedade | listarTransferenciasRecebidos | Leitor | athena:read | Não | Definida |
 | rastreabilidade.yaml | GET | /api/v1/projetos/{projetoId}/relacoes | listarRelacoes | Leitor | athena:read | Não | Definida |
 | rastreabilidade.yaml | POST | /api/v1/projetos/{projetoId}/relacoes | criarRelacao | Editor | athena:write | Não | Pendente |
 | rastreabilidade.yaml | GET | /api/v1/projetos/{projetoId}/relacoes/{relacaoId} | obterRelacao | Leitor | athena:read | Não | Definida |
@@ -161,7 +173,9 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | requisitos.yaml | PATCH | /api/v1/projetos/{projetoId}/documentos/{documentoId} | editarDocumento | Editor | athena:write | Não | Definida |
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/epicos | listarEpicos | Leitor | athena:read | Não | Definida |
 | requisitos.yaml | POST | /api/v1/projetos/{projetoId}/epicos | criarEpico | Editor | athena:write | Não | Definida |
+| requisitos.yaml | GET | /api/v1/projetos/{projetoId}/epicos/{epicoId} | obterEpico | Leitor | athena:read | Não | Definida |
 | requisitos.yaml | PATCH | /api/v1/projetos/{projetoId}/epicos/{epicoId} | editarEpico | Editor | athena:write | Não | Definida |
+| requisitos.yaml | DELETE | /api/v1/projetos/{projetoId}/epicos/{epicoId} | excluirEpico | Editor | athena:write | Não | Definida |
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/requisitos | listarRequisitos | Leitor | athena:read | Não | Pendente |
 | requisitos.yaml | POST | /api/v1/projetos/{projetoId}/requisitos | criarRequisito | Editor | athena:write | Não | Pendente |
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/requisitos/{requisitoId} | obterRequisito | Leitor | athena:read | Não | Definida |

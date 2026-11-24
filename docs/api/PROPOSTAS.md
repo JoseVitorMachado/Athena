@@ -152,3 +152,14 @@ Todas as operações carregam `x-proposta: true` e `x-motivo-proposta` para os n
 O GET Gestão de requisito usa o ETag do requisito. Ações de candidata obtêm ETag em GET candidata. Histórico do Livro restringe estadoVersao a PUBLICADA também no schema, e não somente na descrição.
 
 Códigos de conflito adicionais propostos nos exemplos: SUBMISSAO_ATIVA, CANDIDATA_FORA_DE_RASCUNHO, LOTE_JA_DECIDIDO, LOTE_PREPARADO, PENDENCIAS_BLOQUEANTES, CANDIDATA_NAO_APROVADA, VERSAO_DIVERGENTE. A semântica vem do livro; os nomes são escolhas de contrato.
+
+## Decisões adotadas na implementação
+
+- Criar projeto em workspace exige ser owner do workspace ou Owner/Mantenedor de algum projeto dele. A propriedade do workspace não concede acesso aos seus projetos.
+- Editar ou excluir workspace cabe somente ao owner do workspace.
+- O arquivamento é síncrono. O BFF recusa escritas em projeto arquivado com 409, exceto a restauração.
+- Na rede interna, o BFF envia `X-Athena-Usuario` (sujeito do JWT validado) e `X-Athena-Papel` (papel atual no projeto) aos domínios. O BFF monta as chamadas internas e não repassa cabeçalhos do cliente, e os domínios não têm rota no Gateway; por isso um cliente não consegue forjar esses valores.
+- Recuperação de senha: código numérico de 6 dígitos (US03 e primeiro parágrafo da §7.1), guardado só como HMAC, válido por 10 minutos, de uso único, invalidado por novo pedido ou após 5 tentativas; limites por e-mail e IP.
+- Os papéis na API usam os valores do enum do contrato, como `Leitor`, `Repórter`, `Editor`, `Aprovador`, `Mantenedor` e `Owner`.
+
+Essas decisões respondem às questões correspondentes registradas acima; outras perguntas continuam pendentes.

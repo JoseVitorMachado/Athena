@@ -67,7 +67,9 @@
     "sucesso": [
       200
     ],
-    "cabecalhos": []
+    "cabecalhos": [
+      "IfMatch"
+    ]
   },
   {
     "arquivo": "requisitos.yaml",
@@ -1956,5 +1958,151 @@
       200
     ],
     "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/convites",
+    "operationId": "gestaoListarConvitesRecebidos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/transferencias-propriedade",
+    "operationId": "gestaoListarTransferenciasRecebidos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/epicos",
+    "operationId": "gestaoListarEpicos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/epicos",
+    "operationId": "gestaoCriarEpico",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/epicos/{epicoId}",
+    "operationId": "gestaoEditarEpico",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/epicos/{epicoId}",
+    "operationId": "gestaoObterEpico",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/epicos/{epicoId}",
+    "operationId": "gestaoExcluirEpico",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+    "operationId": "gestaoListarComentarios",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios",
+    "operationId": "gestaoCriarComentario",
+    "sucesso": [
+      201
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "patch",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/comentarios/{comentarioId}",
+    "operationId": "gestaoEditarComentario",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/convites",
+    "operationId": "listarConvitesRecebidos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "projetos-acesso.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/transferencias-propriedade",
+    "operationId": "listarTransferenciasRecebidos",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+    "operationId": "obterEpico",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "delete",
+    "caminho": "/api/v1/projetos/{projetoId}/epicos/{epicoId}",
+    "operationId": "excluirEpico",
+    "sucesso": [
+      204
+    ],
+    "cabecalhos": [
+      "IfMatch"
+    ]
   }
 ]

@@ -15,8 +15,8 @@ Contratos OpenAPI 3.1 elaborados contract-first a partir do **Livro de Arquitetu
 | P1 | [projetos-acesso.yaml](projetos-acesso.yaml) | Identidade, OAuth, sessões, workspace, projetos e membros |
 | P2 | [integracoes.yaml](integracoes.yaml) | Conexões, vínculos, sincronizações e tarefas externas |
 | P2 | [impacto-mcp.yaml](impacto-mcp.yaml) | Análises, sugestões, busca de contexto e indexação |
-| P2 | [mcp-ferramentas.md](mcp-ferramentas.md) | Catálogo de 81 tools com JSON Schema de entrada expandido |
-| P2 | [matriz-autorizacao.md](matriz-autorizacao.md) | 189 operações; papel e escopo extraídos dos contratos |
+| P2 | [mcp-ferramentas.md](mcp-ferramentas.md) | Catálogo de 83 tools com JSON Schema de entrada expandido |
+| P2 | [matriz-autorizacao.md](matriz-autorizacao.md) | 203 operações; papel e escopo extraídos dos contratos |
 | Revisão | [PROPOSTAS.md](PROPOSTAS.md) | Escolhas de representação e perguntas não resolvidas pelo livro |
 | Validação | [VALIDACAO.md](VALIDACAO.md) | Comandos, verificações e limites das evidências |
 | Leitura | [apresentacao.html](apresentacao.html) | Os 8 contratos num arquivo único, offline; gerado por `npm run apresentacao` |

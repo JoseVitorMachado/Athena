@@ -19,6 +19,10 @@ class PoliticaProjetoTest {
         assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("POST", BASE + "/arquivamentos"));
         assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("POST", BASE + "/restauracoes"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/requisitos/r"));
+        assertEquals(Papel.REPORTER, PoliticaProjeto.papelMinimo("GET", BASE + "/requisitos/r/comentarios"));
+        assertEquals(Papel.REPORTER, PoliticaProjeto.papelMinimo("POST", BASE + "/requisitos/r/comentarios"));
+        assertEquals(Papel.REPORTER, PoliticaProjeto.papelMinimo("PATCH", BASE + "/requisitos/r/comentarios/c"));
+        assertNull(PoliticaProjeto.papelMinimo("POST", BASE + "/requisitos/r/comentarios/c"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/mapa"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/membros"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE + "/historico-membros"));

@@ -41,6 +41,9 @@ public class DespachanteMensagens {
             if (manipulador == null) throw new MensagemInvalidaException("sem manipulador");
             inbox.processar(envelope, manipulador);
         } catch (MensagemInvalidaException erro) {
+            // Sem retentativa: vai direto para a DLQ, mas fica registrado para diagnóstico.
+            log.warn("Mensagem {} inválida, enviada para a DLQ: {}", mensagem.getMessageProperties().getMessageId(),
+                    erro.getMessage());
             encaminhar(mensagem, fila + ".dlq", anteriores, erro.getMessage(), 0);
         } catch (Exception erro) {
             int falhas = anteriores + 1;

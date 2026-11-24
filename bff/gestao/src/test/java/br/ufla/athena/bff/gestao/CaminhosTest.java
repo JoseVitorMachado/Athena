@@ -19,6 +19,9 @@ class CaminhosTest {
         assertEquals("/api/v1/gestao/projetos/p/membros/m", Caminhos.paraGestao("/api/v1/projetos/p/membros/m"));
         assertEquals("/api/v1/gestao/projetos/p/convites/c", Caminhos.paraGestao("/api/v1/projetos/p/convites/c"));
         assertEquals("/api/v1/gestao/projetos/p/transferencias-propriedade/t", Caminhos.paraGestao("/api/v1/projetos/p/transferencias-propriedade/t"));
+        assertEquals("/api/v1/gestao/notificacoes?page=1", Caminhos.paraGestao("/api/v1/notificacoes?page=1"));
+        assertEquals("/api/v1/gestao/notificacoes/n", Caminhos.paraGestao("https://interno/api/v1/notificacoes/n"));
+        assertEquals("/api/v1/notificacoes-outras", Caminhos.paraGestao("/api/v1/notificacoes-outras"));
         assertEquals("/api/v1/gestao/convites?page=1", Caminhos.paraGestao("/api/v1/convites?page=1"));
         assertEquals("/api/v1/gestao/convites/c/aceite", Caminhos.paraGestao("https://interno/api/v1/convites/c/aceite"));
         assertEquals("/api/v1/gestao/transferencias-propriedade", Caminhos.paraGestao("/api/v1/transferencias-propriedade"));
@@ -31,12 +34,13 @@ class CaminhosTest {
     void traduzLinksEInstance() throws Exception {
         var corpo = new ObjectMapper().readTree("""
                 {"_links":{"self":{"href":"/api/v1/workspaces?page=1"}},
-                 "items":[{"_links":{"self":{"href":"/api/v1/projetos/p"},"convite":{"href":"/api/v1/convites/c"},"transferencia":{"href":"/api/v1/transferencias-propriedade/t"}}}],
+                 "items":[{"_links":{"self":{"href":"/api/v1/projetos/p"},"notificacao":{"href":"/api/v1/notificacoes/n"},"convite":{"href":"/api/v1/convites/c"},"transferencia":{"href":"/api/v1/transferencias-propriedade/t"}}}],
                  "instance":"/api/v1/workspaces/w"}
                 """);
         Caminhos.reescreverLinks(corpo);
         assertEquals("/api/v1/gestao/workspaces?page=1", corpo.path("_links").path("self").path("href").asText());
         assertEquals("/api/v1/gestao/projetos/p", corpo.path("items").get(0).path("_links").path("self").path("href").asText());
+        assertEquals("/api/v1/gestao/notificacoes/n", corpo.path("items").get(0).path("_links").path("notificacao").path("href").asText());
         assertEquals("/api/v1/gestao/convites/c", corpo.path("items").get(0).path("_links").path("convite").path("href").asText());
         assertEquals("/api/v1/gestao/transferencias-propriedade/t", corpo.path("items").get(0).path("_links").path("transferencia").path("href").asText());
         assertEquals("/api/v1/gestao/workspaces/w", corpo.path("instance").asText());

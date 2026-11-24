@@ -29,6 +29,12 @@ public final class PoliticaProjeto {
         if ("POST".equals(metodo) && caminho.matches(BASE + "/transferencias-propriedade")) {
             return Papel.OWNER;
         }
+        if ((("GET".equals(metodo) || "POST".equals(metodo))
+                && caminho.matches(BASE + "/requisitos/[^/]+/comentarios"))
+                || ("PATCH".equals(metodo)
+                && caminho.matches(BASE + "/requisitos/[^/]+/comentarios/[^/]+"))) {
+            return Papel.REPORTER;
+        }
         if ("GET".equals(metodo)) {
             return Papel.LEITOR;
         }

@@ -79,7 +79,10 @@ athena:
 
   mensageria:
     servico: projetos-acesso
-    eventos-assinados: []
+    eventos-assinados:
+      - requisitos.ComentarioCriado
+      - requisitos.SubmissaoConcluida
+      - requisitos.DecisaoRevisaoAplicada
     intervalo-publicacao: 500ms
     lote-publicacao: 50
 

@@ -36,17 +36,33 @@ public class ClienteDominio {
     }
 
     public Resposta get(String servico, String urlBase, String caminhoComQuery) {
-        return chamar(servico, HttpMethod.GET, urlBase, caminhoComQuery, null);
+        return chamar(servico, HttpMethod.GET, urlBase, caminhoComQuery, null, null, null);
     }
 
     public Resposta post(String servico, String urlBase, String caminho, JsonNode corpo) {
-        return chamar(servico, HttpMethod.POST, urlBase, caminho, corpo);
+        return chamar(servico, HttpMethod.POST, urlBase, caminho, corpo, null, null);
     }
 
-    private Resposta chamar(String servico, HttpMethod metodo, String urlBase, String caminho, JsonNode corpo) {
+    public Resposta post(String servico, String urlBase, String caminho, JsonNode corpo,
+                         String ifMatch, String idempotencyKey) {
+        return chamar(servico, HttpMethod.POST, urlBase, caminho, corpo, ifMatch, idempotencyKey);
+    }
+
+    public Resposta patch(String servico, String urlBase, String caminho, JsonNode corpo, String ifMatch) {
+        return chamar(servico, HttpMethod.PATCH, urlBase, caminho, corpo, ifMatch, null);
+    }
+
+    private Resposta chamar(String servico, HttpMethod metodo, String urlBase, String caminho, JsonNode corpo,
+                            String ifMatch, String idempotencyKey) {
         RestClient.RequestBodySpec requisicao = http.method(metodo)
                 .uri(URI.create(urlBase + caminho))
                 .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_PROBLEM_JSON);
+        if (ifMatch != null) {
+            requisicao.header(HttpHeaders.IF_MATCH, ifMatch);
+        }
+        if (idempotencyKey != null) {
+            requisicao.header("Idempotency-Key", idempotencyKey);
+        }
         if (corpo != null) {
             requisicao.contentType(MediaType.APPLICATION_JSON).body(corpo);
         }

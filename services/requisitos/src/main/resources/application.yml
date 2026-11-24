@@ -67,5 +67,19 @@ management:
 athena:
   mensageria:
     servico: requisitos
+    eventos-assinados:
+      - rastreabilidade.RetratoRastreabilidadeRegistrado
+      - rastreabilidade.RetratoRastreabilidadeRecusado
+      - rastreabilidade.CancelamentoRetratoConfirmado
+      - revisoes.LoteRevisaoAberto
+      - revisoes.LoteRevisaoRecusado
+      - revisoes.CancelamentoLoteConfirmado
+      - revisoes.LoteRevisaoAtivado
     intervalo-publicacao: 500ms
     lote-publicacao: 50
+  saga:
+    prazo-total: 90s
+    espera-por-tentativa: 10s
+    tentativas: 3
+    intervalos: 2s,4s
+    repeticao-compensacao-pendente: 60s

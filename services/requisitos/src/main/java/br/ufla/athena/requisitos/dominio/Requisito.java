@@ -95,6 +95,21 @@ public class Requisito {
                 .max((a, b) -> Integer.compare(a.getNumero(), b.getNumero()));
     }
 
+    public Versao criarCandidataDaPublicada(Versao publicada) {
+        int numero = versoes.stream().mapToInt(Versao::getNumero).max().orElse(0) + 1;
+        Versao candidata = new Versao(this, numero, publicada.getTitulo(), publicada.getConteudo(),
+                publicada.getCriteriosAceite(), publicada.getHashConteudo(), Instant.now());
+        versoes.add(candidata);
+        return candidata;
+    }
+
+    public void editarCandidata(Versao candidata, String titulo, String conteudo, List<String> criterios) {
+        Instant agora = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+        candidata.editar(titulo, conteudo, criterios, sha256(conteudo), agora);
+        this.titulo = titulo;
+        this.atualizadoEm = agora;
+    }
+
     private static String sha256(String texto) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

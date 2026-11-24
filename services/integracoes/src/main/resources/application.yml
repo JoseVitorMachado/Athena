@@ -67,5 +67,6 @@ management:
 athena:
   mensageria:
     servico: integracoes
+    eventos-assinados: []
     intervalo-publicacao: 500ms
     lote-publicacao: 50

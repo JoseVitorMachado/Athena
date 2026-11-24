@@ -70,5 +70,9 @@ athena:
 
   mensageria:
     servico: revisoes
+    eventos-assinados: []
     intervalo-publicacao: 500ms
     lote-publicacao: 50
+
+  falhas:
+    abrir-lote: ${ATHENA_FALHA_ABRIR_LOTE:NENHUMA}

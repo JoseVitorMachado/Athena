@@ -1,6 +1,8 @@
 package br.ufla.athena.requisitos.dominio;
 
 import java.util.Optional;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +15,10 @@ public interface RequisitoRepository extends JpaRepository<Requisito, UUID> {
     Page<Requisito> findByProjetoIdAndSituacao(UUID projetoId, SituacaoRequisito situacao, Pageable pageable);
 
     Optional<Requisito> findByIdAndProjetoId(UUID id, UUID projetoId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from Requisito r where r.id = :id and r.projetoId = :projetoId")
+    Optional<Requisito> buscarParaEdicao(@Param("id") UUID id, @Param("projetoId") UUID projetoId);
 
     /**
      * Reserva o próximo número do código REQ-n do projeto. O upsert é atômico:

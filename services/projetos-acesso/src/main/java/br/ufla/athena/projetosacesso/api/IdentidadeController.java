@@ -39,18 +39,23 @@ import org.springframework.web.bind.annotation.*;
 public class IdentidadeController {
     private final JdbcTemplate banco;
     private final Tokens tokens;
+    private final ServicoRecuperacao recuperacao;
+    private final Map<String, List<Instant>> limitesRecuperacao = new ConcurrentHashMap<>();
     private final boolean cookieSeguro;
     private final Argon2PasswordEncoder senhas = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     private final String hashFalso = senhas.encode(UUID.randomUUID().toString());
     // Limite em memória por instância; não é compartilhado entre réplicas.
     private final Map<String, List<Instant>> falhas = new ConcurrentHashMap<>();
 
-    public IdentidadeController(JdbcTemplate banco, Tokens tokens, @Value("${athena.cookie.seguro:true}") boolean cookieSeguro) {
+    public IdentidadeController(JdbcTemplate banco, Tokens tokens, ServicoRecuperacao recuperacao, @Value("${athena.cookie.seguro:true}") boolean cookieSeguro) {
         this.banco = banco;
         this.tokens = tokens;
+        this.recuperacao = recuperacao;
         this.cookieSeguro = cookieSeguro;
     }
 
+    record Recuperacao(@NotBlank @Email @Size(max = 254) String email) {}
+    record Conclusao(@NotBlank @Email @Size(max = 254) String email, String codigo, @NotBlank String novaSenha) {}
     record Cadastro(@NotBlank @Size(max = 120) String nome, @NotBlank @Email @Size(max = 254) String email, @NotBlank String senha) {}
     record Login(@NotBlank @Email String email, @NotBlank String senha, boolean lembrarDispositivo) {}
     record Usuario(UUID usuarioId, String nome, String email) {}
@@ -115,7 +120,7 @@ public class IdentidadeController {
                         .body(Map.of("type", "about:blank", "title", "Too Many Requests", "status", 429, "codigo", "MUITAS_TENTATIVAS"));
             }
         }
-        List<Conta> contas = banco.query("SELECT id,nome,email,senha_hash FROM usuarios WHERE email=?", (rs, n) -> new Conta(rs.getObject(1, UUID.class), rs.getString(2), rs.getString(3), rs.getString(4)), email);
+        List<Conta> contas = banco.query("SELECT id,nome,email,senha_hash FROM usuarios WHERE email=? FOR UPDATE", (rs, n) -> new Conta(rs.getObject(1, UUID.class), rs.getString(2), rs.getString(3), rs.getString(4)), email);
         Conta conta = contas.isEmpty() ? null : contas.get(0);
         if (!senhas.matches(entrada.senha(), conta == null ? hashFalso : conta.hash())) {
             synchronized (falhas) {
@@ -133,6 +138,46 @@ public class IdentidadeController {
         banco.update("INSERT INTO sessoes(id,usuario_id,criada_em,expira_em,lembrar,csrf_hash) VALUES (?,?,?,?,?,?)", id, conta.id(), java.sql.Timestamp.from(agora), java.sql.Timestamp.from(fim), entrada.lembrarDispositivo(), Tokens.hash(csrf));
         inserirRefresh(refresh, id, UUID.randomUUID(), csrf, agora, fim);
         return resposta(conta, id, agora, fim, csrf, refresh, entrada.lembrarDispositivo());
+    }
+
+    // Limites em memória por instância, como no login; chaves por finalidade.
+    private ResponseEntity<?> limitarRecuperacao(String... chaves) {
+        Instant agora = Instant.now();
+        synchronized (limitesRecuperacao) {
+            for (String chave : chaves) {
+                List<Instant> recentes = limitesRecuperacao.getOrDefault(chave, List.of()).stream().filter(i -> i.plusSeconds(900).isAfter(agora)).toList();
+                limitesRecuperacao.put(chave, recentes);
+                if (recentes.size() >= 5) {
+                    long espera = Math.max(1, Duration.between(agora, recentes.get(0).plusSeconds(900)).toSeconds());
+                    return ResponseEntity.status(429).header(HttpHeaders.RETRY_AFTER, Long.toString(espera)).contentType(org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON)
+                            .body(Map.of("type", "about:blank", "title", "Too Many Requests", "status", 429, "codigo", "MUITAS_TENTATIVAS"));
+                }
+            }
+            for (String chave : chaves) {
+                var lista = new java.util.ArrayList<>(limitesRecuperacao.get(chave));
+                lista.add(agora);
+                limitesRecuperacao.put(chave, lista);
+            }
+        }
+        return null;
+    }
+
+    @PostMapping("/api/v1/autenticacao/recuperacao")
+    public ResponseEntity<?> solicitarRecuperacao(@Valid @RequestBody Recuperacao entrada, jakarta.servlet.http.HttpServletRequest pedido) {
+        String email = entrada.email().trim().toLowerCase(Locale.ROOT);
+        ResponseEntity<?> limite = limitarRecuperacao("email:" + email, "ip:" + pedido.getRemoteAddr());
+        if (limite != null) return limite;
+        recuperacao.solicitar(email);
+        return ResponseEntity.accepted().header(HttpHeaders.LOCATION, "/api/v1/autenticacao/recuperacao/conclusao")
+                .body(Map.of("mensagem", "Se a conta estiver elegível, enviaremos as instruções."));
+    }
+
+    @PostMapping("/api/v1/autenticacao/recuperacao/conclusao")
+    public ResponseEntity<?> concluirRecuperacao(@Valid @RequestBody Conclusao entrada, jakarta.servlet.http.HttpServletRequest pedido) {
+        ResponseEntity<?> limite = limitarRecuperacao("conclusao-ip:" + pedido.getRemoteAddr());
+        if (limite != null) return limite;
+        recuperacao.concluir(entrada.email().trim().toLowerCase(Locale.ROOT), entrada.codigo(), entrada.novaSenha());
+        return ResponseEntity.noContent().build();
     }
 
     @Tag(name = "Autenticação")

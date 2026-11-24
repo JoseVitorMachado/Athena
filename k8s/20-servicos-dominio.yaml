@@ -32,6 +32,16 @@ spec:
             - name: http
               containerPort: 8080
           env:
+            - name: SMTP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: SMTP_HOST
+            - name: SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: SMTP_PORT
             - name: ATHENA_USUARIOS_DEMO
               value: "true"
             # HTTP local; em produção o cookie deve usar Secure.

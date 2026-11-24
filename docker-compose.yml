@@ -45,6 +45,17 @@ services:
     networks:
       - app
 
+  # Caixa de e-mails de desenvolvimento: http://localhost:8025. Em produção, use SMTP real.
+  # Publicada só no localhost: a caixa mostra códigos de recuperação de qualquer conta.
+  mailpit:
+    image: axllent/mailpit:v1.20.4
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
+    networks:
+      - app
+      - edge
+
   # ---------------------------------------------------------------- clientes
   # nginx servindo o Angular. Encaminha /api ao Gateway: o navegador vê uma só origem.
 
@@ -153,6 +164,8 @@ services:
       context: ./services/projetos-acesso
     environment:
       <<: *rabbitmq-cliente
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
       ATHENA_USUARIOS_DEMO: "true"
       # HTTP local; em produção o cookie deve usar Secure.
       ATHENA_COOKIE_SEGURO: "false"

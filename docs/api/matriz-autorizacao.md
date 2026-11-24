@@ -102,8 +102,8 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | integracoes.yaml | POST | /api/v1/projetos/{projetoId}/tarefas-externas | criarTarefaExterna | Editor | athena:write | Não | Pendente |
 | projetos-acesso.yaml | POST | /api/v1/autenticacao/cadastro | criarCadastro | Pública | — | Não | Pendente |
 | projetos-acesso.yaml | POST | /api/v1/autenticacao/login | criarLogin | Pública | — | Não | Definida |
-| projetos-acesso.yaml | POST | /api/v1/autenticacao/recuperacao | criarRecuperacao | Pública | — | Não | Pendente |
-| projetos-acesso.yaml | POST | /api/v1/autenticacao/recuperacao/conclusao | concluirRecuperacao | Pública | — | Não | Pendente |
+| projetos-acesso.yaml | POST | /api/v1/autenticacao/recuperacao | criarRecuperacao | Pública | — | Não | Definida |
+| projetos-acesso.yaml | POST | /api/v1/autenticacao/recuperacao/conclusao | concluirRecuperacao | Pública | — | Não | Definida |
 | projetos-acesso.yaml | POST | /api/v1/autenticacao/renovacao | renovarSessao | Leitor | athena:read | Não | Pendente |
 | projetos-acesso.yaml | POST | /api/v1/autenticacao/logout | encerrarSessao | Leitor | athena:read | Não | Pendente |
 | projetos-acesso.yaml | GET | /api/v1/usuarios/me | obterUsuarioAtual | Leitor | athena:read | Não | Definida |

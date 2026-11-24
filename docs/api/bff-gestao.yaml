@@ -3864,6 +3864,89 @@ paths:
         - bearerJwt: []
       x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
         negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/historico:
+    get:
+      operationId: gestaoListarHistoricoRequisito
+      summary: Listar historico requisito
+      description: Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.
+      tags:
+        - requisitos
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+        - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+        - $ref: ./_shared/components.yaml#/components/parameters/Page
+        - $ref: ./_shared/components.yaml#/components/parameters/Size
+        - $ref: ./_shared/components.yaml#/components/parameters/Sort
+      responses:
+        '200':
+          description: Consulta ou alteração concluída (§6.2).
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/PaginaHistorico
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '404':
+          $ref: ./_shared/components.yaml#/components/responses/Erro404
+        '409':
+          $ref: ./_shared/components.yaml#/components/responses/Erro409
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+      x-proposta: true
+      x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
+        negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas:
+    get:
+      operationId: gestaoCompararVersoesRequisito
+      summary: Comparar versões do requisito
+      description: Compara a versão indicada com a versão anterior ou com a versão informada em com. Limite de 2000 linhas por conteúdo.
+      tags: [versoes]
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+        - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+        - name: versaoId
+          in: path
+          required: true
+          description: Versão atual.
+          schema: {type: string, format: uuid}
+        - name: com
+          in: query
+          description: Versão anterior para comparação; por padrão, a versão de número imediatamente anterior.
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Diferenças entre as versões.
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./requisitos.yaml#/components/schemas/DiferencaVersoes
+        '400': {$ref: ./_shared/components.yaml#/components/responses/Erro400}
+        '401': {$ref: ./_shared/components.yaml#/components/responses/Erro401}
+        '403': {$ref: ./_shared/components.yaml#/components/responses/Erro403}
+        '404': {$ref: ./_shared/components.yaml#/components/responses/Erro404}
+        '422':
+          description: Conteúdo excede o limite de linhas.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+        '429': {$ref: ./_shared/components.yaml#/components/responses/Erro429}
+        '503': {$ref: ./_shared/components.yaml#/components/responses/Erro503}
   /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes:
     get:
       operationId: gestaoListarVersoes

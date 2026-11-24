@@ -48,6 +48,7 @@ public class ParticipanteExclusao {
         boolean excluido = Boolean.TRUE.equals(banco.queryForObject(
                 "SELECT EXISTS (SELECT 1 FROM projetos_excluidos WHERE projeto_id = ?)", Boolean.class, projeto));
         if (!excluido) {
+        banco.update("DELETE FROM historico_requisitos WHERE projeto_id = ?", projeto);
         banco.update("DELETE FROM comentarios_historico WHERE comentario_id IN (SELECT id FROM comentarios WHERE projeto_id = ?)", projeto);
         banco.update("DELETE FROM comentarios WHERE projeto_id = ?", projeto);
         banco.update("DELETE FROM baseline_itens WHERE baseline_id IN (SELECT id FROM baselines WHERE projeto_id = ?) OR requisito_id IN (SELECT id FROM requisitos WHERE projeto_id = ?)", projeto, projeto);

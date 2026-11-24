@@ -1179,6 +1179,49 @@ paths:
       x-proposta: true
       x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de
         negócio seguem o livro e lacunas usam x-decidir.
+  /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas:
+    get:
+      operationId: compararVersoesRequisito
+      summary: Comparar versões do requisito
+      description: Compara a versão indicada com a versão anterior ou com a versão informada em com. Limite de 2000 linhas por conteúdo.
+      tags: [versoes]
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+        - $ref: ./_shared/components.yaml#/components/parameters/RequisitoId
+        - name: versaoId
+          in: path
+          required: true
+          description: Versão atual.
+          schema: {type: string, format: uuid}
+        - name: com
+          in: query
+          description: Versão anterior para comparação; por padrão, a versão de número imediatamente anterior.
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Diferenças entre as versões.
+          headers:
+            ETag:
+              $ref: ./_shared/components.yaml#/components/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiferencaVersoes'
+        '400': {$ref: ./_shared/components.yaml#/components/responses/Erro400}
+        '401': {$ref: ./_shared/components.yaml#/components/responses/Erro401}
+        '403': {$ref: ./_shared/components.yaml#/components/responses/Erro403}
+        '404': {$ref: ./_shared/components.yaml#/components/responses/Erro404}
+        '422':
+          description: Conteúdo excede o limite de linhas.
+          content:
+            application/problem+json:
+              schema:
+                $ref: ./_shared/components.yaml#/components/schemas/ProblemDetails
+        '429': {$ref: ./_shared/components.yaml#/components/responses/Erro429}
+        '503': {$ref: ./_shared/components.yaml#/components/responses/Erro503}
   /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/historico:
     get:
       operationId: listarHistoricoRequisito
@@ -2557,6 +2600,53 @@ components:
       required: [itens, contagens]
       additionalProperties: false
       example: {itens: [], contagens: {INALTERADO: 0, ALTERADO: 0, FORA_DO_LIVRO: 0, NOVO: 0}}
+    DiferencaVersoes:
+      example:
+        de: {versaoId: 11111111-1111-4111-8111-111111111111, numero: 1, estadoVersao: PUBLICADA}
+        para: {versaoId: 22222222-2222-4222-8222-222222222222, numero: 2, estadoVersao: RASCUNHO}
+        titulo: {anterior: Antes, atual: Depois, alterado: true}
+        conteudo: [{tipo: REMOVIDA, texto: Antes}, {tipo: ADICIONADA, texto: Depois}]
+        criterios: {adicionados: [], removidos: [], mantidos: []}
+      type: object
+      additionalProperties: false
+      required: [de, para, titulo, conteudo, criterios]
+      properties:
+        de: {$ref: '#/components/schemas/ResumoDiferencaVersao'}
+        para: {$ref: '#/components/schemas/ResumoDiferencaVersao'}
+        titulo:
+          type: object
+          additionalProperties: false
+          required: [anterior, atual, alterado]
+          properties:
+            anterior: {type: string}
+            atual: {type: string}
+            alterado: {type: boolean}
+        conteudo:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [tipo, texto]
+            properties:
+              tipo: {type: string, enum: [IGUAL, ADICIONADA, REMOVIDA]}
+              texto: {type: string}
+        criterios:
+          type: object
+          additionalProperties: false
+          required: [adicionados, removidos, mantidos]
+          properties:
+            adicionados: {type: array, items: {type: string}}
+            removidos: {type: array, items: {type: string}}
+            mantidos: {type: array, items: {type: string}}
+    ResumoDiferencaVersao:
+      example: {versaoId: 11111111-1111-4111-8111-111111111111, numero: 1, estadoVersao: PUBLICADA}
+      type: object
+      additionalProperties: false
+      required: [versaoId, numero, estadoVersao]
+      properties:
+        versaoId: {type: string, format: uuid}
+        numero: {type: integer, minimum: 1}
+        estadoVersao: {$ref: ./_shared/components.yaml#/components/schemas/EstadoVersao}
     Historico:
       type: object
       properties:
@@ -2579,6 +2669,10 @@ components:
           type: string
           example: 11111111-1111-4111-8111-111111111111
           format: uuid
+        detalhe:
+          type: string
+          maxLength: 500
+          example: tipo, epicoId
         data:
           type: string
           example: '2026-10-21T15:00:00Z'
@@ -2589,7 +2683,6 @@ components:
         - eventoId
         - requisitoId
         - acao
-        - autor
         - data
       example:
         eventoId: 11111111-1111-4111-8111-111111111111

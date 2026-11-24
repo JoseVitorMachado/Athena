@@ -39,6 +39,7 @@ Erros: devolver falha MCP estruturada com codigo, traceId e status de domínio, 
 | listarPublicacoes | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes |
 | criarPublicacao | requisitos | Aprovador | athena:publish | POST /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes |
 | obterPublicacao | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes/{publicacaoId} |
+| compararVersoesRequisito | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas |
 | listarHistoricoRequisito | requisitos | Leitor | athena:read | GET /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/historico |
 | criarCancelamento | requisitos | Editor | athena:write | POST /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos |
 | criarReativacao | requisitos | Editor | athena:write | POST /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes |
@@ -1313,6 +1314,49 @@ Papel mínimo: **Leitor**; escopo **athena:read**; projeto **projetoId**.
     "projetoId",
     "requisitoId",
     "publicacaoId"
+  ],
+  "additionalProperties": false
+}
+```
+
+## compararVersoesRequisito
+
+Papel mínimo: **Leitor**; escopo **athena:read**; projeto **projetoId**.
+
+Compara a versão indicada com a versão anterior ou com a versão informada em com. Limite de 2000 linhas por conteúdo.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "projetoId": {
+      "type": "string",
+      "example": "22222222-2222-4222-8222-222222222222",
+      "format": "uuid",
+      "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+    },
+    "requisitoId": {
+      "type": "string",
+      "example": "11111111-1111-4111-8111-111111111111",
+      "format": "uuid",
+      "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+    },
+    "versaoId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Versão atual. Encaminhar em path como versaoId."
+    },
+    "com": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Versão anterior para comparação; por padrão, a versão de número imediatamente anterior. Encaminhar em query como com."
+    }
+  },
+  "required": [
+    "projetoId",
+    "requisitoId",
+    "versaoId"
   ],
   "additionalProperties": false
 }

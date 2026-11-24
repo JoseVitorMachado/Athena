@@ -2154,5 +2154,35 @@
       200
     ],
     "cabecalhos": []
+  },
+  {
+    "arquivo": "requisitos.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas",
+    "operationId": "compararVersoesRequisito",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/historico",
+    "operationId": "gestaoListarHistoricoRequisito",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "get",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas",
+    "operationId": "gestaoCompararVersoesRequisito",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
   }
 ]

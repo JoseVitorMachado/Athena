@@ -101,6 +101,7 @@ public class PublicacaoService {
         Instant agora = Instant.now().truncatedTo(ChronoUnit.MICROS);
         Publicacao publicacao = Publicacao.criar(requisitoId, candidata.getId(), entrada.submissaoId(), retrato, usuario.obter(), agora);
         entidades.persist(publicacao);
+        Historico.registrar(banco, projeto, requisitoId, candidata.getId(), "PUBLICADA", usuario.obter(), null);
         candidata.alterarEstado(EstadoVersao.PUBLICADA);
         requisito.registrarPublicacao();
         banco.update("INSERT INTO chaves_idempotencia (chave, operacao, projeto_id, impressao, recurso_id, criado_em) "

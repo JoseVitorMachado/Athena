@@ -73,6 +73,14 @@ class MontadorAcoesTest {
         assertEquals(List.of("confirmacao"), acao.campos());
     }
 
+    @Test
+    void ofereceHistoricoEDiferencasQuandoExistemAsDuasVersoes() {
+        var resultado = montador.montar("p", "r", "ATIVO", "RASCUNHO", null, null, null, false, Papel.LEITOR, "publicada", "candidata");
+        assertEquals("/api/v1/gestao/projetos/p/requisitos/r/historico", resultado.links().get("historico").href());
+        assertEquals("/api/v1/gestao/projetos/p/requisitos/r/versoes/candidata/diferencas?com=publicada", resultado.links().get("diferencas").href());
+        assertFalse(montar("ATIVO", "RASCUNHO", null, Papel.LEITOR).links().containsKey("diferencas"));
+    }
+
     private MontadorAcoes.Resultado montar(String situacao, String estado, String lote, Papel papel) {
         return montador.montar("p", "r", situacao, estado, "l", lote, "s", false, papel);
     }

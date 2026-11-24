@@ -71,6 +71,8 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/sincronizacoes/{sincronizacaoId} | gestaoObterSincronizacao | Editor | athena:read | Não | Definida |
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/sincronizacoes/{sincronizacaoId}/resolucoes | gestaoCriarResolucaoSincronizacao | Editor | athena:write | Não | Pendente |
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/tarefas-externas | gestaoCriarTarefaExterna | Editor | athena:write | Não | Pendente |
+| bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/historico | gestaoListarHistoricoRequisito | Leitor | athena:read | Não | Definida |
+| bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas | gestaoCompararVersoesRequisito | Leitor | athena:read | Não | Definida |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes | gestaoListarVersoes | Leitor | athena:read | Não | Definida |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId} | gestaoObterVersao | Leitor | athena:read | Não | Definida |
 | bff-gestao.yaml | GET | /api/v1/gestao/convites | gestaoListarConvitesRecebidos | Leitor | athena:read | Não | Definida |
@@ -194,6 +196,7 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes | listarPublicacoes | Leitor | athena:read | Não | Definida |
 | requisitos.yaml | POST | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes | criarPublicacao | Aprovador | athena:publish | Não | Definida |
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes/{publicacaoId} | obterPublicacao | Leitor | athena:read | Não | Definida |
+| requisitos.yaml | GET | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas | compararVersoesRequisito | Leitor | athena:read | Não | Definida |
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/historico | listarHistoricoRequisito | Leitor | athena:read | Não | Definida |
 | requisitos.yaml | POST | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos | criarCancelamento | Editor | athena:write | Não | Definida |
 | requisitos.yaml | POST | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes | criarReativacao | Editor | athena:write | Não | Definida |

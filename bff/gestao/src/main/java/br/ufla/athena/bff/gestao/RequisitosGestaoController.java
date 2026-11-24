@@ -446,6 +446,28 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/publicacoes", corpo, ifMatch, chave));
     }
 
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Listar histórico", description = "Papel mínimo: Leitor.")
+    @ApiResponse(responseCode = "200", description = "Histórico paginado")
+    @GetMapping("/{requisitoId}/historico")
+    public ResponseEntity<JsonNode> historico(@PathVariable UUID projetoId, @PathVariable UUID requisitoId, HttpServletRequest pedido) {
+        String query = pedido.getQueryString() == null ? "" : "?" + pedido.getQueryString();
+        return repassar(dominio.get("requisitos", requisitosUrl, caminhoRequisito(projetoId, requisitoId) + "/historico" + query));
+    }
+
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Comparar versões", description = "Papel mínimo: Leitor.", parameters = {
+            @Parameter(name = "com", in = ParameterIn.QUERY, description = "Versão anterior para comparação.")})
+    @ApiResponse(responseCode = "200", description = "Diferenças entre versões")
+    @ApiResponse(responseCode = "404", description = "Versão não encontrada")
+    @ApiResponse(responseCode = "422", description = "Conteúdo grande demais")
+    @GetMapping("/{requisitoId}/versoes/{versaoId}/diferencas")
+    public ResponseEntity<JsonNode> diferencas(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @PathVariable UUID versaoId, HttpServletRequest pedido) {
+        String query = pedido.getQueryString() == null ? "" : "?" + pedido.getQueryString();
+        return repassar(dominio.get("requisitos", requisitosUrl, caminhoRequisito(projetoId, requisitoId) + "/versoes/" + versaoId + "/diferencas" + query));
+    }
+
     private static String caminhoRequisito(UUID projetoId, UUID requisitoId) {
         return colecao(projetoId) + "/" + requisitoId;
     }
@@ -505,7 +527,8 @@ public class RequisitosGestaoController {
         MontadorAcoes.Resultado navegacao = montador.montar(projetoId.toString(), requisitoId.toString(),
                 texto(origem, "situacao"), estado, texto(lote, "loteId"),
                 texto(lote, "estado"), texto(submissao, "submissaoId"),
-                sagaEmAndamento(texto(submissao, "estadoSaga")), ((PapelAtual.Vinculo) pedido.getAttribute(AutorizacaoProjeto.VINCULO)).papel());
+                sagaEmAndamento(texto(submissao, "estadoSaga")), ((PapelAtual.Vinculo) pedido.getAttribute(AutorizacaoProjeto.VINCULO)).papel(),
+                texto(origem, "versaoPublicadaId"), texto(candidata, "versaoId"));
         visao.set("_links", JSON.pojoNode(navegacao.links()));
         visao.set("_actions", JSON.pojoNode(navegacao.actions()));
         visao.set("avisos", avisos);

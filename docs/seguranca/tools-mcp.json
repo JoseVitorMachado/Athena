@@ -1263,6 +1263,51 @@
       "x-escopo": "athena:read"
     },
     {
+      "name": "compararVersoesRequisito",
+      "description": "Compara a versão indicada com a versão anterior ou com a versão informada em com. Limite de 2000 linhas por conteúdo.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "projetoId": {
+            "type": "string",
+            "example": "22222222-2222-4222-8222-222222222222",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como projetoId."
+          },
+          "requisitoId": {
+            "type": "string",
+            "example": "11111111-1111-4111-8111-111111111111",
+            "format": "uuid",
+            "description": "UUID estável (§5.1). Encaminhar em path como requisitoId."
+          },
+          "versaoId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Versão atual. Encaminhar em path como versaoId."
+          },
+          "com": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Versão anterior para comparação; por padrão, a versão de número imediatamente anterior. Encaminhar em query como com."
+          }
+        },
+        "required": [
+          "projetoId",
+          "requisitoId",
+          "versaoId"
+        ],
+        "additionalProperties": false
+      },
+      "x-dominio": "requisitos",
+      "x-operacao-dominio": "compararVersoesRequisito",
+      "x-metodo": "GET",
+      "x-rota": "/api/v1/projetos/{projetoId}/requisitos/{requisitoId}/versoes/{versaoId}/diferencas",
+      "x-projeto": "projetoId",
+      "x-papel-minimo": "Leitor",
+      "x-escopo": "athena:read"
+    },
+    {
       "name": "listarHistoricoRequisito",
       "description": "Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domínio proprietário.",
       "inputSchema": {

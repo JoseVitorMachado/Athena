@@ -51,6 +51,7 @@ public class ParticipanteExclusao {
         if (!excluido) {
         banco.update("DELETE FROM resultados_comando WHERE projeto_id = ? OR resposta_payload ->> 'submissaoId' IN (SELECT submissao_id::text FROM lotes WHERE projeto_id = ?)", projetoId, projetoId);
         banco.update("DELETE FROM cancelamentos_submissao WHERE projeto_id = ? OR submissao_id IN (SELECT submissao_id FROM lotes WHERE projeto_id = ?)", projetoId, projetoId);
+        banco.update("DELETE FROM comprovantes_humanos WHERE projeto_id = ?", projetoId);
         banco.update("DELETE FROM chaves_idempotencia WHERE projeto_id = ?", projetoId);
         banco.update("DELETE FROM decisoes WHERE lote_id IN (SELECT id FROM lotes WHERE projeto_id = ?)", projetoId);
         banco.update("DELETE FROM pendencias WHERE lote_id IN (SELECT id FROM lotes WHERE projeto_id = ?)", projetoId);

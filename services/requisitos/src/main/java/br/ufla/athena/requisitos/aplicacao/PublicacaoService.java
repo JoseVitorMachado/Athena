@@ -45,6 +45,19 @@ public class PublicacaoService {
     }
 
     @Transactional
+    public br.ufla.athena.requisitos.api.ConfirmacaoResposta confirmar(UUID projeto, UUID requisitoId,
+            br.ufla.athena.requisitos.api.ConfirmacaoEntrada entrada) {
+        ComprovantesHumanos.autorizarEmissao();
+        Requisito requisito = requisitos.buscarParaEdicao(requisitoId, projeto)
+                .orElseThrow(() -> new Problema(HttpStatus.NOT_FOUND, "REQUISITO_NAO_ENCONTRADO", "Requisito não encontrado."));
+        Versao candidata = requisito.candidata().orElse(null);
+        if (candidata == null || candidata.getEstadoVersao() != EstadoVersao.APROVADA
+                || !candidata.getId().equals(entrada.versaoId()))
+            throw new Problema(HttpStatus.CONFLICT, "VERSAO_DIVERGENTE", "A versão informada não é a candidata aprovada atual.");
+        return ComprovantesHumanos.emitir(banco, ComprovantesHumanos.usuarioInterno(), projeto, "PUBLICAR", requisitoId, entrada.versaoId(), entrada.hashAcao());
+    }
+
+    @Transactional
     public PublicacaoResposta criar(UUID projeto, UUID requisitoId, PublicacaoEntrada entrada,
                                    String chave, String ifMatch) {
         if (chave == null || chave.isBlank()) {
@@ -58,7 +71,7 @@ public class PublicacaoService {
         if (requisito.getSituacao() == br.ufla.athena.requisitos.dominio.SituacaoRequisito.CANCELADO)
             throw new Problema(HttpStatus.CONFLICT, "REQUISITO_CANCELADO", "Requisito cancelado.");
         String impressao = IdempotenciaSubmissao.impressaoPublicacao(requisitoId, entrada.versaoId(),
-                entrada.submissaoId(), entrada.comprovanteHumano());
+                entrada.submissaoId(), null);
         banco.queryForObject("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", (rs, n) -> 0,
                 projeto + ":" + OPERACAO + ":" + chave);
         banco.update("DELETE FROM chaves_idempotencia WHERE projeto_id=? AND operacao=? AND chave=? "
@@ -98,6 +111,9 @@ public class PublicacaoService {
         if (retrato == null) {
             throw new IllegalStateException("Submissão concluída sem retrato");
         }
+        ComprovantesHumanos.consumir(banco, entrada.comprovanteHumano(), new RegrasComprovante.Vinculos(
+                usuario.obter(), projeto, "PUBLICAR", requisitoId, entrada.versaoId(),
+                RegrasComprovante.hashAcao("publicar", requisitoId, entrada.versaoId(), null)));
         Instant agora = Instant.now().truncatedTo(ChronoUnit.MICROS);
         Publicacao publicacao = Publicacao.criar(requisitoId, candidata.getId(), entrada.submissaoId(), retrato, usuario.obter(), agora);
         entidades.persist(publicacao);

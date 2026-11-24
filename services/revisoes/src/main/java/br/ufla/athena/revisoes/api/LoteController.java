@@ -57,6 +57,12 @@ public class LoteController {
         return ResponseEntity.ok().eTag(LoteService.etag(encontrado.revisao())).body(encontrado.lote());
     }
 
+    @PostMapping("/{loteId}/confirmacoes-decisao")
+    public ResponseEntity<ConfirmacaoResposta> confirmar(@PathVariable UUID projetoId, @PathVariable UUID loteId,
+            @Valid @RequestBody ConfirmacaoEntrada entrada) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(servico.confirmar(projetoId, loteId, entrada));
+    }
+
     /** criarDecisao: 201 com Location; exige If-Match (428 sem ele, 412 se desatualizado). */
     @PostMapping("/{loteId}/decisoes")
     public ResponseEntity<DecisaoResposta> decidir(

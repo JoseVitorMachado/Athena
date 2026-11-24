@@ -846,13 +846,12 @@ paths:
     post:
       operationId: gestaoCriarConfirmacaoPublicacao
       summary: Criar confirmacao publicacao
-      description: '§7.5. Rota proposta para tela ATHENA autenticada; recusa identidade delegada MCP. Mostrar ação e conteúdo/versão, vincular usuário/projeto/ação/versão/hash. Serviço proprietário emite comprovante único por 5 min. Sem política de prova implementada, negar emissão. Não há tool MCP de emissão. BFF Gestão (§4.2): consulta requisitos por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      description: §7.5. O hashAcao é o SHA-256 em hexadecimal de `publicar:<requisitoId>:<versaoId>`. A interface reautentica o usuário por senha antes de solicitar o comprovante, de uso único e válido por 5 minutos, vinculado a usuário, projeto, ação, alvo, versão e hash. O canal MCP é recusado com 403 CONFIRMACAO_EXIGE_INTERFACE; não há ferramenta MCP de emissão. Senha inválida retorna 401 SENHA_INVALIDA; o limite de tentativas pode retornar 429.
       tags:
         - confirmacoes-publicacao
       x-papel-minimo: Aprovador
       x-escopo-mcp: athena:publish
       x-projeto: projetoId
-      x-decidir: Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente. Token delegado sozinho NÃO pode emitir comprovante.
       x-proposta: true
       parameters:
         - $ref: '#/components/parameters/ProjetoId'
@@ -862,7 +861,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConfirmacaoHumanaEntrada'
+              $ref: '#/components/schemas/ConfirmacaoHumanaInterface'
       responses:
         '201':
           description: Criação síncrona (§6.2).
@@ -1476,13 +1475,12 @@ paths:
     post:
       operationId: gestaoCriarConfirmacaoDecisao
       summary: Criar confirmacao decisao
-      description: '§7.5. Rota proposta para tela ATHENA autenticada; recusa identidade delegada MCP. Mostrar ação e conteúdo/versão, vincular usuário/projeto/ação/versão/hash. Serviço proprietário emite comprovante único por 5 min. Sem política de prova implementada, negar emissão. Não há tool MCP de emissão. BFF Gestão (§4.2): consulta revisoes por troca de token, sem banco próprio; se domínio ou validação em Projetos e acesso falhar, retorna 503; não repete escrita automaticamente. Encaminha ETag, If-Match e Idempotency-Key. Location/_links externos usam /api/v1/gestao, sem revelar endereço interno.'
+      description: §7.5. O hashAcao é o SHA-256 em hexadecimal de `decidir:<loteId>:<versaoId>:<decisao>`. A interface reautentica o usuário por senha antes de solicitar o comprovante, de uso único e válido por 5 minutos, vinculado a usuário, projeto, ação, alvo, versão e hash. O canal MCP é recusado com 403 CONFIRMACAO_EXIGE_INTERFACE; não há ferramenta MCP de emissão. Senha inválida retorna 401 SENHA_INVALIDA; o limite de tentativas pode retornar 429.
       tags:
         - confirmacoes-decisao
       x-papel-minimo: Aprovador
       x-escopo-mcp: athena:approve
       x-projeto: projetoId
-      x-decidir: Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente. Token delegado sozinho NÃO pode emitir comprovante.
       x-proposta: true
       parameters:
         - $ref: '#/components/parameters/ProjetoId'
@@ -1499,7 +1497,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConfirmacaoHumanaEntrada'
+              $ref: '#/components/schemas/ConfirmacaoHumanaInterface'
       responses:
         '201':
           description: Criação síncrona (§6.2).
@@ -4313,6 +4311,38 @@ paths:
       x-motivo-proposta: Representação de payload/nomes e enum de ordenação autorados contract-first; regras de negócio seguem o livro e lacunas usam x-decidir.
 components:
   schemas:
+    ConfirmacaoHumanaInterface:
+      type: object
+      description: Dados de confirmação e senha para reautenticação na interface.
+      properties:
+        versaoId:
+          type: string
+          format: uuid
+          example: 33333333-3333-4333-8333-333333333333
+        hashAcao:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          example: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+        confirmacao:
+          type: boolean
+          const: true
+          example: true
+        senha:
+          type: string
+          minLength: 1
+          writeOnly: true
+          example: senha-do-usuario
+      additionalProperties: false
+      required:
+        - versaoId
+        - hashAcao
+        - confirmacao
+        - senha
+      example:
+        versaoId: 33333333-3333-4333-8333-333333333333
+        hashAcao: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+        confirmacao: true
+        senha: senha-do-usuario
     RequisitoGestao:
       type: object
       properties:
@@ -5088,30 +5118,6 @@ components:
         situacao: CANCELADO
         autor: 11111111-1111-4111-8111-111111111111
         data: '2026-10-21T15:00:00Z'
-    ConfirmacaoHumanaEntrada:
-      type: object
-      properties:
-        versaoId:
-          type: string
-          example: 33333333-3333-4333-8333-333333333333
-          format: uuid
-        hashAcao:
-          type: string
-          example: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-          pattern: ^[a-f0-9]{64}$
-        confirmacao:
-          type: boolean
-          const: true
-          example: true
-      additionalProperties: false
-      required:
-        - versaoId
-        - hashAcao
-        - confirmacao
-      example:
-        versaoId: 33333333-3333-4333-8333-333333333333
-        hashAcao: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-        confirmacao: true
     ConfirmacaoHumana:
       type: object
       properties:

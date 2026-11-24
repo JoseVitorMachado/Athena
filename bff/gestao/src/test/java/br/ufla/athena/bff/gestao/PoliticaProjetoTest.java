@@ -56,6 +56,8 @@ class PoliticaProjetoTest {
         assertEquals(Papel.EDITOR, PoliticaProjeto.papelMinimo("DELETE", BASE + "/relacoes/r"));
         assertEquals(Papel.APROVADOR, PoliticaProjeto.papelMinimo("POST", BASE + "/revisoes/r/decisoes"));
         assertEquals(Papel.APROVADOR, PoliticaProjeto.papelMinimo("POST", BASE + "/requisitos/r/publicacoes"));
+        assertEquals(Papel.APROVADOR, PoliticaProjeto.papelMinimo("POST", BASE + "/revisoes/r/confirmacoes-decisao"));
+        assertEquals(Papel.APROVADOR, PoliticaProjeto.papelMinimo("POST", BASE + "/requisitos/r/confirmacoes-publicacao"));
         assertNull(PoliticaProjeto.papelMinimo("POST", BASE + "/outra-operacao"));
     }
     @Test

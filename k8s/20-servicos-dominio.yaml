@@ -677,6 +677,21 @@ spec:
             - name: http
               containerPort: 8000
           env:
+            - name: PROJETOS_ACESSO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: PROJETOS_ACESSO_URL
+            - name: REQUISITOS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REQUISITOS_URL
+            - name: REVISOES_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: REVISOES_URL
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:

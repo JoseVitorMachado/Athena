@@ -48,6 +48,7 @@ public class RequisitosGestaoController {
     private static final JsonNodeFactory JSON = JsonNodeFactory.instance;
 
     private final ClienteDominio dominio;
+    private final String projetosAcessoUrl;
     private final String requisitosUrl;
     private final PapelAtual papelAtual;
     private final String revisoesUrl;
@@ -55,6 +56,7 @@ public class RequisitosGestaoController {
 
     public RequisitosGestaoController(ClienteDominio dominio, AthenaProperties propriedades, PapelAtual papelAtual) {
         this.dominio = dominio;
+        this.projetosAcessoUrl = propriedades.servicos().projetosAcesso();
         this.papelAtual = papelAtual;
         this.requisitosUrl = propriedades.servicos().requisitos();
         this.revisoesUrl = propriedades.servicos().revisoes();
@@ -466,6 +468,21 @@ public class RequisitosGestaoController {
             @PathVariable UUID versaoId, HttpServletRequest pedido) {
         String query = pedido.getQueryString() == null ? "" : "?" + pedido.getQueryString();
         return repassar(dominio.get("requisitos", requisitosUrl, caminhoRequisito(projetoId, requisitoId) + "/versoes/" + versaoId + "/diferencas" + query));
+    }
+
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Criar confirmação humana", description = "Papel mínimo: Aprovador. SHA-256 em hexadecimal minúsculo sobre UTF-8, sem espaços: publicar:<requisitoId>:<versaoId>.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = br.ufla.athena.bff.gestao.docs.ConfirmacaoHumanaDoc.class)))
+    @ApiResponse(responseCode = "201", description = "Comprovante criado")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Senha inválida", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Muitas tentativas", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Serviço indisponível", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @PostMapping("/{requisitoId}/confirmacoes-publicacao")
+    public ResponseEntity<JsonNode> confirmarAcao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId, @RequestBody(required = false) JsonNode corpo) {
+        return ConfirmacaoHumana.emitir(dominio, projetosAcessoUrl, "requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/confirmacoes-publicacao", corpo);
     }
 
     private static String caminhoRequisito(UUID projetoId, UUID requisitoId) {

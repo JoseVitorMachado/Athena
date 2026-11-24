@@ -95,14 +95,15 @@ public final class MontadorAcoes {
                         List.of("decisao", "justificativa", "submissaoId", "versaoId", "hashConteudo"),
                         List.of("If-Match do lote", "Idempotency-Key", "Lote ATIVO",
                                 "Justificativa obrigatória para REJEITAR ou SOLICITAR_CORRECOES",
-                                "Papel Aprovador ou superior")));
+                                "Papel Aprovador ou superior", "Confirmação humana obrigatória quando executada pelo agente MCP")));
             }
         }
         if ("APROVADA".equals(estado) && papel.permite(Papel.APROVADOR)) {
             actions.put("publicar", acao(self + "/publicacoes", "POST",
                     List.of("versaoId", "submissaoId", "comprovanteHumano"),
                     List.of("If-Match", "Idempotency-Key", "Candidata APROVADA", "Papel Aprovador ou superior",
-                            "MCP: confirmação humana específica; comprovante único válido por 5 minutos")));
+                            "MCP: confirmação humana específica; comprovante único válido por 5 minutos",
+                            "Confirmação humana obrigatória quando executada pelo agente MCP")));
         }
         return new Resultado(links, actions);
     }

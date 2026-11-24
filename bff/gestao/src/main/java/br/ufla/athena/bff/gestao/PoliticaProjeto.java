@@ -47,8 +47,8 @@ public final class PoliticaProjeto {
                 || caminho.matches(BASE + "/restauracoes")))) {
             return Papel.MANTENEDOR;
         }
-        if ("POST".equals(metodo) && (caminho.matches(BASE + "/revisoes/[^/]+/decisoes")
-                || caminho.matches(BASE + "/requisitos/[^/]+/publicacoes"))) {
+        if ("POST".equals(metodo) && (caminho.matches(BASE + "/revisoes/[^/]+/(decisoes|confirmacoes-decisao)")
+                || caminho.matches(BASE + "/requisitos/[^/]+/(publicacoes|confirmacoes-publicacao)"))) {
             return Papel.APROVADOR;
         }
         if (("POST".equals(metodo) && (caminho.matches(BASE + "/requisitos")

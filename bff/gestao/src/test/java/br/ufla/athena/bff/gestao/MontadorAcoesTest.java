@@ -39,6 +39,7 @@ class MontadorAcoesTest {
     @Test
     void decisaoExigeLoteAtivoEAprovador() {
         assertTrue(montar("ATIVO", "AGUARDANDO_REVISAO", "ATIVO", Papel.APROVADOR).actions().containsKey("decidir"));
+        assertTrue(montar("ATIVO", "AGUARDANDO_REVISAO", "ATIVO", Papel.APROVADOR).actions().get("decidir").precondicoes().contains("Confirmação humana obrigatória quando executada pelo agente MCP"));
         assertFalse(montar("ATIVO", "AGUARDANDO_REVISAO", "ATIVO", Papel.EDITOR).actions().containsKey("decidir"));
         assertFalse(montar("ATIVO", "AGUARDANDO_REVISAO", null, Papel.APROVADOR).actions().containsKey("decidir"));
     }
@@ -51,7 +52,8 @@ class MontadorAcoesTest {
         assertEquals("application/json", acao.contentType());
         assertEquals(List.of("versaoId", "submissaoId", "comprovanteHumano"), acao.campos());
         assertEquals(List.of("If-Match", "Idempotency-Key", "Candidata APROVADA", "Papel Aprovador ou superior",
-                "MCP: confirmação humana específica; comprovante único válido por 5 minutos"), acao.precondicoes());
+                "MCP: confirmação humana específica; comprovante único válido por 5 minutos",
+                "Confirmação humana obrigatória quando executada pelo agente MCP"), acao.precondicoes());
     }
 
     @Test
@@ -65,6 +67,7 @@ class MontadorAcoesTest {
     @Test
     void cancelamentoExigeAusenciaDeSubmissaoERevisao() {
         assertFalse(montar("ATIVO", "EM_SUBMISSAO", null, Papel.EDITOR).actions().containsKey("cancelar"));
+        assertTrue(montar("ATIVO", "AGUARDANDO_REVISAO", "ATIVO", Papel.APROVADOR).actions().get("decidir").precondicoes().contains("Confirmação humana obrigatória quando executada pelo agente MCP"));
         assertFalse(montar("ATIVO", "AGUARDANDO_REVISAO", "ATIVO", Papel.EDITOR).actions().containsKey("cancelar"));
         var emAndamento = montador.montar("p", "r", "ATIVO", "RASCUNHO", null, null, "s", true, Papel.EDITOR);
         assertFalse(emAndamento.actions().containsKey("cancelar"));

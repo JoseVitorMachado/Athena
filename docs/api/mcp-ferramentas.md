@@ -1208,7 +1208,7 @@ Operação conforme §§5, 6.2–6.3 e 7.4. Revalidar acesso e estado no domíni
 
 Papel mínimo: **Aprovador**; escopo **athena:publish**; projeto **projetoId**.
 
-§§4.3, 6.3, 6.9, 7.5. If-Match da candidata. Exige APROVADA já aplicada em Requisitos e versão/tentativa correspondentes; divergência 409. Registro imutável vincula o retrato aprovado. MCP exige comprovante humano consumido atomicamente; publicar não é aprovar.
+§§4.3, 6.3, 6.9, 7.5. If-Match da candidata. Exige APROVADA já aplicada em Requisitos e versão/tentativa correspondentes; divergência 409. Registro imutável vincula o retrato aprovado. MCP exige comprovante humano consumido atomicamente; publicar não é aprovar. Chamadas do agente sem comprovanteHumano válido retornam 403 COMPROVANTE_INVALIDO. O comprovante é de uso único, válido por 5 minutos e vinculado a usuário, projeto, ação, alvo, versão e hash.
 
 ```json
 {
@@ -2558,7 +2558,7 @@ Decisão pendente: Quem pode resolver ou atribuir pendências? x-papel-minimo Le
 
 Papel mínimo: **Aprovador**; escopo **athena:approve**; projeto **projetoId**.
 
-§§6.3, 6.9, 7.5. If-Match do lote. Primeira decisão final válida vence; 409 se já decidido, PREPARADO ou pendências bloqueantes abertas. Rejeição/correções exigem justificativa. Evento por outbox; aplicação em Requisitos pode ficar PENDENTE, inclusive DLQ. MCP exige comprovante humano consumido na transação; autoaprovação permitida com decisão explícita.
+§§6.3, 6.9, 7.5. If-Match do lote. Primeira decisão final válida vence; 409 se já decidido, PREPARADO ou pendências bloqueantes abertas. Rejeição/correções exigem justificativa. Evento por outbox; aplicação em Requisitos pode ficar PENDENTE, inclusive DLQ. MCP exige comprovante humano consumido na transação; autoaprovação permitida com decisão explícita. Chamadas do agente sem comprovanteHumano válido retornam 403 COMPROVANTE_INVALIDO. O comprovante é de uso único, válido por 5 minutos e vinculado a usuário, projeto, ação, alvo, versão e hash.
 
 ```json
 {

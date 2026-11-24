@@ -1145,7 +1145,7 @@
     },
     {
       "name": "criarPublicacao",
-      "description": "§§4.3, 6.3, 6.9, 7.5. If-Match da candidata. Exige APROVADA já aplicada em Requisitos e versão/tentativa correspondentes; divergência 409. Registro imutável vincula o retrato aprovado. MCP exige comprovante humano consumido atomicamente; publicar não é aprovar.",
+      "description": "§§4.3, 6.3, 6.9, 7.5. If-Match da candidata. Exige APROVADA já aplicada em Requisitos e versão/tentativa correspondentes; divergência 409. Registro imutável vincula o retrato aprovado. MCP exige comprovante humano consumido atomicamente; publicar não é aprovar. Chamadas do agente sem comprovanteHumano válido retornam 403 COMPROVANTE_INVALIDO. O comprovante é de uso único, válido por 5 minutos e vinculado a usuário, projeto, ação, alvo, versão e hash.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -2539,7 +2539,7 @@
     },
     {
       "name": "criarDecisao",
-      "description": "§§6.3, 6.9, 7.5. If-Match do lote. Primeira decisão final válida vence; 409 se já decidido, PREPARADO ou pendências bloqueantes abertas. Rejeição/correções exigem justificativa. Evento por outbox; aplicação em Requisitos pode ficar PENDENTE, inclusive DLQ. MCP exige comprovante humano consumido na transação; autoaprovação permitida com decisão explícita.",
+      "description": "§§6.3, 6.9, 7.5. If-Match do lote. Primeira decisão final válida vence; 409 se já decidido, PREPARADO ou pendências bloqueantes abertas. Rejeição/correções exigem justificativa. Evento por outbox; aplicação em Requisitos pode ficar PENDENTE, inclusive DLQ. MCP exige comprovante humano consumido na transação; autoaprovação permitida com decisão explícita. Chamadas do agente sem comprovanteHumano válido retornam 403 COMPROVANTE_INVALIDO. O comprovante é de uso único, válido por 5 minutos e vinculado a usuário, projeto, ação, alvo, versão e hash.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",

@@ -27,10 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/gestao/projetos/{projetoId}/revisoes")
 public class RevisoesGestaoController {
     private final ClienteDominio dominio;
+    private final String projetosAcessoUrl;
     private final String revisoesUrl;
 
     public RevisoesGestaoController(ClienteDominio dominio, AthenaProperties propriedades) {
         this.dominio = dominio;
+        this.projetosAcessoUrl = propriedades.servicos().projetosAcesso();
         this.revisoesUrl = propriedades.servicos().revisoes();
     }
 
@@ -135,6 +137,21 @@ public class RevisoesGestaoController {
             @RequestHeader(value = "Idempotency-Key", required = false) String chave, @RequestBody JsonNode corpo) {
         return RequisitosGestaoController.repassar(dominio.post("revisoes", revisoesUrl,
                 colecao(projetoId) + "/" + loteId + "/decisoes", corpo, ifMatch, chave));
+    }
+
+    @Tag(name = "Revisões")
+    @Operation(summary = "Criar confirmação humana", description = "Papel mínimo: Aprovador. SHA-256 em hexadecimal minúsculo sobre UTF-8, sem espaços: decidir:<loteId>:<versaoId>:<decisao>, com decisão APROVAR, REJEITAR ou SOLICITAR_CORRECOES.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = br.ufla.athena.bff.gestao.docs.ConfirmacaoHumanaDoc.class)))
+    @ApiResponse(responseCode = "201", description = "Comprovante criado")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Senha inválida", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Muitas tentativas", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Serviço indisponível", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @PostMapping("/{loteId}/confirmacoes-decisao")
+    public ResponseEntity<JsonNode> confirmarAcao(@PathVariable UUID projetoId, @PathVariable UUID loteId, @RequestBody(required = false) JsonNode corpo) {
+        return ConfirmacaoHumana.emitir(dominio, projetosAcessoUrl, "revisoes", revisoesUrl,
+                colecao(projetoId) + "/" + loteId + "/confirmacoes-decisao", corpo);
     }
 
     private static String colecao(UUID projetoId) {

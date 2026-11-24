@@ -145,12 +145,6 @@ public class SegurancaConfig {
         };
     }
 
-    @Bean
-    WebFilter removerCabecalhos() {
-        return (exchange, chain) -> chain.filter(exchange.mutate().request(exchange.getRequest().mutate().headers(headers ->
-                List.copyOf(headers.keySet()).stream().filter(n -> n.toLowerCase(java.util.Locale.ROOT).startsWith("x-athena-")).forEach(headers::remove)).build()).build());
-    }
-
     private static Mono<Void> problema(ServerWebExchange exchange, HttpStatus status, String codigo) {
         exchange.getResponse().setStatusCode(status);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_PROBLEM_JSON);

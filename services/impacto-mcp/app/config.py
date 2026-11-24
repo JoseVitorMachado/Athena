@@ -28,3 +28,7 @@ RABBITMQ_HOST = _obrigatoria("RABBITMQ_HOST")
 RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
 RABBITMQ_USER = _obrigatoria("RABBITMQ_USER")
 RABBITMQ_PASSWORD = _obrigatoria("RABBITMQ_PASSWORD")
+
+PROJETOS_ACESSO_URL = os.environ.get("PROJETOS_ACESSO_URL", "http://projetos-acesso:8080").rstrip("/")
+REQUISITOS_URL = os.environ.get("REQUISITOS_URL", "http://requisitos:8080").rstrip("/")
+REVISOES_URL = os.environ.get("REVISOES_URL", "http://revisoes:8080").rstrip("/")

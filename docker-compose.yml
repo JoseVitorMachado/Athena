@@ -321,6 +321,9 @@ services:
       DB_NAME: impacto_mcp
       DB_USER: ${IMPACTO_MCP_DB_USER:-impacto_mcp}
       DB_PASSWORD: ${IMPACTO_MCP_DB_PASSWORD:-dev_impacto_mcp}
+      PROJETOS_ACESSO_URL: http://projetos-acesso:8080
+      REQUISITOS_URL: http://requisitos:8080
+      REVISOES_URL: http://revisoes:8080
       CARREGAR_DEMO: ${CARREGAR_DEMO:-true}
     depends_on:
       db-impacto-mcp:

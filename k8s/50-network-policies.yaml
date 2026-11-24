@@ -248,3 +248,67 @@ spec:
               app.kubernetes.io/name: prometheus
       ports:
         - port: 8081
+---
+# A política geral de domínio já permite ingress de impacto-mcp; esta regra
+# explicita os três destinos e a porta usados pelas ferramentas MCP.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dominio-acesso-impacto-mcp
+  namespace: athena
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: [projetos-acesso, requisitos, revisoes]
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: impacto-mcp
+      ports:
+        - port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: impacto-mcp-saida
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: impacto-mcp
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: [projetos-acesso, requisitos, revisoes]
+      ports:
+        - port: 8080
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: db-impacto-mcp
+      ports:
+        - port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+      ports:
+        - port: 5672
+    # Resolução dos nomes dos Services pelo DNS do cluster.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

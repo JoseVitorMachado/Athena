@@ -16,6 +16,17 @@ public class TratadorDeErros extends ResponseEntityExceptionHandler {
         return problema;
     }
 
+    @Override
+    protected org.springframework.http.ResponseEntity<Object> handleHttpMessageNotReadable(
+            org.springframework.http.converter.HttpMessageNotReadableException e,
+            org.springframework.http.HttpHeaders cabecalhos, org.springframework.http.HttpStatusCode status,
+            org.springframework.web.context.request.WebRequest pedido) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido.");
+        problema.setProperty("codigo", "ENTRADA_INVALIDA");
+        return org.springframework.http.ResponseEntity.badRequest()
+                .contentType(org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON).body(problema);
+    }
+
     /** Sem o serviço dono do dado o BFF não inventa resposta: 503 em Problem Details. */
     @ExceptionHandler(DominioIndisponivelException.class)
     public ProblemDetail dominioIndisponivel(DominioIndisponivelException e) {

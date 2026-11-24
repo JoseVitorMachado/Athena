@@ -139,7 +139,7 @@
       "papelMinimo": "Aprovador",
       "escopo": "athena:publish",
       "interno": "Não",
-      "politica": "Pendente"
+      "politica": "Definida"
     },
     {
       "contrato": "bff-gestao.yaml",
@@ -249,7 +249,7 @@
       "papelMinimo": "Aprovador",
       "escopo": "athena:approve",
       "interno": "Não",
-      "politica": "Pendente"
+      "politica": "Definida"
     },
     {
       "contrato": "bff-gestao.yaml",
@@ -2039,7 +2039,7 @@
       "papelMinimo": "Aprovador",
       "escopo": "athena:publish",
       "interno": "Não",
-      "politica": "Pendente"
+      "politica": "Definida"
     },
     {
       "contrato": "revisoes.yaml",
@@ -2109,7 +2109,7 @@
       "papelMinimo": "Aprovador",
       "escopo": "athena:approve",
       "interno": "Não",
-      "politica": "Pendente"
+      "politica": "Definida"
     }
   ]
 }

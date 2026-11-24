@@ -17,7 +17,7 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/publicacoes | gestaoCriarPublicacao | Aprovador | athena:publish | Não | Definida |
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/cancelamentos | gestaoCriarCancelamento | Editor | athena:write | Não | Definida |
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/reativacoes | gestaoCriarReativacao | Editor | athena:write | Não | Definida |
-| bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao | gestaoCriarConfirmacaoPublicacao | Aprovador | athena:publish | Não | Pendente |
+| bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao | gestaoCriarConfirmacaoPublicacao | Aprovador | athena:publish | Não | Definida |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/relacoes | gestaoListarRelacoes | Leitor | athena:read | Não | Definida |
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/relacoes | gestaoCriarRelacao | Editor | athena:write | Não | Pendente |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId} | gestaoObterRelacao | Leitor | athena:read | Não | Definida |
@@ -28,7 +28,7 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId} | gestaoObterLote | Leitor | athena:read | Não | Pendente |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/decisoes | gestaoListarDecisoes | Leitor | athena:read | Não | Definida |
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/decisoes | gestaoCriarDecisao | Aprovador | athena:approve | Não | Definida |
-| bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/confirmacoes-decisao | gestaoCriarConfirmacaoDecisao | Aprovador | athena:approve | Não | Pendente |
+| bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/confirmacoes-decisao | gestaoCriarConfirmacaoDecisao | Aprovador | athena:approve | Não | Definida |
 | bff-gestao.yaml | GET | /api/v1/gestao/workspaces | gestaoListarWorkspaces | Leitor | athena:read | Não | Definida |
 | bff-gestao.yaml | POST | /api/v1/gestao/workspaces | gestaoCriarWorkspace | Leitor | athena:admin | Não | Pendente |
 | bff-gestao.yaml | GET | /api/v1/gestao/workspaces/{workspaceId} | gestaoObterWorkspace | Leitor | athena:read | Não | Definida |
@@ -207,11 +207,11 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 | requisitos.yaml | POST | /api/v1/projetos/{projetoId}/baselines | criarBaseline | Editor | athena:write | Não | Definida |
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/baselines/{baselineId} | obterBaseline | Leitor | athena:read | Não | Definida |
 | requisitos.yaml | GET | /api/v1/projetos/{projetoId}/baselines/{baselineId}/comparacao | compararBaseline | Leitor | athena:read | Não | Definida |
-| requisitos.yaml | POST | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao | criarConfirmacaoPublicacao | Aprovador | athena:publish | Não | Pendente |
+| requisitos.yaml | POST | /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao | criarConfirmacaoPublicacao | Aprovador | athena:publish | Não | Definida |
 | revisoes.yaml | GET | /api/v1/projetos/{projetoId}/lotes | listarLotes | Leitor | athena:read | Não | Pendente |
 | revisoes.yaml | GET | /api/v1/projetos/{projetoId}/lotes/{loteId} | obterLote | Leitor | athena:read | Não | Pendente |
 | revisoes.yaml | GET | /api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias | listarPendencias | Leitor | athena:read | Não | Definida |
 | revisoes.yaml | PATCH | /api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias/{pendenciaId} | editarPendencia | Leitor | athena:write | Não | Pendente |
 | revisoes.yaml | GET | /api/v1/projetos/{projetoId}/lotes/{loteId}/decisoes | listarDecisoes | Leitor | athena:read | Não | Definida |
 | revisoes.yaml | POST | /api/v1/projetos/{projetoId}/lotes/{loteId}/decisoes | criarDecisao | Aprovador | athena:approve | Não | Definida |
-| revisoes.yaml | POST | /api/v1/projetos/{projetoId}/lotes/{loteId}/confirmacoes-decisao | criarConfirmacaoDecisao | Aprovador | athena:approve | Não | Pendente |
+| revisoes.yaml | POST | /api/v1/projetos/{projetoId}/lotes/{loteId}/confirmacoes-decisao | criarConfirmacaoDecisao | Aprovador | athena:approve | Não | Definida |

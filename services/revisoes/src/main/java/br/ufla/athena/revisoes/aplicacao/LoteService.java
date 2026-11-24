@@ -48,6 +48,16 @@ public class LoteService {
         this.json = json;
     }
 
+    @Transactional
+    public br.ufla.athena.revisoes.api.ConfirmacaoResposta confirmar(UUID projeto, UUID loteId,
+            br.ufla.athena.revisoes.api.ConfirmacaoEntrada entrada) {
+        ComprovantesHumanos.autorizarEmissao();
+        Lote lote = lotes.findByIdAndProjetoId(loteId, projeto).orElseThrow(LoteService::naoEncontrado);
+        if (!lote.getVersaoId().equals(entrada.versaoId()))
+            throw new Problema(HttpStatus.CONFLICT, "VERSAO_DIVERGENTE", "A versão informada não corresponde ao lote.");
+        return ComprovantesHumanos.emitir(banco, ComprovantesHumanos.usuarioInterno(), projeto, "DECIDIR", loteId, entrada.versaoId(), entrada.hashAcao());
+    }
+
     @Transactional(readOnly = true)
     public Page<LoteResposta> listar(UUID projetoId, UUID requisitoId, EstadoLote estado, Pageable paginacao) {
         Specification<Lote> filtro = (lote, consulta, cb) -> cb.equal(lote.get("projetoId"), projetoId);
@@ -133,6 +143,9 @@ public class LoteService {
                     "Há pendência bloqueante não resolvida neste lote.");
         }
 
+        ComprovantesHumanos.consumir(banco, entrada.comprovanteHumano(), new RegrasComprovante.Vinculos(
+                usuario.obter(), projetoId, "DECIDIR", loteId, entrada.versaoId(),
+                RegrasComprovante.hashAcao("decidir", loteId, entrada.versaoId(), entrada.decisao().name())));
         Decisao decisao = decisoes.save(Decisao.registrar(lote, entrada.decisao(), entrada.justificativa(), usuario.obter()));
         lote.encerrar();
         emitirEvento(lote, decisao);
@@ -144,7 +157,7 @@ public class LoteService {
 
     private String impressao(UUID loteId, DecisaoEntrada entrada) {
         try {
-            byte[] conteudo = json.writeValueAsBytes(entrada);
+            byte[] conteudo = json.writeValueAsBytes(new PedidoDecisao(entrada.decisao(), entrada.justificativa(), entrada.submissaoId(), entrada.versaoId(), entrada.hashConteudo()));
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             digest.update(loteId.toString().getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(digest.digest(conteudo));
@@ -152,6 +165,8 @@ public class LoteService {
             throw new IllegalStateException("Não foi possível calcular a impressão do pedido", e);
         }
     }
+
+    private record PedidoDecisao(TipoDecisao decisao, String justificativa, UUID submissaoId, UUID versaoId, String hashConteudo) { }
 
     private record ChaveRegistrada(String impressao, UUID recursoId) {
     }

@@ -65,7 +65,9 @@ class LoteServiceIdempotenciaTest {
         Decisao decisao = Decisao.registrar(lote, entrada.decisao(), null, UUID.randomUUID());
         var digest = java.security.MessageDigest.getInstance("SHA-256");
         digest.update(lote.getId().toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        String impressao = java.util.HexFormat.of().formatHex(digest.digest(json.writeValueAsBytes(entrada)));
+        var pedido = json.valueToTree(entrada);
+        ((com.fasterxml.jackson.databind.node.ObjectNode) pedido).remove("comprovanteHumano");
+        String impressao = java.util.HexFormat.of().formatHex(digest.digest(json.writeValueAsBytes(pedido)));
         when(banco.query(anyString(), any(RowMapper.class), any(), any(), any())).thenAnswer(chamada -> {
             RowMapper<?> mapper = chamada.getArgument(1);
             java.sql.ResultSet linha = mock(java.sql.ResultSet.class);

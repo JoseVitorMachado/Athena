@@ -61,6 +61,7 @@ public class ParticipanteExclusao {
         banco.update("DELETE FROM requisitos WHERE projeto_id = ?", projeto);
         banco.update("DELETE FROM epicos WHERE projeto_id = ?", projeto);
         banco.update("DELETE FROM sequencias_codigo WHERE projeto_id = ?", projeto);
+        banco.update("DELETE FROM comprovantes_humanos WHERE projeto_id = ?", projeto);
         banco.update("DELETE FROM chaves_idempotencia WHERE projeto_id = ?", projeto);
             banco.update("DELETE FROM outbox WHERE payload->>'projetoId' = ?", projeto.toString());
             banco.update("INSERT INTO projetos_excluidos (projeto_id) VALUES (?) ON CONFLICT DO NOTHING", projeto);

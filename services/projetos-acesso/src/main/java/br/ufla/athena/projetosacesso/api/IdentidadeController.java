@@ -263,6 +263,36 @@ public class IdentidadeController {
     }
 
     // Endpoints internos não são roteados pelo Gateway (livro §6.1).
+    record VerificacaoSenha(@NotBlank String senha) {}
+
+    @PostMapping("/api/v1/internal/usuarios/{usuarioId}/verificacao-senha")
+    public ResponseEntity<?> verificarSenha(@PathVariable UUID usuarioId, @Valid @RequestBody VerificacaoSenha entrada) {
+        String chave = "verificacao:" + usuarioId;
+        Instant agora = Instant.now();
+        // Serializa também a verificação para impedir que tentativas concorrentes contornem o limite.
+        synchronized (falhas) {
+            List<Instant> recentes = falhas.getOrDefault(chave, List.of()).stream()
+                    .filter(i -> i.plusSeconds(900).isAfter(agora)).toList();
+            falhas.put(chave, recentes);
+            if (recentes.size() >= 5) {
+                long espera = Math.max(1, Duration.between(agora, recentes.get(0).plusSeconds(900)).toSeconds());
+                return ResponseEntity.status(429).header(HttpHeaders.RETRY_AFTER, Long.toString(espera))
+                        .contentType(org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON)
+                        .body(Map.of("type", "about:blank", "title", "Too Many Requests", "status", 429, "codigo", "MUITAS_TENTATIVAS"));
+            }
+            List<String> hashes = banco.query("SELECT senha_hash FROM usuarios WHERE id=?", (rs, n) -> rs.getString(1), usuarioId);
+            boolean confere = senhas.matches(entrada.senha(), hashes.isEmpty() ? hashFalso : hashes.get(0));
+            if (hashes.isEmpty() || !confere) {
+                var lista = new java.util.ArrayList<>(recentes);
+                lista.add(agora);
+                falhas.put(chave, lista);
+                throw new Problema(HttpStatus.UNAUTHORIZED, "SENHA_INVALIDA", "Senha inválida.");
+            }
+            falhas.remove(chave);
+            return ResponseEntity.noContent().build();
+        }
+    }
+
     @GetMapping("/api/v1/internal/sessoes/{id}")
     public Map<String, Object> sessao(@PathVariable UUID id) {
         return banco.query("SELECT usuario_id FROM sessoes WHERE id=? AND revogada_em IS NULL AND expira_em>now()", (rs, n) -> Map.<String, Object>of("sessaoId", id, "usuarioId", rs.getObject(1, UUID.class), "ativa", true), id).stream().findFirst().orElseThrow(() -> new Problema(HttpStatus.NOT_FOUND, "SESSAO_NAO_ENCONTRADA", "Sessão não encontrada."));

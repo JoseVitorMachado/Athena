@@ -100,7 +100,8 @@ public class ClienteDominio {
                             String ifMatch, String idempotencyKey, String authorization) {
         RestClient.RequestBodySpec requisicao = http.method(metodo)
                 .uri(URI.create(urlBase + caminho))
-                .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_PROBLEM_JSON);
+                .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_PROBLEM_JSON)
+                .header("X-Athena-Canal", "INTERFACE");
         var autenticacao = SecurityContextHolder.getContext().getAuthentication();
         if (autenticacao instanceof JwtAuthenticationToken jwt && jwt.isAuthenticated()
                 && jwt.getToken().getSubject() != null) {

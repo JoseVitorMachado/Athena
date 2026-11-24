@@ -18,7 +18,7 @@ Campos de payload, nomes de UUIDs, coleções de acompanhamento, títulos, orden
 |---|---|---|
 | requisitos | `GET /api/v1/projetos/{projetoId}/requisitos` | Qual catálogo de tipos de requisito? |
 | requisitos | `POST /api/v1/projetos/{projetoId}/requisitos` | Qual catálogo de tipos de requisito? |
-| requisitos | `POST /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao` | Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente. Token delegado sozinho NÃO pode emitir comprovante. |
+| requisitos | `POST /api/v1/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao` | Prova por senha na interface; canal MCP não emite comprovante. |
 | rastreabilidade | `POST /api/v1/projetos/{projetoId}/relacoes` | Confirmar 409 para ciclo/duplicação e 400 para autorrelação/relação entre projetos. |
 | rastreabilidade | `PATCH /api/v1/projetos/{projetoId}/relacoes/{relacaoId}` | Confirmar status dos conflitos de relações. |
 | rastreabilidade | `GET /api/v1/projetos/{projetoId}/cobertura` | Quais indicadores e fórmulas compõem a cobertura? |
@@ -26,7 +26,7 @@ Campos de payload, nomes de UUIDs, coleções de acompanhamento, títulos, orden
 | revisoes | `GET /api/v1/projetos/{projetoId}/lotes` | Quais são os estados do lote além de PREPARADO e a nomenclatura da ativação? |
 | revisoes | `GET /api/v1/projetos/{projetoId}/lotes/{loteId}` | Quais são os valores finais do enum de estado do lote? |
 | revisoes | `PATCH /api/v1/projetos/{projetoId}/lotes/{loteId}/pendencias/{pendenciaId}` | Quem pode resolver ou atribuir pendências? x-papel-minimo Leitor é apenas piso autenticado, NÃO autorização de escrita; operação bloqueada até definir política. |
-| revisoes | `POST /api/v1/projetos/{projetoId}/lotes/{loteId}/confirmacoes-decisao` | Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente. Token delegado sozinho NÃO pode emitir comprovante. |
+| revisoes | `POST /api/v1/projetos/{projetoId}/lotes/{loteId}/confirmacoes-decisao` | Prova por senha na interface; canal MCP não emite comprovante. |
 | projetos-acesso | `POST /api/v1/autenticacao/cadastro` | Qual política de senha e validação de e-mail? |
 | projetos-acesso | `POST /api/v1/autenticacao/recuperacao` | Recuperação: código 6 dígitos/10 min ou token de alta entropia/15 min? Não fixar formato de credencial. |
 | projetos-acesso | `POST /api/v1/autenticacao/recuperacao/conclusao` | Recuperação: código 6 dígitos/10 min ou token de alta entropia/15 min? Não fixar formato de credencial. |
@@ -62,12 +62,12 @@ Campos de payload, nomes de UUIDs, coleções de acompanhamento, títulos, orden
 | impacto-mcp | `POST /api/v1/projetos/{projetoId}/analises/{analiseId}/sugestoes` | Confirmar fluxo/identificador para registrar sugestões do agente e papel de Repórter versus Editor. |
 | bff-gestao | `GET /api/v1/gestao/projetos/{projetoId}/requisitos` | Qual catálogo de tipos de requisito? |
 | bff-gestao | `POST /api/v1/gestao/projetos/{projetoId}/requisitos` | Qual catálogo de tipos de requisito? |
-| bff-gestao | `POST /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao` | Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente. Token delegado sozinho NÃO pode emitir comprovante. |
+| bff-gestao | `POST /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId}/confirmacoes-publicacao` | Prova por senha na interface; canal MCP não emite comprovante. |
 | bff-gestao | `POST /api/v1/gestao/projetos/{projetoId}/relacoes` | Confirmar 409 para ciclo/duplicação e 400 para autorrelação/relação entre projetos. |
 | bff-gestao | `PATCH /api/v1/gestao/projetos/{projetoId}/relacoes/{relacaoId}` | Confirmar status dos conflitos de relações. |
 | bff-gestao | `GET /api/v1/gestao/projetos/{projetoId}/revisoes` | Quais são os estados do lote além de PREPARADO e a nomenclatura da ativação? |
 | bff-gestao | `GET /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}` | Quais são os valores finais do enum de estado do lote? |
-| bff-gestao | `POST /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/confirmacoes-decisao` | Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente. Token delegado sozinho NÃO pode emitir comprovante. |
+| bff-gestao | `POST /api/v1/gestao/projetos/{projetoId}/revisoes/{loteId}/confirmacoes-decisao` | Prova por senha na interface; canal MCP não emite comprovante. |
 | bff-gestao | `POST /api/v1/gestao/workspaces` | Quem pode criar workspace/projeto no workspace? Exige política própria; papel Leitor é piso, não concessão. |
 | bff-gestao | `PATCH /api/v1/gestao/workspaces/{workspaceId}` | Qual permissão de organização para workspace, cuja propriedade é independente dos projetos? |
 | bff-gestao | `POST /api/v1/gestao/projetos` | Quem pode criar workspace/projeto no workspace? Exige política própria; papel Leitor é piso, não concessão. |
@@ -154,6 +154,10 @@ O GET Gestão de requisito usa o ETag do requisito. Ações de candidata obtêm 
 Códigos de conflito adicionais propostos nos exemplos: SUBMISSAO_ATIVA, CANDIDATA_FORA_DE_RASCUNHO, LOTE_JA_DECIDIDO, LOTE_PREPARADO, PENDENCIAS_BLOQUEANTES, CANDIDATA_NAO_APROVADA, VERSAO_DIVERGENTE. A semântica vem do livro; os nomes são escolhas de contrato.
 
 ## Decisões adotadas na implementação
+
+- Confirmação humana: a interface reautentica o usuário por senha antes da emissão do comprovante. O canal MCP recebe 403 `CONFIRMACAO_EXIGE_INTERFACE` ao solicitar emissão.
+- `X-Athena-Canal` é definido pelo BFF ou pelo impacto-mcp. O Gateway remove cabeçalhos `X-Athena-*` enviados pelo cliente e injeta o usuário na rota `/mcp`.
+- Ferramentas MCP: `buscar_contexto` (Leitor); `preparar_confirmacao` (Leitor), que apenas calcula o hash e indica a tela, sem emitir comprovante; `decidir_revisao` e `publicar_versao` (Aprovador e comprovante). Todas verificam a filiação ao projeto a cada chamada.
 
 - Criar projeto em workspace exige ser owner do workspace ou Owner/Mantenedor de algum projeto dele. A propriedade do workspace não concede acesso aos seus projetos.
 - Editar ou excluir workspace cabe somente ao owner do workspace.

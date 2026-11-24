@@ -239,7 +239,7 @@ paths:
     post:
       operationId: criarDecisao
       summary: Criar decisao
-      description: §§6.3, 6.9, 7.5. If-Match do lote. Primeira decisão final válida vence; 409 se já decidido, PREPARADO ou pendências bloqueantes abertas. Rejeição/correções exigem justificativa. Evento por outbox; aplicação em Requisitos pode ficar PENDENTE, inclusive DLQ. MCP exige comprovante humano consumido na transação; autoaprovação permitida com decisão explícita.
+      description: §§6.3, 6.9, 7.5. If-Match do lote. Primeira decisão final válida vence; 409 se já decidido, PREPARADO ou pendências bloqueantes abertas. Rejeição/correções exigem justificativa. Evento por outbox; aplicação em Requisitos pode ficar PENDENTE, inclusive DLQ. MCP exige comprovante humano consumido na transação; autoaprovação permitida com decisão explícita. Chamadas do agente sem comprovanteHumano válido retornam 403 COMPROVANTE_INVALIDO. O comprovante é de uso único, válido por 5 minutos e vinculado a usuário, projeto, ação, alvo, versão e hash.
       tags:
         - decisoes
       x-papel-minimo: Aprovador
@@ -374,13 +374,12 @@ paths:
     post:
       operationId: criarConfirmacaoDecisao
       summary: Criar confirmacao decisao
-      description: §7.5. Rota proposta para tela ATHENA autenticada; recusa identidade delegada MCP. Mostrar ação e conteúdo/versão, vincular usuário/projeto/ação/versão/hash. Serviço proprietário emite comprovante único por 5 min. Sem política de prova implementada, negar emissão. Não há tool MCP de emissão.
+      description: §7.5. O hashAcao é o SHA-256 em hexadecimal de `decidir:<loteId>:<versaoId>:<decisao>`. A interface reautentica o usuário por senha antes de solicitar o comprovante, de uso único e válido por 5 minutos, vinculado a usuário, projeto, ação, alvo, versão e hash. O canal MCP é recusado com 403 CONFIRMACAO_EXIGE_INTERFACE; não há ferramenta MCP de emissão.
       tags:
         - confirmacoes-decisao
       x-papel-minimo: Aprovador
       x-escopo-mcp: athena:approve
       x-projeto: projetoId
-      x-decidir: Definir prova de interação em tela autenticada, canonicalização do hash e transporte para agente. Token delegado sozinho NÃO pode emitir comprovante.
       x-proposta: true
       parameters:
         - $ref: '#/components/parameters/ProjetoId'

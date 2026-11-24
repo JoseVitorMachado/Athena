@@ -168,6 +168,8 @@ Crie uma relação (`POST $API/gestao/projetos/$P/relacoes`) e consulte o mapa l
 
 **Exclusão definitiva de projeto (processo distribuído).** O Owner arquiva o projeto e pede a exclusão confirmando o nome (`POST $API/gestao/projetos/{p}/exclusoes`, com `If-Match` e `Idempotency-Key`). Projetos e acesso coordena `FECHANDO -> EXCLUINDO -> CONCLUIDA`. Cada serviço de domínio bloqueia o projeto e confirma quando não há operação em curso, depois apaga os dados e guarda só uma marca técnica que impede mensagens atrasadas de recriá-los. O andamento fica em `GET .../exclusoes/{id}`. Para ver a retentativa, rode `docker compose stop integracoes` antes de pedir a exclusão: ela fica em `FECHANDO` aguardando esse serviço. Depois de `docker compose start integracoes`, o comando reenviado a cada 15 s é entregue e a exclusão conclui. Os logs de `projetos-acesso` mostram cada transição.
 
+**Confirmação humana para o agente (MCP).** O agente pode decidir revisões e publicar pelas ferramentas `decidir_revisao` e `publicar_versao`, mas só com um comprovante humano. O fluxo: `preparar_confirmacao` calcula o hash da ação; a pessoa confirma na interface do ATHENA, redigitando a senha (`POST $API/gestao/projetos/$P/revisoes/{lote}/confirmacoes-decisao` ou `.../requisitos/{r}/confirmacoes-publicacao`); o comprovante recebido vale 5 minutos, uma única vez, e só para aquela ação, versão e usuário. Sem ele, ou com o comprovante de outra pessoa ou de outra decisão, o domínio responde 403. Todas as ferramentas do MCP conferem a cada chamada se o usuário é membro do projeto. O Gateway descarta cabeçalhos internos enviados pelo cliente.
+
 **Recuperação de senha.** `POST $API/autenticacao/recuperacao` com `{"email":"..."}` responde sempre 202. O código de 6 dígitos chega em http://localhost:8025 e vale 10 minutos. A conclusão (`POST $API/autenticacao/recuperacao/conclusao` com `email`, `codigo` e `novaSenha`) encerra todas as sessões da conta.
 
 **Testar do zero sem perder os dados locais:**
@@ -296,7 +298,7 @@ Além do tamanho, a imagem final tem menos pacotes para manter atualizados e nã
 - **Exclusão definitiva de projeto** coordenada entre os seis serviços, com barreira, confirmação de quiescência, limpeza idempotente, retentativa e marca técnica.
 - **Gestão:** workspaces, projetos (arquivar e restaurar), membros, convites e transferência de propriedade; épicos; requisitos com filtros, metadados, cancelamento e reativação; comentários com menções e âncoras; revisão e publicação; notificações; HATEOAS (`_links` e `_actions` conforme estado e papel).
 
-Ainda não implementado: integrações com GitHub, OpenProject e Google Drive (o serviço `integracoes` é só esqueleto), e OAuth do agente MCP com confirmação humana.
+Ainda não implementado: integrações com GitHub, OpenProject e Google Drive (o serviço `integracoes` é só esqueleto) e a autorização OAuth própria do agente MCP (hoje o agente usa o JWT do usuário).
 
 ### Contratos de API
 

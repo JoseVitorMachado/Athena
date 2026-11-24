@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
@@ -97,6 +99,11 @@ public class ClienteDominio {
         RestClient.RequestBodySpec requisicao = http.method(metodo)
                 .uri(URI.create(urlBase + caminho))
                 .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_PROBLEM_JSON);
+        var autenticacao = SecurityContextHolder.getContext().getAuthentication();
+        if (autenticacao instanceof JwtAuthenticationToken jwt && jwt.isAuthenticated()
+                && jwt.getToken().getSubject() != null) {
+            requisicao.header("X-Athena-Usuario", jwt.getToken().getSubject());
+        }
         if (authorization != null) {
             requisicao.header(HttpHeaders.AUTHORIZATION, authorization);
         }

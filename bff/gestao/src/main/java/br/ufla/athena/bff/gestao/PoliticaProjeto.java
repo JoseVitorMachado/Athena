@@ -45,11 +45,16 @@ public final class PoliticaProjeto {
             return Papel.APROVADOR;
         }
         if (("POST".equals(metodo) && (caminho.matches(BASE + "/requisitos")
+                || caminho.matches(BASE + "/epicos")
+                || caminho.matches(BASE + "/requisitos/[^/]+/(cancelamentos|reativacoes)")
                 || caminho.matches(BASE + "/requisitos/[^/]+/submissoes")
                 || caminho.matches(BASE + "/relacoes")))
-                || ("PATCH".equals(metodo) && (caminho.matches(BASE + "/requisitos/[^/]+/candidata")
+                || ("PATCH".equals(metodo) && (caminho.matches(BASE + "/requisitos/[^/]+")
+                || caminho.matches(BASE + "/epicos/[^/]+")
+                || caminho.matches(BASE + "/requisitos/[^/]+/candidata")
                 || caminho.matches(BASE + "/relacoes/[^/]+")))
-                || ("DELETE".equals(metodo) && caminho.matches(BASE + "/relacoes/[^/]+"))) {
+                || ("DELETE".equals(metodo) && (caminho.matches(BASE + "/relacoes/[^/]+")
+                || caminho.matches(BASE + "/epicos/[^/]+")))) {
             return Papel.EDITOR;
         }
         return null;

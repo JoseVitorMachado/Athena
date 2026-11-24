@@ -54,6 +54,10 @@ public class PublicacaoService {
         if (chave.length() > 200) {
             throw new Problema(HttpStatus.BAD_REQUEST, "REQUISICAO_INVALIDA", "Chave muito longa.");
         }
+        Requisito requisito = requisitos.buscarParaEdicao(requisitoId, projeto)
+                .orElseThrow(() -> new Problema(HttpStatus.NOT_FOUND, "REQUISITO_NAO_ENCONTRADO", "Requisito não encontrado."));
+        if (requisito.getSituacao() == br.ufla.athena.requisitos.dominio.SituacaoRequisito.CANCELADO)
+            throw new Problema(HttpStatus.CONFLICT, "REQUISITO_CANCELADO", "Requisito cancelado.");
         String impressao = IdempotenciaSubmissao.impressaoPublicacao(requisitoId, entrada.versaoId(),
                 entrada.submissaoId(), entrada.comprovanteHumano());
         banco.queryForObject("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", (rs, n) -> 0,
@@ -70,8 +74,6 @@ public class PublicacaoService {
             }
             return buscar(projeto, requisitoId, (UUID) anterior.get("recurso_id"));
         }
-        Requisito requisito = requisitos.buscarParaEdicao(requisitoId, projeto)
-                .orElseThrow(() -> new Problema(HttpStatus.NOT_FOUND, "REQUISITO_NAO_ENCONTRADO", "Requisito não encontrado."));
         Versao candidata = requisito.candidata().orElse(null);
         if (ifMatch == null || ifMatch.isBlank()) {
             throw new Problema(HttpStatus.PRECONDITION_REQUIRED, "PRECONDICAO_AUSENTE", "Informe If-Match.");
@@ -101,6 +103,7 @@ public class PublicacaoService {
         Publicacao publicacao = Publicacao.criar(requisitoId, candidata.getId(), entrada.submissaoId(), retrato, autor, agora);
         entidades.persist(publicacao);
         candidata.alterarEstado(EstadoVersao.PUBLICADA);
+        requisito.registrarPublicacao();
         banco.update("INSERT INTO chaves_idempotencia (chave, operacao, projeto_id, impressao, recurso_id, criado_em) "
                 + "VALUES (?,?,?,?,?,?)", chave, OPERACAO, projeto, impressao, publicacao.getId(), Timestamp.from(agora));
         Map<String, Object> payload = new LinkedHashMap<>();

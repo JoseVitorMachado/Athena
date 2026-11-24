@@ -10,7 +10,7 @@ from psycopg.types.json import Jsonb
 
 from . import config, embeddings
 from .banco import pool
-from .eventos import validar_envelope, versao_pode_ativar
+from .eventos import revisao_pode_aplicar, validar_envelope, versao_pode_ativar
 from .segmentacao import segmentar
 
 LOG = logging.getLogger("impacto_mcp.processamento")
@@ -40,11 +40,16 @@ def _receber(canal, metodo, propriedades, corpo):
                 "INSERT INTO inbox (message_id, tipo) VALUES (%s, %s) ON CONFLICT DO NOTHING RETURNING message_id",
                 (envelope["messageId"], envelope["messageType"])).fetchone()
             if inserido:
-                conexao.execute(
-                    """INSERT INTO trabalhos_indexacao (id, message_id, projeto_id, origem_id, versao_id, payload)
-                       VALUES (%s, %s, %s, %s, %s, %s)""",
-                    (uuid.uuid4(), envelope["messageId"], envelope["projetoId"], payload["requisitoId"],
-                     payload["versaoId"], Jsonb(payload)))
+                if envelope["messageType"] == "RequisitoAlterado":
+                    _alterar_requisito(conexao, envelope["projetoId"], payload, envelope["occurredAt"])
+                    conexao.execute("UPDATE inbox SET processado_em = now() WHERE message_id = %s",
+                                    (envelope["messageId"],))
+                else:
+                    conexao.execute(
+                        """INSERT INTO trabalhos_indexacao (id, message_id, projeto_id, origem_id, versao_id, payload)
+                           VALUES (%s, %s, %s, %s, %s, %s)""",
+                        (uuid.uuid4(), envelope["messageId"], envelope["projetoId"], payload["requisitoId"],
+                         payload["versaoId"], Jsonb(payload)))
     except Exception as erro:
         LOG.exception("Falha ao registrar mensagem")
         try:
@@ -57,6 +62,27 @@ def _receber(canal, metodo, propriedades, corpo):
         expiracao = None if tentativas >= 5 else str(ESPERAS[tentativas - 1] * 1000)
         _publicar(canal, destino, corpo, propriedades, headers, expiracao)
     canal.basic_ack(metodo.delivery_tag)
+
+
+def _alterar_requisito(conexao, projeto, payload, ocorrido):
+    # Usa o instante do evento (relógio de Requisitos), não o do consumo: se este serviço ficar
+    # fora do ar e consumir o cancelamento tarde, uma publicação posterior não fica bloqueada.
+    requisito = uuid.UUID(str(payload["requisitoId"]))
+    conexao.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 1))", (str(requisito),))
+    linha = conexao.execute("""SELECT revisao FROM requisitos_cancelados
+        WHERE projeto_id = %s AND requisito_id = %s""", (projeto, requisito)).fetchone()
+    if not revisao_pode_aplicar(payload["revisao"], linha[0] if linha else None):
+        return
+    cancelado = payload["situacao"] == "CANCELADO"
+    conexao.execute("""INSERT INTO requisitos_cancelados (projeto_id, requisito_id, revisao, cancelado_em, situacao)
+        VALUES (%s, %s, %s, CASE WHEN %s THEN %s::timestamptz ELSE NULL END, %s)
+        ON CONFLICT (projeto_id, requisito_id) DO UPDATE SET revisao = EXCLUDED.revisao,
+        cancelado_em = CASE WHEN %s THEN EXCLUDED.cancelado_em ELSE requisitos_cancelados.cancelado_em END,
+        situacao = EXCLUDED.situacao""",
+        (projeto, requisito, payload["revisao"], cancelado, ocorrido, payload["situacao"], cancelado))
+    if cancelado:
+        conexao.execute("UPDATE trechos SET ativo = false WHERE projeto_id = %s AND origem_id = %s",
+                        (projeto, requisito))
 
 
 def consumir(parar):
@@ -76,6 +102,7 @@ def consumir(parar):
             canal.queue_declare(queue=FILA, durable=True, arguments={
                 "x-dead-letter-exchange": "", "x-dead-letter-routing-key": FILA + ".dlq"})
             canal.queue_bind(queue=FILA, exchange="athena.events", routing_key="requisitos.VersaoPublicada")
+            canal.queue_bind(queue=FILA, exchange="athena.events", routing_key="requisitos.RequisitoAlterado")
             canal.basic_qos(prefetch_count=1)
             canal.basic_consume(queue=FILA, on_message_callback=_receber, auto_ack=False)
             while not parar.is_set():
@@ -123,7 +150,13 @@ def _trabalho(conexao):
             atual = conexao.execute("""SELECT max((t.payload->>'numero')::integer)
                 FROM trabalhos_indexacao t JOIN trechos s ON s.origem_id = t.origem_id AND s.versao_id = t.versao_id
                 WHERE s.ativo AND t.origem_id = %s AND t.estado = 'CONCLUIDO'""", (origem,)).fetchone()[0]
-            if versao_pode_ativar(payload["numero"], atual):
+            cancelamento = conexao.execute("""SELECT cancelado_em, situacao FROM requisitos_cancelados
+                WHERE projeto_id = %s AND requisito_id = %s""", (projeto, origem)).fetchone()
+            bloqueado = (cancelamento and (cancelamento[1] == "CANCELADO" or
+                         (cancelamento[0] and (not payload.get("data") or
+                          conexao.execute("SELECT %s::timestamptz < %s",
+                                          (payload["data"], cancelamento[0])).fetchone()[0]))))
+            if not bloqueado and versao_pode_ativar(payload["numero"], atual):
                 conexao.execute("UPDATE trechos SET ativo = false WHERE origem_id = %s", (origem,))
                 for ordem, (texto, vetor) in enumerate(zip(textos, vetores)):
                     conexao.execute("""INSERT INTO trechos

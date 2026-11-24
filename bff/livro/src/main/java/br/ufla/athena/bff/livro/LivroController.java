@@ -83,7 +83,7 @@ public class LivroController {
                              @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
         Map<String, JsonNode> ativos = requisitosAtivos(projetoId);
         List<JsonNode> publicados = ativos.values().stream()
-                .filter(requisito -> requisito.hasNonNull("versaoPublicadaId"))
+                .filter(LivroController::constaNoLivro)
                 .sorted((a, b) -> codigoNumerico(a) - codigoNumerico(b))
                 .toList();
 
@@ -128,10 +128,14 @@ public class LivroController {
         Map<String, JsonNode> ativos = requisitosAtivos(projetoId);
         JsonNode requisito = ativos.get(requisitoId.toString());
         // Cancelado ou sem versão publicada não aparece no Livro corrente (livro §4.3).
-        if (requisito == null || !requisito.hasNonNull("versaoPublicadaId")) {
+        if (requisito == null || !constaNoLivro(requisito)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Requisito não publicado no Livro");
         }
         return compor(projetoId, requisito, ativos);
+    }
+
+    private static boolean constaNoLivro(JsonNode requisito) {
+        return requisito.hasNonNull("versaoPublicadaId") && requisito.path("noLivro").asBoolean(true);
     }
 
     private ObjectNode compor(UUID projetoId, JsonNode requisito, Map<String, JsonNode> ativos) {

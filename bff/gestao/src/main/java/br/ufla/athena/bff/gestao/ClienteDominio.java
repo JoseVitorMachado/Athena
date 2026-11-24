@@ -56,11 +56,33 @@ public class ClienteDominio {
         return chamar(servico, HttpMethod.DELETE, urlBase, caminho, null, ifMatch, null);
     }
 
+    public Resposta get(String servico, String urlBase, String caminho, String authorization) {
+        return chamar(servico, HttpMethod.GET, urlBase, caminho, null, null, null, authorization);
+    }
+
+    public Resposta post(String servico, String urlBase, String caminho, JsonNode corpo,
+                         String ifMatch, String idempotencyKey, String authorization) {
+        return chamar(servico, HttpMethod.POST, urlBase, caminho, corpo, ifMatch, idempotencyKey, authorization);
+    }
+
+    public Resposta patch(String servico, String urlBase, String caminho, JsonNode corpo,
+                          String ifMatch, String idempotencyKey, String authorization) {
+        return chamar(servico, HttpMethod.PATCH, urlBase, caminho, corpo, ifMatch, idempotencyKey, authorization);
+    }
+
     private Resposta chamar(String servico, HttpMethod metodo, String urlBase, String caminho, JsonNode corpo,
                             String ifMatch, String idempotencyKey) {
+        return chamar(servico, metodo, urlBase, caminho, corpo, ifMatch, idempotencyKey, null);
+    }
+
+    private Resposta chamar(String servico, HttpMethod metodo, String urlBase, String caminho, JsonNode corpo,
+                            String ifMatch, String idempotencyKey, String authorization) {
         RestClient.RequestBodySpec requisicao = http.method(metodo)
                 .uri(URI.create(urlBase + caminho))
                 .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_PROBLEM_JSON);
+        if (authorization != null) {
+            requisicao.header(HttpHeaders.AUTHORIZATION, authorization);
+        }
         if (ifMatch != null) {
             requisicao.header(HttpHeaders.IF_MATCH, ifMatch);
         }

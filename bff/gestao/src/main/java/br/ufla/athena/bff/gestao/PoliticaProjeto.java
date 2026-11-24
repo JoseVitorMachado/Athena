@@ -9,9 +9,24 @@ public final class PoliticaProjeto {
     private PoliticaProjeto() {
     }
 
+    public static boolean exigeProjeto(String metodo, String caminho) {
+        return !(caminho.equals("/api/v1/gestao/projetos")
+                && ("GET".equals(metodo) || "POST".equals(metodo)));
+    }
+
+    public static boolean permiteArquivado(String metodo, String caminho) {
+        return "GET".equals(metodo)
+                || ("POST".equals(metodo) && caminho.matches(BASE + "/restauracoes"));
+    }
+
     public static Papel papelMinimo(String metodo, String caminho) {
         if ("GET".equals(metodo)) {
             return Papel.LEITOR;
+        }
+        if (("PATCH".equals(metodo) && caminho.matches(BASE))
+                || ("POST".equals(metodo) && (caminho.matches(BASE + "/arquivamentos")
+                || caminho.matches(BASE + "/restauracoes")))) {
+            return Papel.MANTENEDOR;
         }
         if ("POST".equals(metodo) && (caminho.matches(BASE + "/revisoes/[^/]+/decisoes")
                 || caminho.matches(BASE + "/requisitos/[^/]+/publicacoes"))) {

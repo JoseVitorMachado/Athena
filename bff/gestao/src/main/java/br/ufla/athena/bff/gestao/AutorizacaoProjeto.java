@@ -28,6 +28,10 @@ public class AutorizacaoProjeto implements HandlerInterceptor, WebMvcConfigurer 
 
     @Override
     public boolean preHandle(HttpServletRequest pedido, HttpServletResponse resposta, Object handler) {
+        String caminho = pedido.getRequestURI().substring(pedido.getContextPath().length());
+        if (!PoliticaProjeto.exigeProjeto(pedido.getMethod(), caminho)) {
+            return true;
+        }
         @SuppressWarnings("unchecked")
         Map<String, String> variaveis = (Map<String, String>) pedido.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         if (variaveis == null || !variaveis.containsKey("projetoId")) {
@@ -42,9 +46,8 @@ public class AutorizacaoProjeto implements HandlerInterceptor, WebMvcConfigurer 
         JwtAuthenticationToken autenticacao = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         PapelAtual.Vinculo vinculo = papelAtual.consultar(projetoId, autenticacao.getToken().getSubject());
         pedido.setAttribute(VINCULO, vinculo);
-        String caminho = pedido.getRequestURI().substring(pedido.getContextPath().length());
         PapelAtual.Papel minimo = PoliticaProjeto.papelMinimo(pedido.getMethod(), caminho);
-        if (vinculo.arquivado() && !"GET".equals(pedido.getMethod())) {
+        if (vinculo.arquivado() && !PoliticaProjeto.permiteArquivado(pedido.getMethod(), caminho)) {
             throw new FalhaAutorizacao(409, "PROJETO_ARQUIVADO", "Projeto arquivado permite apenas leitura.");
         }
         if (minimo == null || !vinculo.papel().permite(minimo)) {

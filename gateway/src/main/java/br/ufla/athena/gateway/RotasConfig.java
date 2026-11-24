@@ -1,5 +1,7 @@
 package br.ufla.athena.gateway;
 
+import java.time.Duration;
+import org.springframework.cloud.gateway.config.HttpClientCustomizer;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +21,19 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class RotasConfig {
+
+    /**
+     * Cache de DNS curto no cliente HTTP do Gateway. O resolvedor do Reactor Netty
+     * guarda o endereço pelo TTL que o DNS informa (no Docker, 10 minutos): se um
+     * BFF fosse recriado com outro IP, o Gateway continuaria mandando pedidos para
+     * o IP antigo, que pode já pertencer a outro container.
+     */
+    @Bean
+    public HttpClientCustomizer dnsComCacheCurto() {
+        return cliente -> cliente.resolver(resolvedor -> resolvedor
+                .cacheMaxTimeToLive(Duration.ofSeconds(5))
+                .cacheNegativeTimeToLive(Duration.ofSeconds(1)));
+    }
 
     @Bean
     public RouteLocator rotas(RouteLocatorBuilder rotas, RotasProperties destinos) {

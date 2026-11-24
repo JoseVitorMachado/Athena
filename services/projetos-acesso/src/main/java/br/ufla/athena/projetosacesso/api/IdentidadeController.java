@@ -1,5 +1,16 @@
 package br.ufla.athena.projetosacesso.api;
 
+import br.ufla.athena.projetosacesso.docs.ProblemaDoc;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import br.ufla.athena.projetosacesso.docs.CadastroEntradaDoc;
+import br.ufla.athena.projetosacesso.docs.LoginEntradaDoc;
 import br.ufla.athena.projetosacesso.seguranca.Tokens;
 import br.ufla.athena.projetosacesso.seguranca.RotacaoRefresh;
 import jakarta.validation.Valid;
@@ -47,6 +58,17 @@ public class IdentidadeController {
     record Conta(UUID id, String nome, String email, String hash) {}
     record Estado(UUID id, UUID usuario, Instant expira, boolean lembrar, Instant revogada, String csrf, UUID familia, Instant consumido, Instant tokenExpira) {}
 
+    @Tag(name = "Autenticação")
+    @Operation(summary = "Criar cadastro", description = "Cria uma conta com senha forte.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = CadastroEntradaDoc.class)))
+    @ApiResponse(responseCode = "201", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @PostMapping("/api/v1/autenticacao/cadastro")
     public ResponseEntity<Usuario> cadastro(@Valid @RequestBody Cadastro entrada) {
         if (!senhaForte(entrada.senha())) throw new Problema(HttpStatus.BAD_REQUEST, "SENHA_FRACA", "A senha deve conter ao menos oito caracteres, letra, número e caractere especial.");
@@ -66,6 +88,19 @@ public class IdentidadeController {
                 && senha.codePoints().anyMatch(c -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c));
     }
 
+    @Tag(name = "Autenticação")
+    @Operation(summary = "Criar login", description = "Autentica e retorna a sessão; define o cookie athenaRefresh HttpOnly, Path=/api/v1/autenticacao. No navegador use credentials: 'include'.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = LoginEntradaDoc.class)))
+    @ApiResponse(responseCode = "200", description = "Operação concluída", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"accessToken\":\"eyJhbGciOiJSUzI1NiJ9.exemplo.assinatura\",\"tokenType\":\"Bearer\",\"expiraEm\":\"2026-10-21T15:15:00Z\",\"csrfToken\":\"token-csrf-opaco\"}")))
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @PostMapping("/api/v1/autenticacao/login")
     @Transactional
     public ResponseEntity<?> login(@Valid @RequestBody Login entrada) {
@@ -100,9 +135,20 @@ public class IdentidadeController {
         return resposta(conta, id, agora, fim, csrf, refresh, entrada.lembrarDispositivo());
     }
 
+    @Tag(name = "Autenticação")
+    @Operation(summary = "Renovar sessao", description = "Renova a sessão e o cookie athenaRefresh HttpOnly, Path=/api/v1/autenticacao. Envie X-CSRF-Token com o csrfToken do login ou da última renovação e use credentials: 'include'.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @PostMapping("/api/v1/autenticacao/renovacao")
     @Transactional(noRollbackFor = Problema.class)
-    public ResponseEntity<Sessao> renovar(@CookieValue(value = "athenaRefresh", required = false) String refresh, @RequestHeader(value = "X-CSRF-Token", required = false) String csrf) {
+    public ResponseEntity<Sessao> renovar(@CookieValue(value = "athenaRefresh", required = false) String refresh, @Parameter(in = ParameterIn.HEADER, name = "X-CSRF-Token", required = true,
+            description = "Valor csrfToken retornado pelo login ou pela última renovação.")
+            @RequestHeader(value = "X-CSRF-Token", required = false) String csrf) {
         Estado estado = estado(refresh);
         Instant agora = Instant.now();
         RotacaoRefresh.Resultado resultado = RotacaoRefresh.avaliar(estado.consumido(), estado.revogada(), estado.expira(), estado.tokenExpira(), agora);
@@ -122,9 +168,20 @@ public class IdentidadeController {
         return resposta(conta(estado.usuario()), estado.id(), agora, estado.expira(), novoCsrf, novo, estado.lembrar());
     }
 
+    @Tag(name = "Autenticação")
+    @Operation(summary = "Encerrar sessao", description = "Encerra a sessão usando o cookie athenaRefresh. Envie X-CSRF-Token com o csrfToken do login ou da última renovação e use credentials: 'include'.")
+    @ApiResponse(responseCode = "204", description = "Operação concluída", content = @Content)
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @PostMapping("/api/v1/autenticacao/logout")
     @Transactional
-    public ResponseEntity<Void> logout(@CookieValue(value = "athenaRefresh", required = false) String refresh, @RequestHeader(value = "X-CSRF-Token", required = false) String csrf) {
+    public ResponseEntity<Void> logout(@CookieValue(value = "athenaRefresh", required = false) String refresh, @Parameter(in = ParameterIn.HEADER, name = "X-CSRF-Token", required = true,
+            description = "Valor csrfToken retornado pelo login ou pela última renovação.")
+            @RequestHeader(value = "X-CSRF-Token", required = false) String csrf) {
         Estado estado = estado(refresh);
         validarCsrf(estado, csrf);
         if (estado.consumido() != null) throw new Problema(HttpStatus.UNAUTHORIZED, "REFRESH_INVALIDO", "Sessão inválida.");
@@ -133,6 +190,13 @@ public class IdentidadeController {
         return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookie("", false, Duration.ZERO)).build();
     }
 
+    @Tag(name = "Usuário")
+    @Operation(summary = "Obter usuario atual", description = "Consulta o usuário autenticado.", security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerJwt"))
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/api/v1/usuarios/me")
     public Usuario eu(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String bearer) {
         UUID usuario = usuarioAutenticado(bearer);

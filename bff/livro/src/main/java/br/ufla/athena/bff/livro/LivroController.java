@@ -1,5 +1,14 @@
 package br.ufla.athena.bff.livro;
 
+import br.ufla.athena.bff.livro.docs.ProblemaDoc;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import br.ufla.athena.bff.livro.ClienteDominio.Resposta;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -51,6 +60,23 @@ public class LivroController {
     }
 
     /** listarRequisitosLivro: só requisitos ativos com versão publicada. */
+    @Tag(name = "Livro")
+    @Operation(summary = "Listar requisitos livro", description = "Papel mínimo: Leitor. Lista os itens disponíveis. Apenas conteúdo publicado de requisitos ativos; referências indisponíveis geram avisos.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping
     public ObjectNode listar(@PathVariable UUID projetoId,
                              @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -80,6 +106,23 @@ public class LivroController {
     }
 
     /** obterRequisitoLivro */
+    @Tag(name = "Livro")
+    @Operation(summary = "Obter requisito livro", description = "Papel mínimo: Leitor. Consulta o recurso. Apenas conteúdo publicado de requisitos ativos; referências indisponíveis geram avisos.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"requisitoId\":\"11111111-1111-4111-8111-111111111111\",\"projetoId\":\"22222222-2222-4222-8222-222222222222\",\"codigo\":\"REQ-42\",\"titulo\":\"Exportar documento de requisitos.\",\"versaoPublicada\":3,\"publicacaoId\":\"11111111-1111-4111-8111-111111111111\",\"versaoId\":\"44444444-4444-4444-8444-444444444444\",\"retratoId\":\"11111111-1111-4111-8111-111111111111\",\"conteudo\":\"O sistema deve permitir exportar o documento.\",\"criteriosAceite\":[\"Exportação preserva requisitos.\"],\"referencias\":[{\"disponivel\":false}],\"avisos\":[],\"_links\":{\"self\":{\"href\":\"/api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos/11111111-1111-4111-8111-111111111111\"},\"colecao\":{\"href\":\"/api/v1/livro/projetos/22222222-2222-4222-8222-222222222222/livro/requisitos\"}}}")))
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/{requisitoId}")
     public ObjectNode obter(@PathVariable UUID projetoId, @PathVariable UUID requisitoId) {
         Map<String, JsonNode> ativos = requisitosAtivos(projetoId);

@@ -1,5 +1,18 @@
 package br.ufla.athena.bff.gestao;
 
+import br.ufla.athena.bff.gestao.docs.ProblemaDoc;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import br.ufla.athena.bff.gestao.docs.RequisitoEntradaDoc;
+import br.ufla.athena.bff.gestao.docs.CandidataPatchDoc;
+import br.ufla.athena.bff.gestao.docs.SubmissaoEntradaDoc;
+import br.ufla.athena.bff.gestao.docs.PublicacaoEntradaDoc;
 import br.ufla.athena.bff.gestao.ClienteDominio.Resposta;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -44,6 +57,23 @@ public class RequisitosGestaoController {
     }
 
     /** gestaoListarRequisitos */
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Listar requisitos", description = "Papel mínimo: Leitor. Lista os itens disponíveis.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping
     public ResponseEntity<JsonNode> listar(@PathVariable UUID projetoId, HttpServletRequest pedido) {
         String query = pedido.getQueryString() == null ? "" : "?" + pedido.getQueryString();
@@ -55,16 +85,76 @@ public class RequisitosGestaoController {
     }
 
     /** gestaoCriarRequisito */
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Criar requisito", description = "Papel mínimo: Editor. Cria o recurso.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = RequisitoEntradaDoc.class)))
+    @ApiResponse(responseCode = "201", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @PostMapping
     public ResponseEntity<JsonNode> criar(@PathVariable UUID projetoId, @RequestBody JsonNode corpo) {
         return repassar(dominio.post("requisitos", requisitosUrl, colecao(projetoId), corpo));
     }
 
+    @Tag(name = "Candidata")
+    @Operation(summary = "Obter candidata", description = "Papel mínimo: Leitor. Consulta a candidata e retorna seu ETag.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/{requisitoId}/candidata")
     public ResponseEntity<JsonNode> obterCandidata(@PathVariable UUID projetoId, @PathVariable UUID requisitoId) {
         return repassar(dominio.get("requisitos", requisitosUrl, caminhoRequisito(projetoId, requisitoId) + "/candidata"));
     }
 
+    @Tag(name = "Candidata")
+    @Operation(summary = "Editar candidata", description = "Papel mínimo: Editor. Atualiza a candidata.",
+            parameters = {@Parameter(name = "If-Match", in = ParameterIn.HEADER, description = "ETag obtido no GET da candidata.", required = true)})
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = CandidataPatchDoc.class)))
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "412", description = "Erro 412",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "428", description = "Erro 428",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @PatchMapping("/{requisitoId}/candidata")
     public ResponseEntity<JsonNode> editarCandidata(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch, @RequestBody JsonNode corpo) {
@@ -72,6 +162,30 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/candidata", corpo, ifMatch));
     }
 
+    @Tag(name = "Submissões")
+    @Operation(summary = "Criar submissao", description = "Papel mínimo: Editor. Responde 202; a SAGA continua em segundo plano. Acompanhe a submissão pelo Location.",
+            parameters = {@Parameter(name = "If-Match", in = ParameterIn.HEADER, description = "ETag obtido no GET da candidata.", required = true), @Parameter(name = "Idempotency-Key", in = ParameterIn.HEADER, description = "Qualquer string única por tentativa; repetir a mesma chave com o mesmo pedido devolve o mesmo resultado.", required = true)})
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = SubmissaoEntradaDoc.class)))
+    @ApiResponse(responseCode = "202", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "412", description = "Erro 412",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "428", description = "Erro 428",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @PostMapping("/{requisitoId}/submissoes")
     public ResponseEntity<JsonNode> criarSubmissao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
@@ -80,6 +194,23 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/submissoes", corpo, ifMatch, chave));
     }
 
+    @Tag(name = "Submissões")
+    @Operation(summary = "Listar submissoes", description = "Papel mínimo: Leitor. Lista as submissões.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/{requisitoId}/submissoes")
     public ResponseEntity<JsonNode> listarSubmissoes(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
             HttpServletRequest pedido) {
@@ -88,6 +219,23 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/submissoes" + query));
     }
 
+    @Tag(name = "Submissões")
+    @Operation(summary = "Obter submissao", description = "Papel mínimo: Leitor. Consulta o andamento da submissão.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/{requisitoId}/submissoes/{submissaoId}")
     public ResponseEntity<JsonNode> obterSubmissao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
                                                     @PathVariable UUID submissaoId) {
@@ -95,6 +243,23 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/submissoes/" + submissaoId));
     }
 
+    @Tag(name = "Versões")
+    @Operation(summary = "Listar versoes", description = "Papel mínimo: Leitor. Lista as versões.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/{requisitoId}/versoes")
     public ResponseEntity<JsonNode> listarVersoes(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
                                                    HttpServletRequest pedido) {
@@ -103,6 +268,23 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/versoes" + query));
     }
 
+    @Tag(name = "Versões")
+    @Operation(summary = "Obter versao", description = "Papel mínimo: Leitor. Consulta uma versão.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/{requisitoId}/versoes/{versaoId}")
     public ResponseEntity<JsonNode> obterVersao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
                                                 @PathVariable UUID versaoId) {
@@ -110,6 +292,23 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/versoes/" + versaoId));
     }
 
+    @Tag(name = "Publicações")
+    @Operation(summary = "Listar publicacoes", description = "Papel mínimo: Leitor. Lista as publicações.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/{requisitoId}/publicacoes")
     public ResponseEntity<JsonNode> listarPublicacoes(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
                                                        HttpServletRequest pedido) {
@@ -118,6 +317,30 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/publicacoes" + query));
     }
 
+    @Tag(name = "Publicações")
+    @Operation(summary = "Criar publicacao", description = "Papel mínimo: Aprovador. Publica a versão aprovada.",
+            parameters = {@Parameter(name = "If-Match", in = ParameterIn.HEADER, description = "ETag obtido no GET da candidata.", required = true), @Parameter(name = "Idempotency-Key", in = ParameterIn.HEADER, description = "Qualquer string única por tentativa; repetir a mesma chave com o mesmo pedido devolve o mesmo resultado.", required = true)})
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            content = @Content(schema = @Schema(implementation = PublicacaoEntradaDoc.class)))
+    @ApiResponse(responseCode = "201", description = "Operação concluída")
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "412", description = "Erro 412",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "428", description = "Erro 428",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @PostMapping("/{requisitoId}/publicacoes")
     public ResponseEntity<JsonNode> criarPublicacao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
@@ -131,6 +354,23 @@ public class RequisitosGestaoController {
     }
 
     /** gestaoObterRequisito: composição Requisitos + Revisões. */
+    @Tag(name = "Requisitos")
+    @Operation(summary = "Obter requisito", description = "Papel mínimo: Leitor. Consulta o recurso. Compõe dados de Requisitos e Revisões; indisponibilidade de Revisões gera aviso. O ETag é do requisito, não da candidata.")
+    @ApiResponse(responseCode = "200", description = "Operação concluída", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"requisitoId\":\"11111111-1111-4111-8111-111111111111\",\"projetoId\":\"22222222-2222-4222-8222-222222222222\",\"codigo\":\"REQ-42\",\"titulo\":\"Exportar documento de requisitos.\",\"situacao\":\"ATIVO\",\"versaoEmEdicao\":4,\"versaoId\":\"33333333-3333-4333-8333-333333333333\",\"estadoVersao\":\"RASCUNHO\",\"atualizadoEm\":\"2026-10-21T15:00:00Z\",\"_links\":{\"self\":{\"href\":\"/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111\"},\"colecao\":{\"href\":\"/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos\"},\"versoes\":{\"href\":\"/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes\"},\"candidata\":{\"href\":\"/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/candidata\"}},\"_actions\":{\"editar-candidata\":{\"href\":\"/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/candidata\",\"method\":\"PATCH\",\"contentType\":\"application/json\",\"campos\":[\"titulo\",\"conteudo\",\"criteriosAceite\"],\"precondicoes\":[\"If-Match\",\"Candidata em RASCUNHO ou APROVADA\",\"Papel Editor ou superior\"]},\"submeter\":{\"href\":\"/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/submissoes\",\"method\":\"POST\",\"contentType\":\"application/json\",\"campos\":[\"versaoId\"],\"precondicoes\":[\"If-Match\",\"Idempotency-Key\",\"Candidata em RASCUNHO\",\"Papel Editor ou superior\"]}},\"avisos\":[]}")))
+    @ApiResponse(responseCode = "400", description = "Erro 400",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "401", description = "Erro 401",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "403", description = "Erro 403",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "404", description = "Erro 404",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Erro 409",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "429", description = "Erro 429",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "503", description = "Erro 503",
+            content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemaDoc.class)))
     @GetMapping("/{requisitoId}")
     public ResponseEntity<JsonNode> obter(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
                                         HttpServletRequest pedido) {

@@ -763,3 +763,7 @@ spec:
     - name: http
       port: 8000
       targetPort: http
+    # Porta reservada ao endpoint de métricas do impacto-mcp.
+    - name: metricas
+      port: 8080
+      targetPort: 8080

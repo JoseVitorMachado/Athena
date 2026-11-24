@@ -1,0 +1,64 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: projetos-acesso
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["projetos-acesso:8080"]
+        labels:
+          servico: projetos-acesso
+  - job_name: requisitos
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["requisitos:8080"]
+        labels:
+          servico: requisitos
+  - job_name: rastreabilidade
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["rastreabilidade:8080"]
+        labels:
+          servico: rastreabilidade
+  - job_name: revisoes
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["revisoes:8080"]
+        labels:
+          servico: revisoes
+  - job_name: integracoes
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["integracoes:8080"]
+        labels:
+          servico: integracoes
+  - job_name: bff-gestao
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["bff-gestao:8080"]
+        labels:
+          servico: bff-gestao
+  - job_name: bff-livro
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["bff-livro:8080"]
+        labels:
+          servico: bff-livro
+  - job_name: gateway
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["gateway:8081"]
+        labels:
+          servico: gateway
+  - job_name: impacto-mcp
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["impacto-mcp:8000"]
+        labels:
+          servico: impacto-mcp
+  - job_name: prometheus
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["prometheus:9090"]
+        labels:
+          servico: prometheus

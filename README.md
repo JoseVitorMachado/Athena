@@ -50,7 +50,7 @@
 
 ## Como executar
 
-O sistema roda de duas formas: **Docker Compose** (um comando, ideal para desenvolvimento) e **Kubernetes** local com minikube. As duas sobem os mesmos containers: 6 serviços de domínio, 6 PostgreSQL, RabbitMQ, Gateway, 2 BFFs e 2 clientes Angular; no compose há ainda o Mailpit, caixa de e-mails de desenvolvimento (19 no total). Os bancos já sobem com um projeto de demonstração.
+O sistema roda de duas formas: **Docker Compose** (um comando, ideal para desenvolvimento) e **Kubernetes** local com minikube. As duas sobem os mesmos containers: 6 serviços de domínio, 6 PostgreSQL, RabbitMQ, Gateway, 2 BFFs e 2 clientes Angular; no compose há ainda o Mailpit, caixa de e-mails de desenvolvimento, Prometheus e Grafana (21 no total). Os bancos já sobem com um projeto de demonstração.
 
 ### Pré-requisitos
 
@@ -69,7 +69,7 @@ Na raiz do repositório:
 docker compose up -d --build --wait
 ```
 
-A primeira vez leva alguns minutos (download das imagens base, compilação e o modelo de embeddings do RAG, que vai dentro da imagem do impacto-mcp). O `--wait` só devolve o terminal quando os 19 containers estiverem `healthy`. Depois, acesse:
+A primeira vez leva alguns minutos (download das imagens base, compilação e o modelo de embeddings do RAG, que vai dentro da imagem do impacto-mcp). O `--wait` só devolve o terminal quando os 21 containers estiverem em execução ou saudáveis. Depois, acesse:
 
 | O quê | Endereço |
 |---|---|
@@ -80,6 +80,8 @@ A primeira vez leva alguns minutos (download das imagens base, compilação e o 
 | Swagger do Livro | http://localhost:8080/api/v1/livro/docs |
 | MCP pelo Gateway | `POST http://localhost:8080/mcp` |
 | Caixa de e-mails de desenvolvimento (códigos de recuperação de senha) | http://localhost:8025 |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3000 (usuário `admin`, senha `athena`) |
 
 **Usuários de demonstração.** Todos com a senha `Athena@2026`, membros do projeto `22222222-2222-4222-8222-222222222222` com o papel indicado no nome:
 
@@ -130,13 +132,15 @@ Para parar: `docker compose down` (mantém os dados). Para apagar também os vol
 
 | Rede | Quem está nela | Acesso externo |
 |---|---|---|
-| `edge` | clientes Gestão e Livro, Gateway, Mailpit | portas 4200, 4300 e 8080; a 8025 do Mailpit só em `127.0.0.1` |
-| `app` | Gateway, BFFs, serviços de domínio, RabbitMQ, Mailpit (SMTP) | nenhum (`internal`) |
+| `edge` | clientes Gestão e Livro, Gateway, Mailpit, Prometheus e Grafana | portas 4200, 4300 e 8080; 8025, 9090 e 3000 só em `127.0.0.1` |
+| `app` | Gateway, BFFs, serviços de domínio, RabbitMQ, Mailpit (SMTP), Prometheus e Grafana | nenhum (`internal`) |
 | `dados-<serviço>` | um serviço e o seu banco | nenhum (`internal`) |
 
-Cada banco só é alcançável pelo próprio serviço, e o Gateway é a única ponte entre a borda e a aplicação.
+Cada banco só é alcançável pelo próprio serviço; o Gateway recebe o tráfego da aplicação e o monitoramento fica disponível só no localhost.
 
 ### Demonstrações
+
+O painel **ATHENA — visão geral** no Grafana permite acompanhar as transições da SAGA e as exclusões em andamento.
 
 Os comandos abaixo usam `API`, `P` e `AUTH` do teste rápido. Para acompanhar o que acontece, deixe os logs abertos noutro terminal: `docker compose logs -f requisitos revisoes rastreabilidade`.
 
@@ -264,6 +268,7 @@ minikube -p athena stop           # ou "minikube -p athena delete" para remover 
 | `50-network-policies.yaml` | Isolamento: banco só do seu serviço, broker só do domínio, domínio só de BFF e Gateway |
 | `extras/hpa-bff-gestao.yaml` | HPA opcional do BFF Gestão |
 | `extras/mailpit.yaml` | Caixa de e-mails de desenvolvimento (SMTP para a recuperação de senha) |
+| `extras/monitoramento.yaml` | Prometheus e Grafana opcionais; acesso ao Grafana com `kubectl -n athena port-forward svc/grafana 3000:3000` |
 
 Todos os containers têm requests e limits, usuário sem privilégios nas aplicações (PostgreSQL e RabbitMQ seguem o modelo de usuários das imagens oficiais) e probes de startup, readiness e liveness. A liveness dos serviços não depende do banco, para uma falha de dependência não reiniciar tudo em cascata.
 
@@ -291,7 +296,7 @@ Além do tamanho, a imagem final tem menos pacotes para manter atualizados e nã
 - **Exclusão definitiva de projeto** coordenada entre os seis serviços, com barreira, confirmação de quiescência, limpeza idempotente, retentativa e marca técnica.
 - **Gestão:** workspaces, projetos (arquivar e restaurar), membros, convites e transferência de propriedade; épicos; requisitos com filtros, metadados, cancelamento e reativação; comentários com menções e âncoras; revisão e publicação; notificações; HATEOAS (`_links` e `_actions` conforme estado e papel).
 
-Ainda não implementado: integrações com GitHub, OpenProject e Google Drive (o serviço `integracoes` é só esqueleto), OAuth do agente MCP com confirmação humana, e monitoramento com Prometheus e Grafana.
+Ainda não implementado: integrações com GitHub, OpenProject e Google Drive (o serviço `integracoes` é só esqueleto), e OAuth do agente MCP com confirmação humana.
 
 ### Contratos de API
 

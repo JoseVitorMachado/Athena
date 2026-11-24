@@ -207,3 +207,44 @@ spec:
               app.kubernetes.io/name: projetos-acesso
       ports:
         - port: 1025
+
+---
+# Prometheus consulta apenas as portas de métricas dos serviços.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: metricas-prometheus
+  namespace: athena
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: [projetos-acesso, requisitos, rastreabilidade, revisoes, integracoes, bff-gestao, bff-livro, impacto-mcp]
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - port: 8080
+        - port: 8000   # impacto-mcp
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: metricas-gateway-prometheus
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - port: 8081

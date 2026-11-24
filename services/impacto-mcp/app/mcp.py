@@ -11,7 +11,7 @@ import uuid
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
 
-from . import indice
+from . import indice, metricas
 
 router = APIRouter()
 
@@ -81,7 +81,9 @@ async def mcp(request: Request):
                 raise ValueError("q vazio")
         except (KeyError, ValueError):
             return _resposta(id_, erro={"code": -32602, "message": "Argumentos inválidos"})
-        trechos = indice.buscar(projeto, pergunta, limite)
+        with metricas.FERRAMENTA_SEGUNDOS.labels(
+                application=metricas.APLICACAO, ferramenta="buscar_contexto").time():
+            trechos = indice.buscar(projeto, pergunta, limite)
         return _resposta(id_, {
             "content": [{"type": "text", "text": json.dumps({"trechos": trechos}, ensure_ascii=False)}],
             "structuredContent": {"trechos": trechos},

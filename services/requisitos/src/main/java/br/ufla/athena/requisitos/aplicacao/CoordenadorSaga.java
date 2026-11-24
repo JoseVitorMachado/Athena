@@ -9,6 +9,7 @@ import br.ufla.athena.requisitos.dominio.SituacaoRequisito;
 import br.ufla.athena.requisitos.dominio.Versao;
 import br.ufla.athena.requisitos.dominio.VersaoRepository;
 import br.ufla.athena.requisitos.mensageria.EmissorMensagens;
+import io.micrometer.core.instrument.MeterRegistry;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CoordenadorSaga {
     private static final Logger log = LoggerFactory.getLogger(CoordenadorSaga.class);
     private static final String OPERACAO = "criarSubmissao";
+    private final MeterRegistry metricas;
     private final JdbcTemplate banco;
     private final RequisitoRepository requisitos;
     private final VersaoRepository versoes;
@@ -49,13 +51,14 @@ public class CoordenadorSaga {
     private final int maximo;
     private final MaquinaSaga maquina = new MaquinaSaga();
 
-    public CoordenadorSaga(JdbcTemplate banco, RequisitoRepository requisitos, VersaoRepository versoes,
+    public CoordenadorSaga(MeterRegistry metricas, JdbcTemplate banco, RequisitoRepository requisitos, VersaoRepository versoes,
                            EmissorMensagens emissor, ObjectMapper json, UsuarioAtual usuario,
                            @Value("${athena.saga.prazo-total:90s}") Duration prazoTotal,
                            @Value("${athena.saga.espera-por-tentativa:10s}") Duration espera,
                            @Value("${athena.saga.intervalos:2s,4s}") List<Duration> intervalos,
                            @Value("${athena.saga.repeticao-compensacao-pendente:60s}") Duration repeticao,
                            @Value("${athena.saga.tentativas:3}") int maximo) {
+        this.metricas = metricas;
         this.banco = banco;
         this.requisitos = requisitos;
         this.versoes = versoes;
@@ -236,6 +239,7 @@ public class CoordenadorSaga {
 
     private void transicao(Registro r, String estado, String etapa, String motivo) {
         log.info("SAGA {} {}/{} -> {}/{} ({})", r.saga, r.estado, r.etapa, estado, etapa, motivo);
+        metricas.counter("athena.saga.transicoes", "de", r.estado, "para", estado).increment();
         r.estado = estado;
         r.etapa = etapa;
     }

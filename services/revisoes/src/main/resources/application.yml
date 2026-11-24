@@ -22,7 +22,18 @@ spring:
     # db/migration cria o esquema; db/demo (opcional) carrega dados de demonstração.
     locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
     ignore-migration-patterns: "*:missing"
+    # Os dados de demonstração usam versões altas (V900+). Sem isto, um banco que já
+    # recebeu a demo recusaria migrações de esquema novas (V3, V4...).
+    out-of-order: true
   rabbitmq:
+    publisher-confirm-type: simple
+    # Falha rápido com o broker fora: o publicador registra a falha na outbox e
+    # tenta de novo, em vez de ficar preso no padrão de 60 s do cliente.
+    connection-timeout: 5s
+    listener:
+      simple:
+        prefetch: 10
+        default-requeue-rejected: false
     host: ${RABBITMQ_HOST}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER}
@@ -56,3 +67,8 @@ management:
 athena:
   # Enquanto não há autenticação (Parte 4), as decisões são atribuídas a este usuário.
   usuario-demo: ${ATHENA_USUARIO_DEMO:55555555-5555-4555-8555-555555555555}
+
+  mensageria:
+    servico: revisoes
+    intervalo-publicacao: 500ms
+    lote-publicacao: 50

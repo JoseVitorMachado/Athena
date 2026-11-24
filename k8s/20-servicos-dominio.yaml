@@ -32,6 +32,11 @@ spec:
             - name: http
               containerPort: 8080
           env:
+            - name: ATHENA_USUARIOS_DEMO
+              value: "true"
+            # HTTP local; em produção o cookie deve usar Secure.
+            - name: ATHENA_COOKIE_SEGURO
+              value: "false"
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:

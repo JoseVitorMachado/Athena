@@ -8,6 +8,11 @@ server:
 spring:
   application:
     name: bff-livro
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${PROJETOS_ACESSO_URL}/oauth2/jwks
   mvc:
     problemdetails:
       enabled: true
@@ -16,6 +21,7 @@ spring:
 
 athena:
   servicos:
+    projetos-acesso: ${PROJETOS_ACESSO_URL}
     requisitos: ${REQUISITOS_URL}
     rastreabilidade: ${RASTREABILIDADE_URL}
   http:

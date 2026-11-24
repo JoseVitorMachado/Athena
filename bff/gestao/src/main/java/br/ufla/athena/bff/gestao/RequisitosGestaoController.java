@@ -35,12 +35,10 @@ public class RequisitosGestaoController {
     private final ClienteDominio dominio;
     private final String requisitosUrl;
     private final String revisoesUrl;
-    private final PapelAtual papelAtual;
     private final MontadorAcoes montador = new MontadorAcoes();
 
-    public RequisitosGestaoController(ClienteDominio dominio, AthenaProperties propriedades, PapelAtual papelAtual) {
+    public RequisitosGestaoController(ClienteDominio dominio, AthenaProperties propriedades) {
         this.dominio = dominio;
-        this.papelAtual = papelAtual;
         this.requisitosUrl = propriedades.servicos().requisitos();
         this.revisoesUrl = propriedades.servicos().revisoes();
     }
@@ -134,7 +132,8 @@ public class RequisitosGestaoController {
 
     /** gestaoObterRequisito: composição Requisitos + Revisões. */
     @GetMapping("/{requisitoId}")
-    public ResponseEntity<JsonNode> obter(@PathVariable UUID projetoId, @PathVariable UUID requisitoId) {
+    public ResponseEntity<JsonNode> obter(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+                                        HttpServletRequest pedido) {
         Resposta requisito = dominio.get("requisitos", requisitosUrl, colecao(projetoId) + "/" + requisitoId);
         if (!requisito.sucesso()) {
             return repassar(requisito);
@@ -168,7 +167,7 @@ public class RequisitosGestaoController {
         }
         MontadorAcoes.Resultado navegacao = montador.montar(projetoId.toString(), requisitoId.toString(),
                 texto(origem, "situacao"), estado, texto(lote, "loteId"),
-                texto(lote, "estado"), texto(submissao, "submissaoId"), papelAtual.obter());
+                texto(lote, "estado"), texto(submissao, "submissaoId"), ((PapelAtual.Vinculo) pedido.getAttribute(AutorizacaoProjeto.VINCULO)).papel());
         visao.set("_links", JSON.pojoNode(navegacao.links()));
         visao.set("_actions", JSON.pojoNode(navegacao.actions()));
         visao.set("avisos", avisos);

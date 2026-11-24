@@ -32,8 +32,11 @@ spec:
             - name: http
               containerPort: 8080
           env:
-            - name: ATHENA_PAPEL_DEMO
-              value: OWNER
+            - name: PROJETOS_ACESSO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: PROJETOS_ACESSO_URL
             - name: REQUISITOS_URL
               valueFrom:
                 configMapKeyRef:
@@ -131,6 +134,11 @@ spec:
             - name: http
               containerPort: 8080
           env:
+            - name: PROJETOS_ACESSO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: athena-config
+                  key: PROJETOS_ACESSO_URL
             - name: REQUISITOS_URL
               valueFrom:
                 configMapKeyRef:

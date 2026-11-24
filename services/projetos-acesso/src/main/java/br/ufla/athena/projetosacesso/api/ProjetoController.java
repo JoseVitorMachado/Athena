@@ -29,11 +29,13 @@ public class ProjetoController {
     private static final String CAMINHO = "/api/v1/projetos";
 
     private final ProjetoRepository repositorio;
-    private final UUID usuarioDemo;
+    private final IdentidadeController identidade;
+    private final org.springframework.jdbc.core.JdbcTemplate banco;
 
-    public ProjetoController(ProjetoRepository repositorio, @Value("${athena.usuario-demo}") UUID usuarioDemo) {
+    public ProjetoController(ProjetoRepository repositorio, IdentidadeController identidade, org.springframework.jdbc.core.JdbcTemplate banco) {
         this.repositorio = repositorio;
-        this.usuarioDemo = usuarioDemo;
+        this.identidade = identidade;
+        this.banco = banco;
     }
 
     /** listarProjetos */
@@ -53,9 +55,12 @@ public class ProjetoController {
 
     /** criarProjeto: 201 com Location. O criador passa a ser o Owner. */
     @PostMapping
-    public ResponseEntity<ProjetoResposta> criar(@Valid @RequestBody ProjetoEntrada entrada) {
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<ProjetoResposta> criar(@Valid @RequestBody ProjetoEntrada entrada, @org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String bearer) {
+        UUID usuario = identidade.usuarioAutenticado(bearer);
         Projeto projeto = repositorio.saveAndFlush(
-                Projeto.novo(entrada.workspaceId(), entrada.nome().trim(), entrada.descricao(), usuarioDemo));
+                Projeto.novo(entrada.workspaceId(), entrada.nome().trim(), entrada.descricao(), usuario));
+        banco.update("INSERT INTO membros(projeto_id, usuario_id, papel) VALUES (?, ?, ?)", projeto.getId(), usuario, "OWNER");
         return ResponseEntity.created(URI.create(CAMINHO + "/" + projeto.getId()))
                 .eTag(etag(projeto))
                 .body(ProjetoResposta.de(projeto));

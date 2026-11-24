@@ -8,6 +8,11 @@ server:
 spring:
   application:
     name: bff-gestao
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${PROJETOS_ACESSO_URL}/oauth2/jwks
   mvc:
     problemdetails:
       enabled: true
@@ -15,8 +20,8 @@ spring:
     default-property-inclusion: non_null
 
 athena:
-  papel-demo: ${ATHENA_PAPEL_DEMO:OWNER}
   servicos:
+    projetos-acesso: ${PROJETOS_ACESSO_URL}
     requisitos: ${REQUISITOS_URL}
     revisoes: ${REVISOES_URL}
     rastreabilidade: ${RASTREABILIDADE_URL}

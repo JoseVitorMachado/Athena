@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("athena")
 public record AthenaProperties(Servicos servicos, Http http) {
 
-    public record Servicos(String requisitos, String revisoes, String rastreabilidade) {
+    public record Servicos(String projetosAcesso, String requisitos, String revisoes, String rastreabilidade) {
     }
 
     public record Http(Duration timeoutConexao, Duration timeoutLeitura) {

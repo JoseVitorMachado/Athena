@@ -32,6 +32,19 @@ public class Publicacao {
         // exigido pelo JPA
     }
 
+    public static Publicacao criar(UUID requisitoId, UUID versaoId, UUID submissaoId,
+                                   UUID retratoId, UUID autor, Instant data) {
+        Publicacao publicacao = new Publicacao();
+        publicacao.id = UUID.randomUUID();
+        publicacao.requisitoId = requisitoId;
+        publicacao.versaoId = versaoId;
+        publicacao.submissaoId = submissaoId;
+        publicacao.retratoId = retratoId;
+        publicacao.autor = autor;
+        publicacao.data = data;
+        return publicacao;
+    }
+
     public UUID getId() {
         return id;
     }

@@ -70,7 +70,7 @@ athena:
 
   mensageria:
     servico: revisoes
-    eventos-assinados: []
+    eventos-assinados: [requisitos.DecisaoRevisaoAplicada]
     intervalo-publicacao: 500ms
     lote-publicacao: 50
 

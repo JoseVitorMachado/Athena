@@ -18,9 +18,29 @@ final class Caminhos {
     }
 
     static String paraGestao(String caminhoDeDominio) {
-        return caminhoDeDominio.startsWith(DOMINIO)
-                ? GESTAO + caminhoDeDominio.substring(DOMINIO.length())
-                : caminhoDeDominio;
+        if (caminhoDeDominio.startsWith("http://") || caminhoDeDominio.startsWith("https://")) {
+            java.net.URI uri = java.net.URI.create(caminhoDeDominio);
+            String caminho = uri.getRawPath();
+            if (uri.getRawQuery() != null) {
+                caminho += "?" + uri.getRawQuery();
+            }
+            if (caminho.startsWith(DOMINIO)) {
+                return paraGestao(caminho);
+            }
+        }
+        if (!caminhoDeDominio.startsWith(DOMINIO)) {
+            return caminhoDeDominio;
+        }
+        String restante = caminhoDeDominio.substring(DOMINIO.length());
+        int separador = restante.indexOf('/');
+        if (separador >= 0) {
+            String projeto = restante.substring(0, separador);
+            String recurso = restante.substring(separador);
+            if (recurso.equals("/lotes") || recurso.startsWith("/lotes/") || recurso.startsWith("/lotes?")) {
+                restante = projeto + "/revisoes" + recurso.substring("/lotes".length());
+            }
+        }
+        return GESTAO + restante;
     }
 
     /**

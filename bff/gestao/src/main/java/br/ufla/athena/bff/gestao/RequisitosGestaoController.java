@@ -94,6 +94,22 @@ public class RequisitosGestaoController {
                 caminhoRequisito(projetoId, requisitoId) + "/submissoes/" + submissaoId));
     }
 
+    @GetMapping("/{requisitoId}/publicacoes")
+    public ResponseEntity<JsonNode> listarPublicacoes(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+                                                       HttpServletRequest pedido) {
+        String query = pedido.getQueryString() == null ? "" : "?" + pedido.getQueryString();
+        return repassar(dominio.get("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/publicacoes" + query));
+    }
+
+    @PostMapping("/{requisitoId}/publicacoes")
+    public ResponseEntity<JsonNode> criarPublicacao(@PathVariable UUID projetoId, @PathVariable UUID requisitoId,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chave, @RequestBody JsonNode corpo) {
+        return repassar(dominio.post("requisitos", requisitosUrl,
+                caminhoRequisito(projetoId, requisitoId) + "/publicacoes", corpo, ifMatch, chave));
+    }
+
     private static String caminhoRequisito(UUID projetoId, UUID requisitoId) {
         return colecao(projetoId) + "/" + requisitoId;
     }
@@ -183,7 +199,7 @@ public class RequisitosGestaoController {
     }
 
     /** Devolve ao cliente o que o domínio respondeu, trocando os caminhos pelos do BFF. */
-    private static ResponseEntity<JsonNode> repassar(Resposta resposta) {
+    static ResponseEntity<JsonNode> repassar(Resposta resposta) {
         Caminhos.reescreverLinks(resposta.corpo());
         ResponseEntity.BodyBuilder saida = ResponseEntity.status(resposta.status());
         HttpHeaders origem = resposta.cabecalhos();

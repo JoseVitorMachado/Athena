@@ -113,7 +113,7 @@ public class LivroController {
         item.set("criteriosAceite", versao.get("criteriosAceite"));
 
         ArrayNode avisos = JSON.arrayNode();
-        item.set("referencias", referencias(projetoId, requisitoId, ativos, avisos));
+        item.set("referencias", referencias(projetoId, requisitoId, publicacao.path("retratoId").asText(), ativos, avisos));
         item.set("avisos", avisos);
 
         ObjectNode links = item.putObject("_links");
@@ -122,27 +122,23 @@ public class LivroController {
         return item;
     }
 
-    /**
-     * Referências a partir das relações do requisito. O livro prevê as relações do
-     * retrato associado à publicação; enquanto os retratos não são gerados (SAGA,
-     * Parte 4), usa-se o conjunto oficial atual e o item avisa isso.
-     */
-    private ArrayNode referencias(UUID projetoId, String requisitoId, Map<String, JsonNode> ativos,
+    /** Referências congeladas no retrato associado à publicação. */
+    private ArrayNode referencias(UUID projetoId, String requisitoId, String retratoId, Map<String, JsonNode> ativos,
                                   ArrayNode avisos) {
         ArrayNode referencias = JSON.arrayNode();
         Resposta relacoes;
         try {
             relacoes = dominio.get("rastreabilidade", rastreabilidadeUrl,
-                    DOMINIO + projetoId + "/relacoes?size=100&requisitoId=" + requisitoId);
+                    DOMINIO + projetoId + "/retratos/" + retratoId);
         } catch (DominioIndisponivelException e) {
-            avisos.add("Rastreabilidade indisponível: referências não exibidas.");
+            avisos.add("Referências da publicação indisponíveis.");
             return referencias;
         }
         if (!relacoes.sucesso()) {
-            avisos.add("Não foi possível consultar as referências deste requisito.");
+            avisos.add("Referências da publicação indisponíveis.");
             return referencias;
         }
-        for (JsonNode relacao : relacoes.corpo().path("items")) {
+        for (JsonNode relacao : relacoes.corpo().path("relacoes")) {
             String outro = relacao.get("origemId").asText().equals(requisitoId)
                     ? relacao.get("destinoId").asText()
                     : relacao.get("origemId").asText();
@@ -160,7 +156,6 @@ public class LivroController {
             referencia.put("cancelado", false);
             referencia.set("tipo", relacao.get("tipo"));
         }
-        avisos.add("Referências exibidas a partir das relações atuais; o retrato da publicação entra na Parte 4.");
         return referencias;
     }
 

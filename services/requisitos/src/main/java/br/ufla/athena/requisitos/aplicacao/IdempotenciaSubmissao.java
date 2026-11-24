@@ -19,6 +19,18 @@ public final class IdempotenciaSubmissao {
         }
     }
 
+    public static String impressaoPublicacao(UUID requisitoId, UUID versaoId, UUID submissaoId,
+                                              String comprovanteHumano) {
+        try {
+            String pedido = requisitoId + ":" + versaoId + ":" + submissaoId + ":"
+                    + (comprovanteHumano == null ? "-" : comprovanteHumano.length() + ":" + comprovanteHumano);
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(pedido.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     public static boolean mesmoPedido(String anterior, String atual) {
         return anterior.equals(atual);
     }

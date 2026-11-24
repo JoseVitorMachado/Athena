@@ -11,6 +11,11 @@ import br.ufla.athena.revisoes.dominio.Lote;
 import br.ufla.athena.revisoes.dominio.LoteRepository;
 import br.ufla.athena.revisoes.dominio.TipoDecisao;
 import br.ufla.athena.revisoes.mensageria.EmissorMensagens;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +36,17 @@ public class LoteService {
     private final DecisaoRepository decisoes;
     private final EmissorMensagens emissor;
     private final UUID usuarioDemo;
+    private final JdbcTemplate banco;
+    private final ObjectMapper json;
 
     public LoteService(LoteRepository lotes, DecisaoRepository decisoes, EmissorMensagens emissor,
-                       @Value("${athena.usuario-demo}") UUID usuarioDemo) {
+                       @Value("${athena.usuario-demo}") UUID usuarioDemo, JdbcTemplate banco, ObjectMapper json) {
         this.lotes = lotes;
         this.decisoes = decisoes;
         this.emissor = emissor;
         this.usuarioDemo = usuarioDemo;
+        this.banco = banco;
+        this.json = json;
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +83,28 @@ public class LoteService {
      * @param ifMatch ETag do lote que o cliente viu; nulo quando o cabeçalho não veio
      */
     @Transactional
-    public DecisaoResposta decidir(UUID projetoId, UUID loteId, String ifMatch, DecisaoEntrada entrada) {
+    public DecisaoResposta decidir(UUID projetoId, UUID loteId, String ifMatch, String chave, DecisaoEntrada entrada) {
+        if (chave == null || chave.isBlank()) {
+            throw new Problema(HttpStatus.PRECONDITION_REQUIRED, "IDEMPOTENCY_KEY_AUSENTE",
+                    "A decisão exige Idempotency-Key.");
+        }
+        String impressao = impressao(loteId, entrada);
+        banco.query("SELECT pg_advisory_xact_lock(hashtext(?))", rs -> { },
+                "decisao:" + projetoId + ":" + chave);
+        banco.update("DELETE FROM chaves_idempotencia WHERE projeto_id = ? AND operacao = ? AND chave = ? AND criado_em <= now() - interval '24 hours'",
+                projetoId, "criarDecisao", chave);
+        var registros = banco.query("SELECT impressao, recurso_id FROM chaves_idempotencia WHERE projeto_id = ? AND operacao = ? AND chave = ?",
+                (rs, n) -> new ChaveRegistrada(rs.getString(1), rs.getObject(2, UUID.class)),
+                projetoId, "criarDecisao", chave);
+        if (!registros.isEmpty()) {
+            ChaveRegistrada registro = registros.get(0);
+            if (!registro.impressao().equals(impressao)) {
+                throw new Problema(HttpStatus.CONFLICT, "IDEMPOTENCY_KEY_REUTILIZADA",
+                        "A chave já foi usada em outro pedido.");
+            }
+            return DecisaoResposta.de(decisoes.findById(registro.recursoId()).orElseThrow());
+        }
+        banco.query("SELECT pg_advisory_xact_lock(hashtext(?))", rs -> { }, "lote:" + loteId);
         Lote lote = lotes.findByIdAndProjetoId(loteId, projetoId).orElseThrow(LoteService::naoEncontrado);
 
         if (ifMatch == null || ifMatch.isBlank()) {
@@ -107,7 +138,23 @@ public class LoteService {
         lote.encerrar();
         emitirEvento(lote, decisao);
         decisoes.flush();
+        banco.update("INSERT INTO chaves_idempotencia (projeto_id, operacao, chave, impressao, recurso_id) VALUES (?, ?, ?, ?, ?)",
+                projetoId, "criarDecisao", chave, impressao, decisao.getId());
         return DecisaoResposta.de(decisao);
+    }
+
+    private String impressao(UUID loteId, DecisaoEntrada entrada) {
+        try {
+            byte[] conteudo = json.writeValueAsBytes(entrada);
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(loteId.toString().getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest.digest(conteudo));
+        } catch (com.fasterxml.jackson.core.JsonProcessingException | NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Não foi possível calcular a impressão do pedido", e);
+        }
+    }
+
+    private record ChaveRegistrada(String impressao, UUID recursoId) {
     }
 
     /** Envelope do evento conforme o livro §6.6. */

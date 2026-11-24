@@ -65,6 +65,7 @@ management:
           include: readinessState,db
 
 athena:
+  usuario-demo: ${ATHENA_USUARIO_DEMO:55555555-5555-4555-8555-555555555555}
   mensageria:
     servico: requisitos
     eventos-assinados:
@@ -75,6 +76,7 @@ athena:
       - revisoes.LoteRevisaoRecusado
       - revisoes.CancelamentoLoteConfirmado
       - revisoes.LoteRevisaoAtivado
+      - revisoes.DecisaoRevisaoRegistrada
     intervalo-publicacao: 500ms
     lote-publicacao: 50
   saga:

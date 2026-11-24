@@ -63,8 +63,9 @@ public class LoteController {
             @PathVariable UUID projetoId,
             @PathVariable UUID loteId,
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chave,
             @Valid @RequestBody DecisaoEntrada entrada) {
-        DecisaoResposta decisao = servico.decidir(projetoId, loteId, ifMatch, entrada);
+        DecisaoResposta decisao = servico.decidir(projetoId, loteId, ifMatch, chave, entrada);
         URI location = URI.create(colecao(projetoId) + "/" + loteId + "/decisoes/" + decisao.decisaoId());
         return ResponseEntity.created(location).body(decisao);
     }

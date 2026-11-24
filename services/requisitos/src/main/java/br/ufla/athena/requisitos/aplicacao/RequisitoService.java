@@ -46,9 +46,9 @@ public class RequisitoService {
     }
 
     @Transactional(readOnly = true)
-    public Pagina<RequisitoResposta> listar(UUID projetoId, SituacaoRequisito situacao, Pageable paginacao,
-                                            String linkSelf) {
-        Page<Requisito> pagina = repositorio.findByProjetoIdAndSituacao(projetoId, situacao, paginacao);
+    public Pagina<RequisitoResposta> listar(br.ufla.athena.requisitos.dominio.FiltroRequisitos filtro,
+                                            Pageable paginacao, String linkSelf) {
+        Page<Requisito> pagina = repositorio.findAll(filtro.especificacao(), paginacao);
         return Pagina.de(pagina.map(RequisitoResposta::de), linkSelf);
     }
 

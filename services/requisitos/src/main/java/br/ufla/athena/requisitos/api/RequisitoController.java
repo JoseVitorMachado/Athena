@@ -2,10 +2,13 @@ package br.ufla.athena.requisitos.api;
 
 import br.ufla.athena.requisitos.aplicacao.RequisitoService;
 import br.ufla.athena.requisitos.aplicacao.RequisitoService.Encontrado;
+import br.ufla.athena.requisitos.dominio.EstadoVersao;
+import br.ufla.athena.requisitos.dominio.FiltroRequisitos;
 import br.ufla.athena.requisitos.dominio.SituacaoRequisito;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import java.net.URI;
 import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /** Operações de docs/api/requisitos.yaml implementadas nesta etapa. */
 @RestController
@@ -41,9 +45,25 @@ public class RequisitoController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
             @RequestParam(defaultValue = Ordenacao.PADRAO) String sort,
-            @RequestParam(defaultValue = "ATIVO") SituacaoRequisito situacao) {
-        String self = caminhoColecao(projetoId) + "?page=" + page + "&size=" + size + "&sort=" + sort;
-        return servico.listar(projetoId, situacao, PageRequest.of(page, size, Ordenacao.de(sort)), self);
+            @RequestParam(defaultValue = "ATIVO") SituacaoRequisito situacao,
+            @RequestParam(required = false) EstadoVersao estadoVersao,
+            @RequestParam(required = false) @Size(max = 40) String tipo,
+            @RequestParam(required = false) UUID epicoId,
+            @RequestParam(required = false) UUID responsavelId,
+            @RequestParam(required = false) @Size(max = 200) String q) {
+        // O link self repete os filtros usados, para a navegação manter o mesmo recorte.
+        UriComponentsBuilder self = UriComponentsBuilder.fromPath(caminhoColecao(projetoId))
+                .queryParam("page", page).queryParam("size", size).queryParam("sort", sort)
+                .queryParam("situacao", situacao);
+        if (estadoVersao != null) self.queryParam("estadoVersao", estadoVersao);
+        if (tipo != null && !tipo.isBlank()) self.queryParam("tipo", tipo);
+        if (epicoId != null) self.queryParam("epicoId", epicoId);
+        if (responsavelId != null) self.queryParam("responsavelId", responsavelId);
+        if (q != null && !q.isBlank()) self.queryParam("q", q);
+        FiltroRequisitos filtro = new FiltroRequisitos(projetoId, situacao, estadoVersao, tipo, epicoId,
+                responsavelId, q);
+        return servico.listar(filtro, PageRequest.of(page, size, Ordenacao.de(sort)),
+                self.encode().build().toUriString());
     }
 
     /** criarRequisito: 201 com Location para o recurso criado. */

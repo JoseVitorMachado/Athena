@@ -14,17 +14,15 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
 public class BarreiraExclusao extends OncePerRequestFilter {
     private static final Pattern CAMINHO = Pattern.compile("^/api/v1/projetos/([^/]+)(?:/.*)?$");
     private final JdbcTemplate banco;
     private final ObjectMapper json;
-    private final TransactionTemplate transacao;
 
-    public BarreiraExclusao(JdbcTemplate banco, ObjectMapper json, TransactionTemplate transacao) {
-        this.banco = banco; this.json = json; this.transacao = transacao;
+    public BarreiraExclusao(JdbcTemplate banco, ObjectMapper json) {
+        this.banco = banco; this.json = json;
     }
 
     @Override
@@ -35,19 +33,10 @@ public class BarreiraExclusao extends OncePerRequestFilter {
             UUID projeto;
             try { projeto = UUID.fromString(caminho.group(1)); }
             catch (IllegalArgumentException erro) { cadeia.doFilter(requisicao, resposta); return; }
-            if (!"GET".equals(requisicao.getMethod())) {
-                try {
-                    transacao.executeWithoutResult(estado -> {
-                        banco.query("SELECT pg_advisory_xact_lock(hashtext(?))", rs -> { }, "exclusao:" + projeto);
-                        try { verificar(requisicao, resposta, cadeia, projeto); }
-                        catch (IOException | ServletException erro) { throw new FalhaFiltro(erro); }
-                    });
-                } catch (FalhaFiltro erro) {
-                    if (erro.getCause() instanceof IOException causa) throw causa;
-                    throw (ServletException) erro.getCause();
-                }
-                return;
-            }
+            // A requisição segue fora de qualquer transação do filtro: envolver a cadeia numa transação
+            // faria os @Transactional dos controladores participarem dela e transformaria erros de negócio
+            // (400/409/428) em rollback do filtro, com uma segunda resposta de erro anexada. Uma escrita que
+            // passe pela consulta logo antes da barreira é coberta pela limpeza, que apaga tudo do projeto.
             verificar(requisicao, resposta, cadeia, projeto);
             return;
         }
@@ -73,7 +62,4 @@ public class BarreiraExclusao extends OncePerRequestFilter {
         cadeia.doFilter(requisicao, resposta);
     }
 
-    private static class FalhaFiltro extends RuntimeException {
-        FalhaFiltro(Exception causa) { super(causa); }
-    }
 }

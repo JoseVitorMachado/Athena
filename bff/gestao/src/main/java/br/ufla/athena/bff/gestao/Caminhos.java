@@ -24,9 +24,15 @@ final class Caminhos {
             if (uri.getRawQuery() != null) {
                 caminho += "?" + uri.getRawQuery();
             }
-            if (caminho.startsWith(DOMINIO)) {
+            if (corresponde(caminho, "/api/v1/projetos") || corresponde(caminho, "/api/v1/workspaces")) {
                 return paraGestao(caminho);
             }
+        }
+        if (corresponde(caminhoDeDominio, "/api/v1/workspaces")) {
+            return "/api/v1/gestao/workspaces" + caminhoDeDominio.substring("/api/v1/workspaces".length());
+        }
+        if (caminhoDeDominio.equals("/api/v1/projetos") || caminhoDeDominio.startsWith("/api/v1/projetos?")) {
+            return "/api/v1/gestao/projetos" + caminhoDeDominio.substring("/api/v1/projetos".length());
         }
         if (!caminhoDeDominio.startsWith(DOMINIO)) {
             return caminhoDeDominio;
@@ -41,6 +47,10 @@ final class Caminhos {
             }
         }
         return GESTAO + restante;
+    }
+
+    private static boolean corresponde(String caminho, String base) {
+        return caminho.equals(base) || caminho.startsWith(base + "/") || caminho.startsWith(base + "?");
     }
 
     /**

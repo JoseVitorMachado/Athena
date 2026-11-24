@@ -29,6 +29,8 @@ public class Projeto {
     @Version
     private long revisao;
 
+    private Instant excluidoEm;
+
     private Instant criadoEm;
 
     private Instant atualizadoEm;
@@ -51,6 +53,17 @@ public class Projeto {
         projeto.atualizadoEm = agora;
         return projeto;
     }
+
+    public void alterar(String nome, String descricao) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.atualizadoEm = Instant.now();
+    }
+
+    public void arquivar() { this.arquivado = true; this.atualizadoEm = Instant.now(); }
+    public void restaurar() { this.arquivado = false; this.atualizadoEm = Instant.now(); }
+    public void excluirLogicamente(Instant instante) { this.excluidoEm = instante; this.atualizadoEm = instante; }
+    public Instant getExcluidoEm() { return excluidoEm; }
 
     public UUID getId() {
         return id;

@@ -1,80 +1,119 @@
 package br.ufla.athena.projetosacesso.api;
 
-import br.ufla.athena.projetosacesso.dominio.Projeto;
-import br.ufla.athena.projetosacesso.dominio.ProjetoRepository;
+import br.ufla.athena.projetosacesso.dominio.*;
+import br.ufla.athena.projetosacesso.mensageria.EmissorMensagens;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.*;
 import java.net.URI;
-import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.*;
+import org.springframework.data.domain.*;
+import org.springframework.http.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-/** Operações de projeto de docs/api/projetos-acesso.yaml implementadas nesta etapa. */
 @RestController
 @RequestMapping("/api/v1/projetos")
+@Validated
 public class ProjetoController {
-
     private static final String CAMINHO = "/api/v1/projetos";
-
-    private final ProjetoRepository repositorio;
+    private final AcessoRecursos acesso;
     private final IdentidadeController identidade;
-    private final org.springframework.jdbc.core.JdbcTemplate banco;
-
-    public ProjetoController(ProjetoRepository repositorio, IdentidadeController identidade, org.springframework.jdbc.core.JdbcTemplate banco) {
-        this.repositorio = repositorio;
-        this.identidade = identidade;
-        this.banco = banco;
+    private final EmissorMensagens emissor;
+    private final EntityManager entidades;
+    public ProjetoController(AcessoRecursos acesso, IdentidadeController identidade, EmissorMensagens emissor, EntityManager entidades) {
+        this.acesso = acesso; this.identidade = identidade; this.emissor = emissor; this.entidades = entidades;
     }
-
-    /** listarProjetos */
     @GetMapping
-    public Pagina<ProjetoResposta> listar(
-            @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
-            @RequestParam(defaultValue = Ordenacao.PADRAO) String sort,
-            @RequestParam(required = false) UUID workspaceId) {
-        Pageable paginacao = PageRequest.of(page, size, Ordenacao.de(sort));
-        Page<Projeto> projetos = workspaceId == null
-                ? repositorio.findByArquivadoFalse(paginacao)
-                : repositorio.findByWorkspaceIdAndArquivadoFalse(workspaceId, paginacao);
-        String self = CAMINHO + "?page=" + page + "&size=" + size + "&sort=" + sort;
-        return Pagina.de(projetos.map(ProjetoResposta::de), self);
-    }
-
-    /** criarProjeto: 201 com Location. O criador passa a ser o Owner. */
-    @PostMapping
-    @org.springframework.transaction.annotation.Transactional
-    public ResponseEntity<ProjetoResposta> criar(@Valid @RequestBody ProjetoEntrada entrada, @org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String bearer) {
+    @Transactional(readOnly = true)
+    public Pagina<ProjetoResposta> listar(@RequestHeader(value = "Authorization", required = false) String bearer,
+            @RequestParam(defaultValue = "0") @Min(0) int page, @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @RequestParam(defaultValue = Ordenacao.PADRAO) String sort, @RequestParam(required = false) UUID workspaceId,
+            @RequestParam(defaultValue = "false") boolean arquivado) {
         UUID usuario = identidade.usuarioAutenticado(bearer);
-        Projeto projeto = repositorio.saveAndFlush(
-                Projeto.novo(entrada.workspaceId(), entrada.nome().trim(), entrada.descricao(), usuario));
-        banco.update("INSERT INTO membros(projeto_id, usuario_id, papel) VALUES (?, ?, ?)", projeto.getId(), usuario, "OWNER");
-        return ResponseEntity.created(URI.create(CAMINHO + "/" + projeto.getId()))
-                .eTag(etag(projeto))
-                .body(ProjetoResposta.de(projeto));
+        String ordem = AcessoRecursos.ordem(sort, "p");
+        String filtro = " FROM projetos p JOIN membros m ON m.projeto_id=p.id WHERE m.usuario_id=? AND p.excluido_em IS NULL AND p.arquivado=?" + (workspaceId == null ? "" : " AND p.workspace_id=?");
+        List<Object> argumentos = new ArrayList<>(List.of(usuario, arquivado));
+        if (workspaceId != null) argumentos.add(workspaceId);
+        Long total = acesso.banco.queryForObject("SELECT count(*)" + filtro, Long.class, argumentos.toArray());
+        argumentos.add(size); argumentos.add((long) page * size);
+        List<UUID> ids = acesso.banco.queryForList("SELECT p.id" + filtro + " ORDER BY " + ordem + " LIMIT ? OFFSET ?", UUID.class, argumentos.toArray());
+        List<ProjetoResposta> itens = ids.stream().map(id -> ProjetoResposta.de(acesso.projetos.findById(id).orElseThrow())).toList();
+        String self = CAMINHO + "?page=" + page + "&size=" + size + "&sort=" + sort + "&arquivado=" + arquivado + (workspaceId == null ? "" : "&workspaceId=" + workspaceId);
+        return Pagina.de(new PageImpl<>(itens, PageRequest.of(page, size), total == null ? 0 : total), self);
     }
-
-    /** obterProjeto */
+    @PostMapping
+    @Transactional
+    public ResponseEntity<ProjetoResposta> criar(@RequestHeader(value = "Authorization", required = false) String bearer, @Valid @RequestBody ProjetoEntrada entrada) {
+        UUID usuario = identidade.usuarioAutenticado(bearer);
+        Workspace w = acesso.workspace(entrada.workspaceId(), usuario, true);
+        if (!PoliticaWorkspace.podeCriarProjeto(usuario, w.getOwnerId(), acesso.papeis(w.getId(), usuario))) throw AcessoRecursos.insuficiente();
+        Projeto p = acesso.projetos.saveAndFlush(Projeto.novo(w.getId(), entrada.nome().trim(), entrada.descricao(), usuario));
+        acesso.banco.update("INSERT INTO membros(projeto_id, usuario_id, papel) VALUES (?, ?, ?)", p.getId(), usuario, "OWNER");
+        evento("ProjetoCriado", p, usuario);
+        return ResponseEntity.created(URI.create(CAMINHO + "/" + p.getId())).eTag(AcessoRecursos.etag(p.getRevisao())).body(ProjetoResposta.de(p));
+    }
     @GetMapping("/{projetoId}")
-    public ResponseEntity<ProjetoResposta> obter(@PathVariable UUID projetoId) {
-        Projeto projeto = repositorio.findById(projetoId).orElseThrow(() ->
-                new Problema(HttpStatus.NOT_FOUND, "PROJETO_NAO_ENCONTRADO", "Projeto não encontrado."));
-        return ResponseEntity.ok().eTag(etag(projeto)).body(ProjetoResposta.de(projeto));
+    @Transactional(readOnly = true)
+    public ResponseEntity<ProjetoResposta> obter(@RequestHeader(value = "Authorization", required = false) String bearer, @PathVariable UUID projetoId) {
+        Projeto p = acesso.projeto(projetoId, identidade.usuarioAutenticado(bearer), false);
+        return resposta(p);
     }
-
-    private static String etag(Projeto projeto) {
-        return "\"" + projeto.getRevisao() + "\"";
+    @PatchMapping("/{projetoId}")
+    @Transactional
+    public ResponseEntity<ProjetoResposta> alterar(@RequestHeader(value = "Authorization", required = false) String bearer,
+            @RequestHeader(value = "If-Match", required = false) String ifMatch, @PathVariable UUID projetoId, @RequestBody JsonNode entrada) {
+        UUID usuario = identidade.usuarioAutenticado(bearer);
+        Projeto p = projetoParaEscrita(projetoId, usuario);
+        AcessoRecursos.revisao(ifMatch, p.getRevisao());
+        if (p.isArquivado()) throw new Problema(HttpStatus.CONFLICT, "PROJETO_ARQUIVADO", "Projeto arquivado.");
+        if (!entrada.isObject() || entrada.isEmpty() || camposDesconhecidos(entrada)) throw invalida();
+        JsonNode nome = entrada.get("nome"), descricao = entrada.get("descricao");
+        if (nome != null && (!nome.isTextual() || nome.asText().isBlank() || nome.asText().length() > 120)) throw invalida();
+        if (descricao != null && !descricao.isNull() && (!descricao.isTextual() || descricao.asText().length() > 1000)) throw invalida();
+        p.alterar(nome == null ? p.getNome() : nome.asText().trim(), descricao == null ? p.getDescricao() : descricao.isNull() ? null : descricao.asText());
+        acesso.projetos.flush();
+        evento("ProjetoAlterado", p, usuario);
+        return resposta(p);
     }
+    @PostMapping("/{projetoId}/arquivamentos")
+    @Transactional
+    public ResponseEntity<ProjetoResposta> arquivar(@RequestHeader(value = "Authorization", required = false) String bearer, @PathVariable UUID projetoId) {
+        UUID usuario = identidade.usuarioAutenticado(bearer);
+        Projeto p = projetoParaEscrita(projetoId, usuario);
+        if (p.isArquivado()) throw new Problema(HttpStatus.CONFLICT, "PROJETO_JA_ARQUIVADO", "Projeto já arquivado.");
+        p.arquivar(); acesso.projetos.flush(); evento("ProjetoArquivado", p, usuario);
+        return criada(p);
+    }
+    @PostMapping("/{projetoId}/restauracoes")
+    @Transactional
+    public ResponseEntity<ProjetoResposta> restaurar(@RequestHeader(value = "Authorization", required = false) String bearer, @PathVariable UUID projetoId) {
+        UUID usuario = identidade.usuarioAutenticado(bearer);
+        Projeto p = projetoParaEscrita(projetoId, usuario);
+        if (!p.isArquivado()) throw new Problema(HttpStatus.CONFLICT, "PROJETO_NAO_ARQUIVADO", "Projeto não arquivado.");
+        p.restaurar(); acesso.projetos.flush(); evento("ProjetoRestaurado", p, usuario);
+        return criada(p);
+    }
+    private Projeto projetoParaEscrita(UUID id, UUID usuario) {
+        Projeto p = acesso.projeto(id, usuario, true);
+        acesso.workspaces.buscarParaAlteracao(p.getWorkspaceId()).orElseThrow(AcessoRecursos::projetoNaoEncontrado);
+        entidades.refresh(p, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        return acesso.projeto(id, usuario, true);
+    }
+    private void evento(String tipo, Projeto p, UUID usuario) {
+        emissor.evento(tipo, p.getId(), null, null, UUID.randomUUID(), null, Map.of("projetoId", p.getId(), "workspaceId", p.getWorkspaceId(), "nome", p.getNome(), "arquivado", p.isArquivado(), "revisao", p.getRevisao(), "autorId", usuario));
+    }
+    private ResponseEntity<ProjetoResposta> resposta(Projeto p) { return ResponseEntity.ok().eTag(AcessoRecursos.etag(p.getRevisao())).body(ProjetoResposta.de(p)); }
+    private ResponseEntity<ProjetoResposta> criada(Projeto p) { return ResponseEntity.created(URI.create(CAMINHO + "/" + p.getId())).eTag(AcessoRecursos.etag(p.getRevisao())).body(ProjetoResposta.de(p)); }
+    private boolean camposDesconhecidos(JsonNode entrada) {
+        var campos = entrada.fieldNames();
+        while (campos.hasNext()) {
+            String campo = campos.next();
+            if (!campo.equals("nome") && !campo.equals("descricao")) return true;
+        }
+        return false;
+    }
+    private Problema invalida() { return new Problema(HttpStatus.BAD_REQUEST, "REQUISICAO_INVALIDA", "Informe campos válidos para alteração."); }
 }

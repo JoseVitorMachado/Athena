@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
 
+    java.util.List<Projeto> findByWorkspaceIdAndExcluidoEmIsNull(UUID workspaceId);
+
     /** Projetos arquivados ficam fora das listagens de projetos ativos (livro §5.6). */
     Page<Projeto> findByArquivadoFalse(Pageable pageable);
 

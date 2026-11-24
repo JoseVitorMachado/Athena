@@ -7,11 +7,25 @@ server:
   tomcat:
     use-relative-redirects: true
   port: ${SERVER_PORT:8080}
+  # Atrás do Gateway, o IP do cliente vem em X-Forwarded-For. O Tomcat só confia nesse
+  # cabeçalho quando o salto anterior é de rede interna, então os limites por IP da
+  # recuperação de senha enxergam o cliente, não o Gateway.
+  forward-headers-strategy: native
   shutdown: graceful
 
 spring:
   application:
     name: projetos-acesso
+  mail:
+    host: ${SMTP_HOST:}
+    port: ${SMTP_PORT:25}
+    username: ${SMTP_USUARIO:}
+    password: ${SMTP_SENHA:}
+    properties:
+      mail.smtp.auth: ${SMTP_AUTH:false}
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
     username: ${DB_USER}
@@ -51,6 +65,9 @@ spring:
       fail-on-unknown-properties: true
 
 management:
+  health:
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:
@@ -69,6 +86,11 @@ management:
           include: readinessState,db
 
 athena:
+  email:
+    remetente: ${ATHENA_EMAIL_REMETENTE:nao-responda@athena.local}
+  recuperacao:
+    # Use um segredo exclusivo e compartilhado pelas réplicas em produção.
+    segredo: ${ATHENA_RECUPERACAO_SEGREDO:${DB_PASSWORD}}
   # Enquanto não há autenticação (Parte 4), as ações são atribuídas a este usuário.
   usuario-demo: ${ATHENA_USUARIO_DEMO:55555555-5555-4555-8555-555555555555}
   jwt:

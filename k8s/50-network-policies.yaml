@@ -188,3 +188,22 @@ spec:
             matchLabels:
               kubernetes.io/metadata.name: ingress-nginx
         - podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mailpit-somente-projetos-acesso
+  namespace: athena
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: mailpit
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: projetos-acesso
+      ports:
+        - port: 1025

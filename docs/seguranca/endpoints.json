@@ -989,7 +989,7 @@
       "papelMinimo": "Pública",
       "escopo": "—",
       "interno": "Não",
-      "politica": "Pendente"
+      "politica": "Definida"
     },
     {
       "contrato": "projetos-acesso.yaml",
@@ -999,7 +999,7 @@
       "papelMinimo": "Pública",
       "escopo": "—",
       "interno": "Não",
-      "politica": "Pendente"
+      "politica": "Definida"
     },
     {
       "contrato": "projetos-acesso.yaml",

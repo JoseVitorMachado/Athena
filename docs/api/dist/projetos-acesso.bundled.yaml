@@ -138,11 +138,10 @@ paths:
     post:
       operationId: criarRecuperacao
       summary: Criar recuperacao
-      description: §§7.1–7.3. Resposta uniforme, não revela existência da conta. Location aponta para instruções de conclusão, sem identificador de conta.
+      description: §§7.1–7.3. Resposta uniforme para contas existentes ou não. Envia código de seis dígitos, válido por 10 minutos e de uso único; novo pedido invalida códigos anteriores. Limite por e-mail e IP.
       tags:
         - recuperacao
       security: []
-      x-decidir: 'Recuperação: código 6 dígitos/10 min ou token de alta entropia/15 min? Não fixar formato de credencial.'
       x-proposta: true
       requestBody:
         required: true
@@ -174,11 +173,10 @@ paths:
     post:
       operationId: concluirRecuperacao
       summary: Concluir recuperacao
-      description: §§7.1–7.3. Credencial opaca de uso único; redefinição encerra todas as sessões E autorizações MCP.
+      description: §§7.1–7.3. Código de seis dígitos, válido por 10 minutos e de uso único; cinco tentativas incorretas o invalidam. Código inválido ou expirado recebe resposta uniforme. A redefinição encerra todas as sessões e revoga seus tokens de renovação. Limite por IP.
       tags:
         - conclusao
       security: []
-      x-decidir: 'Recuperação: código 6 dígitos/10 min ou token de alta entropia/15 min? Não fixar formato de credencial.'
       x-proposta: true
       requestBody:
         required: true
@@ -188,7 +186,7 @@ paths:
               $ref: '#/components/schemas/RecuperacaoConclusao'
       responses:
         '204':
-          description: Removido, sem corpo (§6.2).
+          description: Senha redefinida, sem corpo (§6.2).
         '400':
           $ref: '#/components/responses/Erro400'
         '429':
@@ -2264,21 +2262,28 @@ components:
     RecuperacaoConclusao:
       type: object
       properties:
-        credencial:
+        email:
           type: string
-          example: credencial-opaca
+          format: email
+          example: fernando@example.invalid
+        codigo:
+          type: string
+          pattern: ^[0-9]{6}$
+          example: '012345'
           writeOnly: true
         novaSenha:
           type: string
-          example: nova-senha-ilustrativa
+          example: NovaSenha@2026
           writeOnly: true
       additionalProperties: false
       required:
-        - credencial
+        - email
+        - codigo
         - novaSenha
       example:
-        credencial: credencial-opaca
-        novaSenha: nova-senha-ilustrativa
+        email: fernando@example.invalid
+        codigo: '012345'
+        novaSenha: NovaSenha@2026
     AutorizacaoAgente:
       type: object
       properties:

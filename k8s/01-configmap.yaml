@@ -18,6 +18,8 @@ data:
   IMPACTO_MCP_URL: http://impacto-mcp:8000
   GATEWAY_URL: http://gateway:8080
   RABBITMQ_HOST: rabbitmq
+  SMTP_HOST: mailpit
+  SMTP_PORT: "1025"
 
   # Bancos: cada serviço tem o seu (database per service).
   PROJETOS_ACESSO_DB_HOST: db-projetos-acesso

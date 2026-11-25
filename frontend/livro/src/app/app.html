@@ -1,7 +1,30 @@
+@if (!autenticado()) {
+  <main class="book-login-page">
+    <form class="book-login-card" (ngSubmit)="entrar()" [attr.aria-busy]="entrando()">
+      <img class="brand-shield" src="athena-escudo.svg" alt="" width="34" height="34" /><p class="book-label">LIVRO DE REQUISITOS</p>
+      <h1>{{ recuperacao() ? 'Recuperar senha' : 'Entrar na ATHENA' }}</h1><p>{{ recuperacao() ? 'Informe o código recebido por e-mail e defina uma nova senha.' : 'Use sua conta para consultar o Livro do projeto.' }}</p>
+      @if (erroLogin()) { <p class="book-error" role="alert">{{ erroLogin() }}</p> }
+      @if (mensagemRecuperacao()) { <p role="status">{{ mensagemRecuperacao() }}</p> }
+      <label>E-mail<input type="email" name="email" autocomplete="username" [ngModel]="email()" (ngModelChange)="email.set($event)" required /></label>
+      @if (recuperacao()) {
+        <label>Código de seis dígitos<input name="codigo" inputmode="numeric" maxlength="6" [ngModel]="codigoRecuperacao()" (ngModelChange)="codigoRecuperacao.set($event)" required /></label>
+        <label>Nova senha<input type="password" name="novaSenha" autocomplete="new-password" [ngModel]="novaSenha()" (ngModelChange)="novaSenha.set($event)" required /></label>
+        <button type="button" (click)="concluirRecuperacao()">Redefinir senha</button><button type="button" class="book-recovery-link" (click)="recuperacao.set(false)">Voltar ao login</button>
+      } @else {
+        <label>Senha<input type="password" name="senha" autocomplete="current-password" [ngModel]="senha()" (ngModelChange)="senha.set($event)" required /></label>
+        <label class="book-remember"><input type="checkbox" [checked]="lembrarDispositivo()" (change)="lembrarDispositivo.set(!lembrarDispositivo())" /> Lembrar este dispositivo</label>
+        <button type="submit" [disabled]="entrando()">{{ entrando() ? 'Entrando…' : 'Entrar' }}</button>
+        <button type="button" class="book-recovery-link" (click)="solicitarRecuperacao()">Esqueci minha senha</button>
+      }
+      <small>Use a mesma conta cadastrada na ATHENA.</small>
+      <button class="book-theme-toggle" type="button" [attr.aria-pressed]="modoEscuro()" (click)="modoEscuro.set(!modoEscuro())">Modo escuro</button>
+    </form>
+  </main>
+} @else {
 <div class="book-app">
   <header class="book-topbar">
     <a class="book-brand" href="#" (click)="$event.preventDefault(); pagina.set('inicio')"
-      ><span class="brand-shield">◆</span><span>ATH<span class="gold">E</span>NA</span></a
+      ><img class="brand-shield" src="athena-escudo.svg" alt="" width="26" height="26" /><span>ATH<span class="gold">E</span>NA</span></a
     >
     <span class="book-label">LIVRO DE REQUISITOS</span
     ><button class="platform">Plataforma Athena <span>⌄</span></button>
@@ -15,7 +38,8 @@
         (ngModelChange)="consulta.set($event)"
       /><kbd>Ctrl K</kbd></label
     >
-    <button class="user-chip">Ana Clara · Owner</button>
+    <button class="user-chip book-theme-toggle" type="button" aria-label="Modo escuro" [attr.aria-pressed]="modoEscuro()" (click)="modoEscuro.set(!modoEscuro())">Tema</button>
+    <button class="user-chip" (click)="sair()">Sair</button>
   </header>
   <aside class="book-sidebar">
     <div class="sidebar-intro">
@@ -359,3 +383,4 @@
     }
   </main>
 </div>
+}

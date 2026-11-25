@@ -1,113 +1,2038 @@
 @if (tela() === 'login') {
   <main class="auth-page">
     <section class="login-card">
-      <div class="login-brand"><span class="shield" aria-hidden="true"><i></i></span><strong>ATH<span>E</span>NA</strong><small>Gestão e rastreabilidade de requisitos</small></div>
-      <h1>Entrar</h1><p class="login-lead">Acesse seus workspaces e projetos.</p>
-      @if (erroLogin()) { <p class="auth-error" role="alert">{{ erroLogin() }}</p> }
-      @if (avisoLogin()) { <p class="auth-info" role="status">{{ avisoLogin() }}</p> }
-      <form (ngSubmit)="entrar()" [attr.aria-busy]="entrando()">
-        <label>E-mail<div class="auth-input"><span>✉</span><input type="email" name="email" autocomplete="username" placeholder="voce@empresa.com" [ngModel]="email()" (ngModelChange)="email.set($event)" required /></div></label>
-        <label>Senha<div class="auth-input"><span>♙</span><input [type]="senhaVisivel() ? 'text' : 'password'" name="senha" autocomplete="current-password" placeholder="••••••••" [ngModel]="senha()" (ngModelChange)="senha.set($event)" required /><button type="button" class="eye-button" [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'" (click)="senhaVisivel.set(!senhaVisivel())">◉</button></div></label>
-        <div class="auth-options"><label class="remember"><input type="checkbox" [checked]="lembrarDispositivo()" (change)="lembrarDispositivo.set(!lembrarDispositivo())" /> Lembrar este dispositivo</label><button type="button" class="auth-link" (click)="recuperarSenha()">Esqueci minha senha</button></div>
-        <button class="login-submit" type="submit" [disabled]="entrando()">{{ entrando() ? 'Entrando…' : 'Entrar' }}</button>
+      <div class="login-brand">
+        <img src="athena-escudo.svg" alt="" width="34" height="34" />
+        <strong>ATH<span>E</span>NA</strong>
+        <small>Gestão e rastreabilidade de requisitos</small>
+      </div>
+      <h1>Entrar</h1>
+      <p class="login-lead">Acesse seus workspaces e projetos.</p>
+      @if (erroLogin()) {
+        <p class="auth-error" role="alert">{{ erroLogin() }}</p>
+      }
+      @if (avisoLogin()) {
+        <p class="auth-info" role="status">{{ avisoLogin() }}</p>
+      }
+      <form
+        #loginForm="ngForm"
+        (ngSubmit)="loginForm.valid && entrar()"
+        [attr.aria-busy]="entrando()"
+      >
+        <label
+          >E-mail
+          <div class="auth-input">
+            <span>✉</span
+            ><input
+              type="email"
+              name="email"
+              email
+              autocomplete="username"
+              placeholder="voce@empresa.com"
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              required
+            /></div
+        ></label>
+        <label
+          >Senha
+          <div class="auth-input">
+            <span>♙</span
+            ><input
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              name="senha"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              [ngModel]="senha()"
+              (ngModelChange)="senha.set($event)"
+              required
+            /><button
+              type="button"
+              class="eye-button"
+              [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+              (click)="senhaVisivel.set(!senhaVisivel())"
+            >
+              ◉
+            </button>
+          </div></label
+        >
+        <div class="auth-options">
+          <label class="remember"
+            ><input
+              type="checkbox"
+              [checked]="lembrarDispositivo()"
+              (change)="lembrarDispositivo.set(!lembrarDispositivo())"
+            />
+            Lembrar este dispositivo</label
+          ><button type="button" class="auth-link" (click)="recuperarSenha()">
+            Esqueci minha senha
+          </button>
+        </div>
+        <button class="login-submit" type="submit" [disabled]="entrando()">
+          {{ entrando() ? 'Entrando…' : 'Entrar' }}
+        </button>
       </form>
-      <p class="signup-line">Não tem conta? <button type="button" class="auth-link" (click)="criarConta()">Criar conta</button></p>
-      <div class="demo-credentials"><span>ⓘ</span><p><strong>Conta de demonstração</strong><br />anagomes@athena.dev · Senha: Athena@2026</p></div>
+      <p class="signup-line">
+        Não tem conta?
+        <button type="button" class="auth-link" (click)="criarConta()">Criar conta</button>
+      </p>
+      <p class="auth-info">Entre com sua conta ATHENA.</p>
     </section>
-    <footer class="auth-footer">Protótipo acadêmico — UFLA · Sistemas Distribuídos · Athena</footer>
+    <footer class="auth-footer">
+      <button class="button quiet" type="button" [attr.aria-pressed]="modoEscuro()" (click)="modoEscuro.set(!modoEscuro())">Modo escuro</button>
+      <small>Protótipo acadêmico — UFLA · Sistemas Distribuídos · Athena</small>
+    </footer>
   </main>
 } @else if (tela() === 'workspaces') {
-  <div class="workspace-browser" [class.dark-theme]="modoEscuro()">
+  <div class="workspace-browser">
     <aside class="workspace-sidebar">
-      <div class="sidebar-brand"><a class="brand" href="#" (click)="$event.preventDefault(); sair()"><span class="brand-mark shield" aria-hidden="true"><i></i></span><span>ATH<span class="brand-gold">E</span>NA</span></a><button class="sidebar-avatar" (click)="contaMenuAberto.set(!contaMenuAberto())">AC</button></div>
-      <label class="workspace-search"><span>⌕</span><input placeholder="Buscar workspace" [ngModel]="buscaWorkspace()" (ngModelChange)="buscaWorkspace.set($event)" /></label>
+      <div class="sidebar-brand">
+        <a class="brand" href="#" (click)="$event.preventDefault(); sair()"
+          ><img class="brand-mark" src="athena-escudo.svg" alt="" width="26" height="26" /><span>ATH<span class="brand-gold">E</span>NA</span></a
+        ><button
+          class="sidebar-avatar"
+          aria-label="Menu da conta"
+          [attr.aria-expanded]="contaMenuAberto()"
+          (click)="contaMenuAberto.set(!contaMenuAberto())"
+        >
+          {{ iniciaisConta() }}
+        </button>
+      </div>
+      <label class="workspace-search"
+        ><span>⌕</span
+        ><input
+          placeholder="Buscar workspace"
+          [ngModel]="buscaWorkspace()"
+          (ngModelChange)="buscaWorkspace.set($event)"
+      /></label>
       @for (workspace of workspacesDemo(); track workspace.id) {
-        @if (workspaceMatch(workspace.nome)) { <button class="workspace-entry" [class.selected]="workspaceId() === workspace.id" [title]="workspace.nome" (click)="abrirWorkspace(workspace.id, workspace.nome)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.75 5.75A1.75 1.75 0 0 1 4.5 4h3.1l1.7 1.8h6.2a1.75 1.75 0 0 1 1.75 1.75v6.7A1.75 1.75 0 0 1 15.5 16h-11a1.75 1.75 0 0 1-1.75-1.75z"/><path d="M3 8h14"/></svg><strong>{{ workspace.nome }}</strong><i>{{ totalProjetosWorkspace(workspace.id) }}</i></button> }
+        @if (workspaceMatch(workspace.nome)) {
+          <button
+            class="workspace-entry"
+            [class.selected]="workspaceId() === workspace.id"
+            [title]="workspace.nome"
+            (click)="abrirWorkspace(workspace.id, workspace.nome)"
+          >
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path
+                d="M2.75 5.75A1.75 1.75 0 0 1 4.5 4h3.1l1.7 1.8h6.2a1.75 1.75 0 0 1 1.75 1.75v6.7A1.75 1.75 0 0 1 15.5 16h-11a1.75 1.75 0 0 1-1.75-1.75z"
+              />
+              <path d="M3 8h14" /></svg
+            ><strong>{{ workspace.nome }}</strong>
+            @if (workspaceId() === workspace.id) {
+              <i>{{ totalProjetosWorkspace(workspace.id, abaWorkspace() === 'arquivados') }}</i>
+            }
+          </button>
+        }
       }
-      <button class="add-workspace" (click)="iniciarWorkspace()">＋ <strong>Adicionar workspace</strong></button>
-      @if (contaMenuAberto()) { <div class="account-menu workspace-account"><strong>Ana Clara</strong><small>anagomes@athena.dev</small><button (click)="perfilAberto.set(true); contaMenuAberto.set(false)">ⓘ &nbsp; Perfil</button><button (click)="modoEscuro.set(!modoEscuro())">Modo escuro <span class="theme-switch" [class.enabled]="modoEscuro()"><i></i></span></button><button (click)="sair()">Sair</button></div> }
+      <button class="add-workspace" (click)="iniciarWorkspace()">
+        ＋ <strong>Adicionar workspace</strong>
+      </button>
+      @if (contaMenuAberto()) {
+        <div class="account-menu workspace-account">
+          <strong>{{ nomeConta() || emailAtual() }}</strong>
+          @if (nomeConta()) {
+            <small>{{ emailAtual() }}</small>
+          }
+          <button (click)="perfilAberto.set(true); contaMenuAberto.set(false)">
+            ⓘ &nbsp; Perfil</button
+          ><button type="button" [attr.aria-pressed]="modoEscuro()" (click)="modoEscuro.set(!modoEscuro())">
+            Modo escuro
+            <span class="theme-switch" [class.enabled]="modoEscuro()"><i></i></span></button
+          ><button (click)="sair()">Sair</button>
+        </div>
+      }
     </aside>
     <main class="workspace-main">
-      <header class="workspace-heading"><div><h1>{{ workspaceNome() }}</h1><p>Owner: <strong>Ana Clara</strong> · {{ totalProjetosWorkspace(workspaceId(), abaWorkspace() === 'arquivados') }} projeto(s) {{ abaWorkspace() === 'ativos' ? 'ativo(s)' : 'arquivado(s)' }}</p></div><div class="workspace-options-wrap"><button class="button quiet" (click)="workspaceMenuAberto.set(!workspaceMenuAberto())">⋮ &nbsp; Opções do workspace</button>@if (workspaceMenuAberto()) { <div class="workspace-options-menu"><button (click)="abrirConfiguracoesWorkspace()">✎ &nbsp; Renomear workspace</button><button class="danger" (click)="workspaceMenuAberto.set(false); modalWorkspace.set('excluir')">♧ &nbsp; Excluir workspace</button></div> }</div></header>
-      @if (erroLogin()) { <p class="workspace-error" role="alert">{{ erroLogin() }}</p> }
-      @if (avisoLocal()) { <p class="local-notice" role="status">{{ avisoLocal() }} <button (click)="avisoLocal.set('')">×</button></p> }
-      <nav class="workspace-tabs"><button [class.active]="abaWorkspace() === 'ativos'" (click)="abaWorkspace.set('ativos')">Projetos</button><button [class.active]="abaWorkspace() === 'arquivados'" (click)="abaWorkspace.set('arquivados')">Projetos arquivados <i>{{ totalProjetosWorkspace(workspaceId(), true) }}</i></button></nav>
+      <header class="workspace-heading">
+        <div>
+          <h1>{{ workspaceId() ? workspaceNome() : 'Workspaces' }}</h1>
+          <p>
+            Conta: <strong>{{ emailAtual() }}</strong>
+            @if (workspaceId()) {
+              · {{ totalProjetosWorkspace(workspaceId(), abaWorkspace() === 'arquivados') }} projeto(s)
+              {{ abaWorkspace() === 'ativos' ? 'ativo(s)' : 'arquivado(s)' }}
+            }
+          </p>
+        </div>
+        @if (workspaceId()) {
+          <div class="workspace-options-wrap">
+            <button
+              class="button quiet"
+              [attr.aria-expanded]="workspaceMenuAberto()"
+              (click)="workspaceMenuAberto.set(!workspaceMenuAberto())"
+            >
+              ⋮ &nbsp; Opções do workspace
+            </button>
+            @if (workspaceMenuAberto()) {
+              <div class="workspace-options-menu">
+                <button (click)="abrirConfiguracoesWorkspace()">✎ &nbsp; Renomear workspace</button
+                ><button class="danger" (click)="abrirExclusaoWorkspace()">
+                  ♧ &nbsp; Excluir workspace
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </header>
+      @if (erroLogin()) {
+        <p class="workspace-error" role="alert">{{ erroLogin() }}</p>
+      }
+      @if (avisoLocal()) {
+        <p class="local-notice" role="status">
+          {{ avisoLocal() }} <button (click)="avisoLocal.set('')">×</button>
+        </p>
+      }
+      @if (convitesRecebidos().length) {
+        <section class="pending-invites">
+          <h2>Convites recebidos</h2>
+          @for (convite of convitesRecebidos(); track convite.conviteId) {
+            <article>
+              <span
+                ><strong>{{ convite.projetoNome ?? 'Projeto' }}</strong
+                ><small>{{ convite.email }} · papel {{ convite.papel }}</small></span
+              ><button class="button outline" (click)="aceitarConvite(convite)">Aceitar</button>
+            </article>
+          }
+        </section>
+      }
+      @if (carregandoWorkspaces()) {
+        <p class="workspace-empty" role="status">Carregando workspaces…</p>
+      } @else if (workspaceId()) {
+      <nav class="workspace-tabs">
+        <button
+          [class.active]="abaWorkspace() === 'ativos'"
+          (click)="abaWorkspace.set('ativos'); carregarProjetos(false)"
+        >
+          Projetos</button
+        ><button
+          [class.active]="abaWorkspace() === 'arquivados'"
+          (click)="abaWorkspace.set('arquivados'); carregarProjetos(true)"
+        >
+          Projetos arquivados <i>{{ totalProjetosWorkspace(workspaceId(), true) }}</i>
+        </button>
+      </nav>
       @if (abaWorkspace() === 'ativos') {
-        <div class="project-toolbar"><label><span>⌕</span><input placeholder="Buscar projeto..." [ngModel]="buscaProjeto()" (ngModelChange)="buscaProjeto.set($event)" /></label><button class="button primary" (click)="modalNovoProjeto.set(true)">＋ Novo projeto</button></div>
+        <div class="project-toolbar">
+          <label
+            ><span>⌕</span
+            ><input
+              placeholder="Buscar projeto..."
+              [ngModel]="buscaProjeto()"
+              (ngModelChange)="buscaProjeto.set($event)" /></label
+          ><button class="button primary" (click)="modalNovoProjeto.set(true)">
+            ＋ Novo projeto
+          </button>
+        </div>
         <section class="project-grid">
-          @for (projeto of projetosVisiveis(); track projeto.projetoId) { <article class="project-card"><button class="project-more" aria-label="Opções do projeto" (click)="menuProjetoId.set(menuProjetoId() === projeto.projetoId ? null : projeto.projetoId)">⋮</button>@if (menuProjetoId() === projeto.projetoId) { <div class="project-options-menu"><button (click)="alterarArquivo(projeto)">▣ &nbsp; Arquivar projeto</button></div> }<h2>{{ projeto.nome }}</h2><p>{{ projeto.descricao || 'Gestão, rastreabilidade e revisão de requisitos' }}</p><small>{{ estatisticasProjetos()[projeto.projetoId]?.requisitos ?? '—' }} requisito(s) · {{ estatisticasProjetos()[projeto.projetoId]?.epicos ?? '—' }} épicos</small><button class="button primary open-project" (click)="abrirProjeto(projeto)">Abrir</button></article> }
-          @if (projetosVisiveis().length === 0) { <div class="workspace-empty"><span>▤</span><strong>{{ buscaProjeto() ? 'Nenhum projeto corresponde à busca.' : 'Nenhum projeto neste workspace.' }}</strong></div> }
+          @for (projeto of projetosVisiveis(); track projeto.projetoId) {
+            <article class="project-card">
+              <button
+                class="project-more"
+                aria-label="Opções do projeto"
+                (click)="
+                  menuProjetoId.set(
+                    menuProjetoId() === projeto.projetoId ? null : projeto.projetoId
+                  )
+                "
+              >
+                ⋮
+              </button>
+              @if (menuProjetoId() === projeto.projetoId) {
+                <div class="project-options-menu">
+                  <button (click)="alterarArquivo(projeto)">▣ &nbsp; Arquivar projeto</button>
+                </div>
+              }
+              <h2>{{ projeto.nome }}</h2>
+              <p>{{ projeto.descricao || 'Gestão, rastreabilidade e revisão de requisitos' }}</p>
+              <small
+                >{{ estatisticasProjetos()[projeto.projetoId]?.requisitos ?? '—' }} requisito(s) ·
+                {{ estatisticasProjetos()[projeto.projetoId]?.epicos ?? '—' }} épicos</small
+              ><button class="button primary open-project" (click)="abrirProjeto(projeto)">
+                Abrir
+              </button>
+            </article>
+          }
+          @if (projetosVisiveis().length === 0) {
+            <div class="workspace-empty">
+              <span>▤</span
+              ><strong>{{
+                buscaProjeto()
+                  ? 'Nenhum projeto corresponde à busca.'
+                  : 'Nenhum projeto neste workspace.'
+              }}</strong>
+            </div>
+          }
         </section>
       } @else {
-        <div class="archived-banner">Projetos arquivados em <strong>{{ workspaceNome() }}</strong> — {{ projetosVisiveis().length }} projeto(s) inativo(s).</div>
-        <section class="project-grid archived-project-grid">@for (projeto of projetosVisiveis(); track projeto.projetoId) { <article class="project-card archived-project"><button class="project-more" (click)="menuProjetoId.set(menuProjetoId() === projeto.projetoId ? null : projeto.projetoId)">⋮</button><h2>{{ projeto.nome }}</h2><p>{{ projeto.descricao || 'Projeto arquivado' }}</p><small>Arquivado · demonstração da interface</small><button class="button quiet open-project" (click)="alterarArquivo(projeto)">↶ &nbsp; Restaurar projeto</button></article> }</section>
-        @if (projetosVisiveis().length === 0) { <div class="workspace-empty archive-empty"><span>▤</span><strong>Nenhum projeto arquivado neste workspace.</strong></div> }
+        <div class="archived-banner">
+          Projetos arquivados em <strong>{{ workspaceNome() }}</strong> —
+          {{ projetosVisiveis().length }} projeto(s) inativo(s).
+        </div>
+        <section class="project-grid archived-project-grid">
+          @for (projeto of projetosVisiveis(); track projeto.projetoId) {
+            <article class="project-card archived-project">
+              <h2>{{ projeto.nome }}</h2>
+              <p>{{ projeto.descricao || 'Projeto arquivado' }}</p>
+              <small>Projeto arquivado</small
+              ><button class="button quiet open-project" (click)="alterarArquivo(projeto)">
+                ↶ &nbsp; Restaurar projeto</button
+              ><button
+                class="button outline"
+                (click)="projetoParaExcluir.set(projeto); confirmacaoExcluirProjeto.set('')"
+              >
+                Excluir permanentemente…
+              </button>
+            </article>
+          }
+        </section>
+        @if (projetosVisiveis().length === 0) {
+          <div class="workspace-empty archive-empty">
+            <span>▤</span><strong>Nenhum projeto arquivado neste workspace.</strong>
+          </div>
+        }
+      }
+      } @else if (!erroLogin()) {
+        <div class="workspace-empty">
+          <strong>Você ainda não tem um workspace.</strong>
+          <p>Crie um workspace para organizar seus projetos.</p>
+          <button type="button" class="button primary" (click)="iniciarWorkspace()">Criar workspace</button>
+        </div>
       }
     </main>
   </div>
-  @if (modalNovoProjeto()) { <div class="modal-backdrop" (click)="modalNovoProjeto.set(false)"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="project-modal-title" (click)="$event.stopPropagation()"><header><div><h2 id="project-modal-title">Novo projeto</h2><p>Crie um projeto no workspace {{ workspaceNome() }}.</p></div><button class="icon-button" (click)="modalNovoProjeto.set(false)">×</button></header><form (ngSubmit)="criarProjeto()"><label>Nome do projeto<input name="nomeProjeto" [ngModel]="nomeNovoProjeto()" (ngModelChange)="nomeNovoProjeto.set($event)" maxlength="120" required /></label><label>Descrição<textarea name="descricaoProjeto" rows="3" [ngModel]="descricaoNovoProjeto()" (ngModelChange)="descricaoNovoProjeto.set($event)" maxlength="1000"></textarea></label><p class="form-note">Protótipo visual: o projeto será adicionado nesta sessão.</p><footer><button type="button" class="button quiet" (click)="modalNovoProjeto.set(false)">Cancelar</button><button type="submit" class="button primary" [disabled]="!nomeNovoProjeto().trim() || salvando()">{{ salvando() ? 'Criando…' : 'Criar projeto' }}</button></footer></form></section></div> }
+  @if (modalWorkspace(); as acaoWorkspace) {
+    <div class="modal-backdrop" (click)="modalWorkspace.set(null)">
+      @if (acaoWorkspace === 'adicionar') {
+        <section
+          class="modal workspace-create-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="workspace-create-title"
+          (click)="$event.stopPropagation()"
+        >
+          <header>
+            <div>
+              <h2 id="workspace-create-title">Adicionar workspace</h2>
+              <p>Áreas de trabalho isoladas para organizar seus projetos.</p>
+            </div>
+            <button
+              type="button"
+              class="icon-button"
+              aria-label="Fechar"
+              (click)="modalWorkspace.set(null)"
+            >
+              ×
+            </button>
+          </header>
+          <form (ngSubmit)="salvarWorkspaceDemo()">
+            <label for="workspace-create-name">Nome do workspace</label>
+            <input
+              id="workspace-create-name"
+              name="workspaceNome"
+              [ngModel]="workspaceNomeDraft()"
+              (ngModelChange)="workspaceNomeDraft.set($event)"
+              placeholder="Ex.: InfinitePay — Engenharia"
+              maxlength="120"
+              required
+              autofocus
+            />
+            @if (workspaceErro()) {
+              <p class="workspace-create-error" role="alert">{{ workspaceErro() }}</p>
+            }
+            <footer>
+              <button type="button" class="button quiet" (click)="modalWorkspace.set(null)">
+                Cancelar</button
+              ><button
+                class="button primary"
+                type="submit"
+                [disabled]="!workspaceNomeDraft().trim() || criandoWorkspace()"
+              >
+                {{ criandoWorkspace() ? 'Criando…' : 'Criar' }}
+              </button>
+            </footer>
+          </form>
+        </section>
+      } @else {
+        <section
+          class="modal compact-modal"
+          role="dialog"
+          aria-modal="true"
+          (click)="$event.stopPropagation()"
+        >
+          <header>
+            <div>
+              <h2>
+                {{ acaoWorkspace === 'renomear' ? 'Renomear workspace' : 'Excluir workspace' }}
+              </h2>
+              <p>
+                {{
+                  acaoWorkspace === 'excluir'
+                    ? 'A exclusão é lógica e também arquiva os projetos vinculados.'
+                    : 'A alteração será salva para os membros do workspace.'
+                }}
+              </p>
+            </div>
+            <button class="icon-button" (click)="modalWorkspace.set(null)">×</button>
+          </header>
+          @if (workspaceErro()) {
+            <p class="workspace-create-error" role="alert">{{ workspaceErro() }}</p>
+          }
+          @if (acaoWorkspace === 'excluir') {
+            <label
+              >Digite <strong>{{ workspaceNome() }}</strong> para confirmar<input
+                [ngModel]="confirmacaoExcluirWorkspace()"
+                (ngModelChange)="confirmacaoExcluirWorkspace.set($event)"
+            /></label>
+            <footer>
+              <button class="button quiet" (click)="modalWorkspace.set(null)">Cancelar</button
+              ><button
+                class="button primary"
+                [disabled]="confirmacaoExcluirWorkspace() !== workspaceNome()"
+                (click)="excluirWorkspaceDemo()"
+              >
+                Excluir workspace
+              </button>
+            </footer>
+          } @else {
+            <form (ngSubmit)="renomearWorkspace()">
+              <label
+                >Nome do workspace<input
+                  name="workspaceNome"
+                  [ngModel]="workspaceNomeDraft()"
+                  (ngModelChange)="workspaceNomeDraft.set($event)"
+                  maxlength="120"
+                  required
+              /></label>
+              <footer>
+                <button type="button" class="button quiet" (click)="modalWorkspace.set(null)">
+                  Cancelar</button
+                ><button class="button primary" type="submit">Salvar</button>
+              </footer>
+            </form>
+          }
+        </section>
+      }
+    </div>
+  }
+  @if (modalNovoProjeto()) {
+    <div class="modal-backdrop" (click)="modalNovoProjeto.set(false)">
+      <section
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="project-modal-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <div>
+            <h2 id="project-modal-title">Novo projeto</h2>
+            <p>Crie um projeto no workspace {{ workspaceNome() }}.</p>
+          </div>
+          <button class="icon-button" (click)="modalNovoProjeto.set(false)">×</button>
+        </header>
+        <form (ngSubmit)="criarProjeto()">
+          <label
+            >Nome do projeto<input
+              name="nomeProjeto"
+              [ngModel]="nomeNovoProjeto()"
+              (ngModelChange)="nomeNovoProjeto.set($event)"
+              maxlength="120"
+              required /></label
+          ><label
+            >Descrição<textarea
+              name="descricaoProjeto"
+              rows="3"
+              [ngModel]="descricaoNovoProjeto()"
+              (ngModelChange)="descricaoNovoProjeto.set($event)"
+              maxlength="1000"
+            ></textarea>
+          </label>
+          <p class="form-note">Protótipo visual: o projeto será adicionado nesta sessão.</p>
+          <footer>
+            <button type="button" class="button quiet" (click)="modalNovoProjeto.set(false)">
+              Cancelar</button
+            ><button
+              type="submit"
+              class="button primary"
+              [disabled]="!nomeNovoProjeto().trim() || salvando()"
+            >
+              {{ salvando() ? 'Criando…' : 'Criar projeto' }}
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  }
 } @else {
-  <div class="app-shell" [class.dark-theme]="modoEscuro()">
+  <div class="app-shell">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="Athena início" (click)="$event.preventDefault(); tela.set('workspaces')"><span class="brand-mark shield" aria-hidden="true"><i></i></span><span>ATH<span class="brand-gold">E</span>NA</span></a>
-      <button class="project-switch" (click)="modalTrocarProjeto.set(true)">▦ <strong>{{ projetoNome() }}</strong> <span>›</span></button>
-      <button class="all-projects" aria-label="Abrir workspaces" title="Workspaces" (click)="tela.set('workspaces'); contaMenuAberto.set(false)"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="5" rx=".8"/><rect x="9.5" y="1.5" width="5" height="5" rx=".8"/><rect x="1.5" y="9.5" width="5" height="5" rx=".8"/><rect x="9.5" y="9.5" width="5" height="5" rx=".8"/></svg></button>
-      <nav class="main-nav" aria-label="Navegação do projeto"><button [class.active]="pagina() === 'visao'" (click)="pagina.set('visao')">Visão geral</button><button [class.active]="pagina() === 'requisitos'" (click)="pagina.set('requisitos')">Requisitos</button><button [class.active]="pagina() === 'mapa'" (click)="abrirMapa()">Mapa</button></nav>
-      <label class="top-search"><span>⌕</span><input aria-label="Buscar requisitos" placeholder="Buscar requisitos, épicos..." [ngModel]="busca()" (ngModelChange)="busca.set($event); pagina.set('requisitos')" /></label>
-      <button class="icon-button notification-button" aria-label="Avisos" (click)="notificacoesAbertas.set(!notificacoesAbertas())"><svg class="notification-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 7.8a5.5 5.5 0 0 0-11 0c0 6-2 6-2 7.2h15c0-1.2-2-1.2-2-7.2ZM8 17h4"/></svg>@if (!notificacoesLidas()) { <i></i> }</button>
-      <button class="avatar" aria-label="Perfil Ana Clara" (click)="contaMenuAberto.set(!contaMenuAberto())">AC</button>
-      @if (notificacoesAbertas()) { <div class="notification-menu"><strong>Avisos</strong><small>{{ notificacoesLidas() ? 'Todas lidas' : '2 não lidas' }}</small><button (click)="notificacoesLidas.set(true)">ⓘ &nbsp; Fernando solicitou acesso ao projeto</button><button (click)="notificacoesLidas.set(true)">✓ &nbsp; US-016 publicada na v2 por Fernando</button><p>Notificações de demonstração; ainda sem serviço conectado.</p></div> }
-      @if (contaMenuAberto()) { <div class="account-menu"><strong>Ana Clara</strong><small>anagomes@athena.dev</small><button (click)="perfilAberto.set(true); contaMenuAberto.set(false)">ⓘ &nbsp; Perfil</button><button (click)="modoEscuro.set(!modoEscuro())">Modo escuro <span class="theme-switch" [class.enabled]="modoEscuro()"><i></i></span></button><button (click)="sair()">Sair</button></div> }
+      <a
+        class="brand"
+        href="#"
+        aria-label="Athena início"
+        (click)="$event.preventDefault(); voltarAosWorkspaces()"
+        ><img class="brand-mark" src="athena-escudo.svg" alt="" width="26" height="26" /><span>ATH<span class="brand-gold">E</span>NA</span></a
+      >
+      <button class="project-switch" (click)="abrirTrocaProjeto()">
+        <strong>{{ projetoNome() }}</strong> <span>›</span>
+      </button>
+      <button
+        class="all-projects"
+        aria-label="Abrir workspaces"
+        title="Workspaces"
+        (click)="voltarAosWorkspaces()"
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <rect x="1.5" y="1.5" width="5" height="5" rx=".8" />
+          <rect x="9.5" y="1.5" width="5" height="5" rx=".8" />
+          <rect x="1.5" y="9.5" width="5" height="5" rx=".8" />
+          <rect x="9.5" y="9.5" width="5" height="5" rx=".8" />
+        </svg>
+      </button>
+      <nav class="main-nav" aria-label="Navegação do projeto">
+        <button [class.active]="pagina() === 'visao'" (click)="navegarProjeto('visao')">
+          Visão geral</button
+        ><button [class.active]="pagina() === 'requisitos'" (click)="navegarProjeto('requisitos')">
+          Requisitos</button
+        ><button [class.active]="pagina() === 'mapa'" (click)="navegarProjeto('mapa')">Mapa</button>
+      </nav>
+      <label class="top-search"
+        ><span>⌕</span
+        ><input
+          aria-label="Buscar requisitos"
+          placeholder="Buscar requisitos, épicos..."
+          [ngModel]="busca()"
+          (ngModelChange)="buscarNoProjeto($event)"
+      /></label>
+      <button
+        class="icon-button notification-button"
+        aria-label="Avisos"
+        (click)="alternarNotificacoes()"
+      >
+        <svg class="notification-icon" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M15.5 7.8a5.5 5.5 0 0 0-11 0c0 6-2 6-2 7.2h15c0-1.2-2-1.2-2-7.2ZM8 17h4" />
+        </svg>
+        @if (naoLidasNotificacoes() > 0) {
+          <i></i>
+        }
+      </button>
+      <button
+        class="avatar"
+        aria-label="Menu da conta"
+        [attr.aria-expanded]="contaMenuAberto()"
+        (click)="contaMenuAberto.set(!contaMenuAberto())"
+      >
+        {{ iniciaisConta() }}
+      </button>
+      @if (notificacoesAbertas()) {
+        <div class="notification-menu">
+          <strong>Avisos</strong><small>{{ naoLidasNotificacoes() }} não lida(s)</small>
+          @for (notificacao of notificacoes(); track notificacao.notificacaoId) {
+            <button [class.unread]="!notificacao.lida" (click)="marcarNotificacaoLida(notificacao)">
+              {{ notificacao.mensagem }}
+            </button>
+          } @empty {
+            <p>Nenhuma notificação.</p>
+          }
+        </div>
+      }
+      @if (contaMenuAberto()) {
+        <div class="account-menu">
+          <strong>{{ nomeConta() || emailAtual() }}</strong>
+          @if (nomeConta()) {
+            <small>{{ emailAtual() }}</small>
+          }
+          <button (click)="perfilAberto.set(true); contaMenuAberto.set(false)">
+            ⓘ &nbsp; Perfil</button
+          ><button type="button" [attr.aria-pressed]="modoEscuro()" (click)="modoEscuro.set(!modoEscuro())">
+            Modo escuro
+            <span class="theme-switch" [class.enabled]="modoEscuro()"><i></i></span></button
+          ><button (click)="sair()">Sair</button>
+        </div>
+      }
     </header>
 
+    @if (pagina() === 'editor') {
+      <main class="requirement-editor">
+        <section class="editor-main" aria-label="Editor de requisito">
+          <div class="editor-heading">
+            <button type="button" class="icon-button" aria-label="Voltar" (click)="voltarDoEditor()">←</button>
+            @if (detalhe(); as requisito) {
+              @let editavel = !!requisito._actions?.['editar-candidata'] && !!editorVersao() && !editorCarregando();
+              @let podeFormatar = editavel && !editorSalvando();
+              <input class="editor-title" aria-label="Título do requisito" maxlength="300" [readOnly]="!editavel || editorSalvando()"
+                [ngModel]="editorTitulo()" (ngModelChange)="editorTitulo.set($event); editorAlterado.set(true)" />
+              <span class="editor-status" [class.editor-status-saved]="!!editorVersao() && !editorAlterado()" role="status">
+                {{ editorCarregando() ? 'Carregando…' : editorErro() ? 'Falha' : editorAlterado() ? 'Alterações pendentes' : editavel ? 'Salvo' : 'Somente leitura' }}
+              </span>
+              <button type="button" class="button quiet editor-details-trigger" [attr.aria-expanded]="editorDetalhes()" (click)="editorDetalhes.set(!editorDetalhes())">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v7m0 4v5m7-16v3m0 4v9m7-16v11m0 4v1M2 11h6m1-4h6m1 8h6"/></svg> Detalhes
+              </button>
+              @if (editavel) {
+                <button type="button" class="button primary" [disabled]="!editorAlterado() || !editorTitulo().trim() || !criteriosEditorValidos() || editorSalvando()"
+                  (click)="salvarEditor(documentoEditor)">{{ editorSalvando() ? 'Salvando…' : 'Salvar' }}</button>
+              }
+              @if (requisito._actions?.['decidir'] && editorVersao()) {
+                <button type="button" class="button primary" (click)="prepararDecisao('APROVAR')">Aprovar</button>
+                <button type="button" class="button outline" (click)="prepararDecisao('REJEITAR')">Rejeitar</button>
+              }
+              <div class="epic-options editor-options">
+                <button type="button" class="icon-button" aria-label="Opções do requisito" [attr.aria-expanded]="editorMenu()"
+                  (click)="editorMenu.set(!editorMenu())" (keydown.escape)="editorMenu.set(false)">⋮</button>
+                @if (editorMenu()) {
+                  <div class="project-options-menu epic-options-menu">
+                    <button type="button" (click)="editorDetalhes.set(!editorDetalhes()); editorMenu.set(false)">Detalhes</button>
+                    <button type="button" (click)="carregarHistoricoRequisito(); editorMenu.set(false)">Histórico</button>
+                    <button type="button" (click)="carregarVersoesRequisito(); editorMenu.set(false)">Versões e comparação</button>
+                    @for (nome of ['submeter', 'publicar', 'reativar', 'cancelar']; track nome) {
+                      @if (requisito._actions?.[nome]; as acao) {
+                        <button type="button" [class.danger]="nome === 'cancelar'" [disabled]="editorAlterado() || editorSalvando()"
+                          (click)="prepararAcao(nome, acao)">{{ nome === 'cancelar' ? 'Cancelar requisito' : nome === 'submeter' ? 'Enviar para revisão' : nome === 'publicar' ? 'Publicar candidata' : 'Reativar requisito' }}</button>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+              <div class="editor-toolbar" role="group" aria-label="Formatação do requisito">
+                @for (grupo of gruposFormatacao; track $index) {
+                  <div class="editor-tool-group">
+                    @for (ferramenta of grupo; track ferramenta.nome) {
+                      <button type="button" class="icon-button" [class.editor-bold]="ferramenta.comando === 'bold'"
+                        [class.editor-italic]="ferramenta.comando === 'italic'" [class.editor-underline]="ferramenta.comando === 'underline'"
+                        [attr.aria-label]="ferramenta.nome" [title]="ferramenta.nome" [disabled]="!podeFormatar"
+                        (mousedown)="$event.preventDefault()" (click)="formatarRequisito(documentoEditor, ferramenta.comando, ferramenta.valor)">{{ ferramenta.texto }}</button>
+                    }
+                  </div>
+                }
+                <div class="editor-tool-group">
+                  <button type="button" class="icon-button" aria-label="Inserir link" title="Inserir link" [disabled]="!podeFormatar"
+                    [attr.aria-expanded]="editorLinkAberto()" (mousedown)="$event.preventDefault()" (click)="abrirLinkEditor(documentoEditor)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a4 4 0 0 0 6 .4l3-3a4 4 0 0 0-5.7-5.7l-1.7 1.7m2.4 4.6a4 4 0 0 0-6-.4l-3 3a4 4 0 0 0 5.7 5.7l1.7-1.7"/></svg>
+                  </button>
+                  <button type="button" class="icon-button" aria-label="Inserir tabela" title="Inserir tabela" [disabled]="!podeFormatar"
+                    (mousedown)="$event.preventDefault()" (click)="inserirTabelaEditor(documentoEditor)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16m-8 0v9"/></svg>
+                  </button>
+                </div>
+                <div class="editor-tool-group">
+                  <button type="button" class="icon-button" aria-label="Desfazer" title="Desfazer" [disabled]="!podeFormatar"
+                    (mousedown)="$event.preventDefault()" (click)="formatarRequisito(documentoEditor, 'undo')">↶</button>
+                  <button type="button" class="icon-button" aria-label="Refazer" title="Refazer" [disabled]="!podeFormatar"
+                    (mousedown)="$event.preventDefault()" (click)="formatarRequisito(documentoEditor, 'redo')">↷</button>
+                </div>
+              </div>
+              @if (editorLinkAberto()) {
+                <form class="editor-link-form" (ngSubmit)="inserirLinkEditor(documentoEditor)" (keydown.escape)="editorLinkAberto.set(false)">
+                  <label>Endereço do link <input name="enderecoLink" autofocus [ngModel]="enderecoEditorLink()" (ngModelChange)="enderecoEditorLink.set($event)" placeholder="https://…" /></label>
+                  <button type="button" class="button quiet" (click)="editorLinkAberto.set(false)">Cancelar</button>
+                  <button type="submit" class="button primary" [disabled]="!editorLinkValido()">Inserir</button>
+                </form>
+              }
+              <div class="editor-document-area">
+                @if (editorErro()) { <p class="alert" role="alert">{{ editorErro() }}</p> }
+                @if (editorCarregando()) { <p role="status">Carregando requisito…</p> }
+                <div #documentoEditor class="editor-document" [hidden]="editorCarregando()" role="textbox" aria-label="Conteúdo do requisito"
+                  aria-multiline="true" [attr.aria-readonly]="!podeFormatar" [attr.contenteditable]="podeFormatar" data-placeholder="Escreva o conteúdo do requisito…" [innerHTML]="editorConteudo()" (input)="marcarTextoEditor()"></div>
+                @if (!editorCarregando()) {
+                  <section class="editor-criteria">
+                    <header>
+                      <button type="button" class="editor-criteria-toggle" [attr.aria-expanded]="editorCriteriosAbertos()" (click)="editorCriteriosAbertos.set(!editorCriteriosAbertos())">
+                        <span aria-hidden="true">{{ editorCriteriosAbertos() ? '⌄' : '›' }}</span> Critérios de aceite
+                      </button>
+                      <span class="editor-criteria-count" [attr.aria-label]="editorCriterios().length + ' critérios'">{{ editorCriterios().length }}</span>
+                      @if (editavel) {
+                        <button type="button" class="button outline" [disabled]="editorSalvando()" (click)="adicionarCriterioEditor()">+ Critério</button>
+                      }
+                    </header>
+                    @if (editorCriteriosAbertos()) {
+                      <div class="editor-criteria-body">
+                    @for (criterio of editorCriterios(); track $index; let i = $index) {
+                      <div class="editor-criterion">
+                        @if (partesCriterio(criterio); as partes) {
+                          <div class="editor-criterion-parts">
+                            @for (rotulo of ['Dado', 'Quando', 'Então']; track rotulo; let parte = $index) {
+                              <label>{{ rotulo }}
+                                <input [readOnly]="!editavel || editorSalvando()" [ngModel]="partes[parte + 1]"
+                                  (ngModelChange)="editarParteCriterio(i, parte, $event)" required />
+                              </label>
+                            }
+                          </div>
+                          @if (editavel) {
+                            <button type="button" class="icon-button" aria-label="Remover critério" [disabled]="editorSalvando()" (click)="removerCriterioEditor(i)">×</button>
+                          }
+                        } @else if (editavel) {
+                          <textarea [attr.aria-label]="'Critério ' + (i + 1)" rows="3" [readOnly]="editorSalvando()" [ngModel]="criterio" (ngModelChange)="atualizarCriterio(i, $event)"></textarea>
+                          <button type="button" class="icon-button" aria-label="Remover critério" [disabled]="editorSalvando()" (click)="removerCriterioEditor(i)">×</button>
+                        } @else { <p>{{ criterio }}</p> }
+                      </div>
+                    } @empty { <p>Nenhum critério de aceite.</p> }
+                      </div>
+                    }
+                  </section>
+                }
+              </div>
+            } @else {
+              <span role="status">{{ erro() || 'Carregando requisito…' }}</span>
+            }
+          </div>
+        </section>
+        @if (editorDetalhes() && detalhe(); as requisito) {
+          <aside class="editor-details" aria-label="Detalhes do requisito">
+            <h2>Estado</h2>
+            <dl><div><dt>Situação</dt><dd>{{ requisito.situacao }}</dd></div>
+              <div><dt>Candidata</dt><dd class="state">{{ requisito.estadoVersao?.replaceAll('_', ' ') || 'Sem candidata' }}</dd></div>
+              <div><dt>Versão publicada</dt><dd>{{ requisito.versaoPublicadaId ? (editorVersao()?.estadoVersao === 'PUBLICADA' ? 'v' + editorVersao()?.numero : 'Publicada') : '—' }}</dd></div></dl>
+            <h2>Metadados</h2>
+            <dl><div><dt><label for="editor-tipo">Tipo</label></dt><dd>
+              @if (requisito._actions?.['editar-metadados']) {
+                <input id="editor-tipo" maxlength="40" [value]="requisito.tipo || ''" placeholder="História de usuário" [disabled]="editorAlterado() || editorSalvando()"
+                  (change)="salvarMetadadoEditor('tipo', $any($event.target).value.trim())" />
+              } @else { {{ requisito.tipo || 'História de usuário' }} }
+            </dd></div>
+              <div><dt><label for="editor-epico">Pasta</label></dt><dd><select id="editor-epico" [disabled]="!requisito._actions?.['editar-metadados'] || editorSalvando() || editorAlterado()"
+                [ngModel]="requisito.epicoId || ''" (ngModelChange)="salvarMetadadoEditor('epicoId', $event)">
+                <option value="">Sem épico</option>
+                @for (epico of epicosRemotos(); track epico.epicoId) { <option [value]="epico.epicoId">{{ epico.titulo }}</option> }
+              </select></dd></div>
+              <div><dt>Responsável</dt><dd>{{ nomeResponsavelEditor(requisito.responsavelId) }}</dd></div></dl>
+            @if (requisito._actions?.['cancelar']; as acao) {
+              <h2>Ciclo de vida</h2>
+              <button type="button" class="button outline editor-danger" [disabled]="editorAlterado() || editorSalvando()" (click)="prepararAcao('cancelar', acao)">Cancelar US</button>
+            }
+          </aside>
+        }
+      </main>
+    } @else {
     <main class="workspace project-workspace">
-      @if (pagina() !== 'mapa') { <div class="page-heading"><div><h1>{{ pagina() === 'visao' ? 'Visão geral' : 'Requisitos' }}</h1><p>{{ projetoNome() }} · {{ total() }} requisito(s){{ pagina() === 'visao' ? ' · ' + totalEpicos() + ' épicos' : '' }}</p></div><div class="heading-actions">@if (pagina() === 'visao') { <button class="button quiet" (click)="configuracoesAbertas.set(true)">☷ &nbsp; Configurações</button><button class="button outline" (click)="modalNovoEpico.set(true)">＋ Novo Épico</button> }<button class="button primary" (click)="novoAberto.set(true)">＋ Novo requisito</button></div></div> }
-      @if (erro(); as mensagem) { <div class="alert" role="alert">{{ mensagem }}</div> }
-      @if (instancia(); as nome) { <p class="api-note">BFF Gestão · {{ nome }}</p> }
+      @if (pagina() !== 'mapa') {
+        <div class="page-heading">
+          <div>
+            <h1>{{ pagina() === 'visao' ? 'Visão geral' : 'Requisitos' }}</h1>
+            <p>
+              {{ projetoNome() }} · {{ total() }} requisito(s){{
+                pagina() === 'visao' ? ' · ' + totalEpicos() + ' épicos' : ''
+              }}
+            </p>
+          </div>
+          <div class="heading-actions">
+            <button class="button quiet" (click)="abrirEdicaoProjeto()">Editar projeto</button
+            ><button class="button quiet" (click)="abrirBaselines()">Baselines</button>
+            @if (pagina() === 'visao') {
+              <button class="button quiet" (click)="configuracoesAbertas.set(true)">
+                ☷ &nbsp; Configurações</button
+              ><button class="button outline" (click)="modalNovoEpico.set(true)">
+                ＋ Novo Épico
+              </button>
+            }
+            <button class="button primary" (click)="abrirNovoRequisito()">＋ Novo requisito</button>
+          </div>
+        </div>
+      }
+      @if (erro(); as mensagem) {
+        <div class="alert" role="alert">{{ mensagem }}</div>
+      }
+      @if (pagina() !== 'mapa' && instancia(); as nome) {
+        <p class="api-note">BFF Gestão · {{ nome }}</p>
+      }
       @if (pagina() === 'visao') {
         <div class="epic-grid-management">
           @for (epico of epicos(); track epico) {
             <article class="epic-management-card">
-              <header><button class="epic-expand" (click)="toggleEpico(epico)">{{ epicosAbertos().includes(epico) ? '⌄' : '›' }}</button><span>▱</span><strong>{{ epico }}</strong><i>{{ requisitosDoEpico(epico).length }} US</i><button class="epic-action" title="Épicos ainda não possuem API de persistência" disabled>＋</button><button class="epic-action" disabled>⋮</button></header>
+              <header>
+                <button class="epic-expand" (click)="toggleEpico(epico)">
+                  {{ epicosAbertos().includes(epico) ? '⌄' : '›' }}</button
+                ><span>▱</span><strong>{{ epico }}</strong
+                ><i>{{ requisitosDoEpico(epico).length }} US</i
+                >
+                <button type="button" class="epic-action" aria-label="Novo requisito neste épico" title="Novo requisito neste épico" (click)="abrirNovoRequisito(epico)">＋</button>
+                <div class="epic-options">
+                  <button type="button" class="epic-action" aria-label="Opções do épico" title="Opções do épico" [attr.aria-expanded]="menuEpico() === epico" (click)="menuEpico.set(menuEpico() === epico ? null : epico)" (keydown.escape)="menuEpico.set(null)">⋮</button>
+                  @if (menuEpico() === epico) {
+                    <div class="project-options-menu epic-options-menu" (keydown.escape)="menuEpico.set(null)">
+                      <button type="button" (click)="abrirNovoRequisito(epico)">Novo requisito neste épico</button>
+                      <button type="button" (click)="editarEpico(epico)">Renomear épico</button>
+                      <button type="button" class="danger" (click)="excluirEpico(epico)">Excluir épico</button>
+                    </div>
+                  }
+                </div>
+              </header>
               @if (epicosAbertos().includes(epico)) {
                 <div class="epic-items">
                   @for (requisito of requisitosDoEpico(epico); track requisito.requisitoId) {
-                    <button class="epic-requirement" (click)="abrir(requisito)"><code>{{ requisito.codigo }}</code><span>{{ requisito.titulo }}</span><i [class.published]="requisito.versaoPublicadaId">{{ status(requisito) }}</i></button>
+                    <button class="epic-requirement" (click)="abrir(requisito)">
+                      <code>{{ requisito.codigo }}</code
+                      ><span>{{ requisito.titulo }}</span
+                      ><i [class.published]="requisito.versaoPublicadaId">{{
+                        status(requisito)
+                      }}</i>
+                    </button>
                   }
                   @if (requisitosDoEpico(epico).length === 0) {
-                    <p class="epic-empty">Sem requisitos associados. O backend ainda não oferece cadastro de épicos.</p>
+                    <p class="epic-empty">
+                      Sem requisitos associados. Este épico ainda não tem requisitos associados.
+                    </p>
                   }
                 </div>
               }
             </article>
           }
-          <article class="epic-management-card"><header><button class="epic-expand" disabled>›</button><span>▱</span><strong>Sem épico</strong><i>{{ requisitosDoEpico('Sem épico').length }} US</i><button class="epic-action" disabled>＋</button><button class="epic-action" disabled>⋮</button></header>@if (requisitosDoEpico('Sem épico').length) { <div class="epic-items">@for (requisito of requisitosDoEpico('Sem épico'); track requisito.requisitoId) { <button class="epic-requirement" (click)="abrir(requisito)"><code>{{ requisito.codigo }}</code><span>{{ requisito.titulo }}</span><i>{{ status(requisito) }}</i></button> }</div> }</article>
+          <article class="epic-management-card">
+            <header>
+              <button class="epic-expand" disabled>›</button><span>▱</span><strong>Sem épico</strong
+              ><i>{{ requisitosDoEpico('Sem épico').length }} US</i
+              ><button type="button" class="epic-action" aria-label="Novo requisito sem épico" title="Novo requisito sem épico" (click)="abrirNovoRequisito()">＋</button>
+            </header>
+            @if (requisitosDoEpico('Sem épico').length) {
+              <div class="epic-items">
+                @for (requisito of requisitosDoEpico('Sem épico'); track requisito.requisitoId) {
+                  <button class="epic-requirement" (click)="abrir(requisito)">
+                    <code>{{ requisito.codigo }}</code
+                    ><span>{{ requisito.titulo }}</span
+                    ><i>{{ status(requisito) }}</i>
+                  </button>
+                }
+              </div>
+            }
+          </article>
         </div>
-        <div class="backend-limits">As histórias e seus detalhes vêm do backend. A organização em épicos, membros, notificações e modo de autenticação ainda não tem endpoints disponíveis.</div>
+        <div class="backend-limits">
+          Épicos, requisitos e notificações são carregados do serviço.
+        </div>
       } @else if (pagina() === 'requisitos') {
-        <section class="filter-bar"><span class="eyebrow">SITUAÇÃO</span><button class="filter-pill" [class.selected]="filtroSituacao() === 'ATIVO'" (click)="filtrarSituacao('ATIVO')">● ATIVO</button><button class="filter-pill" [class.selected]="filtroSituacao() === 'CANCELADO'" (click)="filtrarSituacao('CANCELADO')">● CANCELADO</button><button class="filter-pill" [class.selected]="filtroSituacao() === 'TODOS'" (click)="filtrarSituacao('TODOS')">TODOS</button><span class="eyebrow">ESTADO DA CANDIDATA</span><select aria-label="Estado da candidata" [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event)"><option>Todos</option><option value="RASCUNHO">Rascunho</option><option value="EM_SUBMISSAO">Em submissão</option><option value="AGUARDANDO_REVISAO">Aguardando revisão</option><option value="APROVADA">Aprovada</option><option value="PUBLICADA">Publicada</option></select><span class="eyebrow">PUBLICAÇÃO</span><select aria-label="Publicação" [ngModel]="filtroPublicacao()" (ngModelChange)="filtroPublicacao.set($event)"><option>Todas</option><option value="PUBLICADA">Com versão publicada</option><option value="NAO_PUBLICADA">Sem versão publicada</option></select><span class="eyebrow">ÉPICO</span><select aria-label="Épico" [ngModel]="filtroEpico()" (ngModelChange)="filtroEpico.set($event)"><option>Todos</option><option>Sem épico</option></select></section>
+        <section class="filter-bar">
+          <span class="eyebrow">SITUAÇÃO</span
+          ><button
+            class="filter-pill"
+            [class.selected]="filtroSituacao() === 'ATIVO'"
+            (click)="filtrarSituacao('ATIVO')"
+          >
+            ● ATIVO</button
+          ><button
+            class="filter-pill"
+            [class.selected]="filtroSituacao() === 'CANCELADO'"
+            (click)="filtrarSituacao('CANCELADO')"
+          >
+            ● CANCELADO</button
+          ><button
+            class="filter-pill"
+            [class.selected]="filtroSituacao() === 'TODOS'"
+            (click)="filtrarSituacao('TODOS')"
+          >
+            TODOS</button
+          ><span class="eyebrow">ESTADO DA CANDIDATA</span
+          ><select
+            aria-label="Estado da candidata"
+            [ngModel]="filtroEstado()"
+            (ngModelChange)="filtroEstado.set($event)"
+          >
+            <option>Todos</option>
+            <option value="RASCUNHO">Rascunho</option>
+            <option value="EM_SUBMISSAO">Em submissão</option>
+            <option value="AGUARDANDO_REVISAO">Aguardando revisão</option>
+            <option value="APROVADA">Aprovada</option>
+            <option value="PUBLICADA">Publicada</option></select
+          ><span class="eyebrow">PUBLICAÇÃO</span
+          ><select
+            aria-label="Publicação"
+            [ngModel]="filtroPublicacao()"
+            (ngModelChange)="filtroPublicacao.set($event)"
+          >
+            <option>Todas</option>
+            <option value="PUBLICADA">Com versão publicada</option>
+            <option value="NAO_PUBLICADA">Sem versão publicada</option></select
+          ><span class="eyebrow">ÉPICO</span
+          ><select
+            aria-label="Épico"
+            [ngModel]="filtroEpico()"
+            (ngModelChange)="filtroEpico.set($event)"
+          >
+            <option>Todos</option>
+            <option>Sem épico</option>
+          </select>
+        </section>
       } @else {
         <section class="map-screen">
-          <div class="map-updated"><i></i> Projeção atualizada · há instantes</div>
-          <div class="map-viewport"><div class="map-board" [style.transform]="deslocamentoMapa() + ' scale(' + zoomMapa() + ')'">
-            <svg class="map-edges" viewBox="0 0 1450 1350" aria-hidden="true"><defs><marker id="map-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" /></marker></defs>@for (relacao of relacoesVisiveis(); track relacao.relacaoId) { <line [class.highlighted]="relacaoDestacada(relacao)" [attr.x1]="xDo(origemVisual(relacao))" [attr.y1]="yDo(origemVisual(relacao))" [attr.x2]="xDo(destinoVisual(relacao))" [attr.y2]="yDo(destinoVisual(relacao))" marker-end="url(#map-arrow)" /><text [attr.x]="(xDo(origemVisual(relacao)) + xDo(destinoVisual(relacao))) / 2" [attr.y]="(yDo(origemVisual(relacao)) + yDo(destinoVisual(relacao))) / 2 - 8">{{ rotuloRelacao(relacao) }}</text> }</svg>
-            @for (grupo of requisitosPorEpico(); track grupo.nome; let groupIndex = $index) { <section class="map-epic" [style.left.px]="grupoLeft(groupIndex)" [style.top.px]="grupoTop(groupIndex)"><header><span class="map-folder-icon">▱</span><strong>{{ grupo.nome }}</strong><small>{{ grupo.itens.length }} US</small></header><div class="map-stories">@for (requisito of grupo.itens; track requisito.requisitoId; let itemIndex = $index) { <button class="map-story" [class.selected]="mapaRaizId() === requisito.requisitoId" [style.left.px]="16 + (itemIndex % 2) * 220" [style.top.px]="cardTop(itemIndex)" (click)="abrir(requisito)"><div><code>{{ requisito.codigo }}</code><i [class.published]="requisito.versaoPublicadaId">● {{ status(requisito) }}</i></div><strong>{{ requisito.titulo }}</strong><small>⌁ {{ relacaoCount(requisito.requisitoId) }} relação(ões)</small></button> }</div></section> }
-          </div></div>
-          <div class="map-controls"><button aria-label="Diminuir zoom" (click)="zoom(-0.1)">⌕−</button><span>{{ zoomPercent() }}%</span><button aria-label="Aumentar zoom" (click)="zoom(0.1)">⌕＋</button><i></i><button aria-label="Enquadrar mapa" title="Enquadrar mapa" (click)="centralizarMapa(null)">⛶</button></div>
-          @if (erroRelacoes(); as erroMapa) { <p class="map-error">{{ erroMapa }}</p> }
+          <div class="map-legend" aria-label="Tipos de relação">
+            <span class="map-depende"><i></i> Pré-requisito</span>
+            <span class="map-bloqueia"><i></i> Bloqueia</span>
+            <span class="map-relacionado"><i></i> Relacionado</span>
+          </div>
+          <div #viewportMapa class="map-viewport" [class.arrastando]="arrastandoMapa()"
+            (pointerdown)="iniciarPanMapa($event)" (pointermove)="moverPanMapa($event)"
+            (pointerup)="encerrarPanMapa($event)" (lostpointercapture)="encerrarPanMapa($event)">
+            @let layout = layoutMapa();
+            @if (layout.caixas.length) {
+              <div class="map-board" [style.width.px]="layout.largura" [style.height.px]="layout.altura"
+                [style.transform]="deslocamentoMapa()">
+                <svg class="map-edges" [attr.viewBox]="'0 0 ' + layout.largura + ' ' + layout.altura" aria-hidden="true">
+                  <defs>
+                    <marker id="map-dependency-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+                      <path class="map-depende" d="M 1 1 L 9 5 L 1 9 Z"/>
+                    </marker>
+                    <marker id="map-block-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+                      <path class="map-bloqueia" d="M 1 1 L 9 5 L 1 9 Z"/>
+                    </marker>
+                  </defs>
+                  @for (conexao of conexoesMapa(); track conexao.relacao.relacaoId) {
+                    <g [class.map-depende]="conexao.relacao.tipo === 'DEPENDE_DE'"
+                      [class.map-bloqueia]="conexao.relacao.tipo === 'BLOQUEIA'"
+                      [class.map-relacionado]="conexao.relacao.tipo === 'RELACIONADO_A'"
+                      [class.highlighted]="relacaoDestacada(conexao.relacao)">
+                      <path class="map-edge-halo" [attr.d]="conexao.caminho" />
+                      <path class="map-edge-line" [attr.d]="conexao.caminho"
+                        [attr.marker-end]="conexao.relacao.tipo === 'DEPENDE_DE' ? 'url(#map-dependency-arrow)' : conexao.relacao.tipo === 'BLOQUEIA' ? 'url(#map-block-arrow)' : null" />
+                      <text class="map-edge-label" [attr.x]="conexao.x" [attr.y]="conexao.y - 9">{{ conexao.rotulo }}</text>
+                    </g>
+                  }
+                </svg>
+                @for (grupo of layout.caixas; track grupo.nome) {
+                  <section class="map-epic" [style.left.px]="grupo.x" [style.top.px]="grupo.y"
+                    [style.width.px]="layout.larguraGrupo" [style.height.px]="grupo.altura">
+                    <header>
+                      <svg class="map-folder-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>
+                      <strong>{{ grupo.nome }}</strong><small>{{ grupo.cartoes.length }} US</small>
+                    </header>
+                    @for (cartao of grupo.cartoes; track cartao.requisito.requisitoId) {
+                      @let requisito = cartao.requisito;
+                      <button type="button" class="map-story" [class.selected]="mapaRaizId() === requisito.requisitoId"
+                        [attr.aria-pressed]="mapaRaizId() === requisito.requisitoId"
+                        [style.left.px]="cartao.esquerda" [style.top.px]="cartao.acima"
+                        [style.width.px]="layout.larguraCartao" [style.height.px]="layout.alturaCartao"
+                        [attr.title]="requisito.titulo"
+                        (pointerenter)="$event.pointerType === 'mouse' && requisitoSobPonteiro.set(requisito.requisitoId)"
+                        (pointerleave)="requisitoSobPonteiro.set(null)"
+                        (focus)="requisitoSobPonteiro.set(requisito.requisitoId)" (blur)="requisitoSobPonteiro.set(null)"
+                        (click)="abrir(requisito)">
+                        <div>
+                          <code>{{ requisito.codigo }}</code>
+                          <i [attr.data-estado]="requisito.situacao === 'CANCELADO' ? 'CANCELADO' : requisito.candidata?.estadoVersao || (requisito.versaoPublicadaId ? 'PUBLICADA' : '')">{{ estadoNoMapa(requisito) }}</i>
+                        </div>
+                        <strong>{{ requisito.titulo }}</strong>
+                        <small>
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a4 4 0 0 0 6 .4l3-3a4 4 0 0 0-5.7-5.7l-1.7 1.7m2.4 4.6a4 4 0 0 0-6-.4l-3 3a4 4 0 0 0 5.7 5.7l1.7-1.7"/></svg>
+                          {{ relacaoCount(requisito.requisitoId) }} {{ relacaoCount(requisito.requisitoId) === 1 ? 'relação' : 'relações' }}
+                        </small>
+                      </button>
+                    }
+                    @if (!grupo.cartoes.length) { <p class="map-epic-empty">Sem requisitos</p> }
+                  </section>
+                }
+              </div>
+            } @else {
+              <p class="map-empty">{{ carregando() ? 'Carregando mapa…' : 'Nenhum requisito no mapa.' }}</p>
+            }
+          </div>
+          <div class="map-controls" aria-label="Controles do mapa">
+            <button type="button" aria-label="Diminuir zoom" title="Diminuir zoom" [disabled]="zoomMapa() <= 0.4" (click)="zoom(-0.1)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5M7.5 10h5"/></svg>
+            </button>
+            <span>{{ zoomPercent() }}%</span>
+            <button type="button" aria-label="Aumentar zoom" title="Aumentar zoom" [disabled]="zoomMapa() >= 1.4" (click)="zoom(0.1)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5M7.5 10h5M10 7.5v5"/></svg>
+            </button>
+            <i></i>
+            <button type="button" aria-label="Enquadrar mapa" title="Enquadrar mapa" (click)="centralizarMapa(null, viewportMapa)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H4v5m11-5h5v5m0 6v5h-5M4 15v5h5"/></svg>
+            </button>
+          </div>
+          @if (erroRelacoes(); as erroMapa) {
+            <p class="map-error">{{ erroMapa }}</p>
+          }
         </section>
       }
-      @if (pagina() !== 'mapa') {
-        @if (pagina() === 'visao') { <div class="section-title"><div><h2>Requisitos do projeto</h2><p>Registros recentes carregados do serviço de Requisitos</p></div><button class="text-action" (click)="pagina.set('requisitos')">Ver lista →</button></div> }
-        <section class="table-card"><div class="table-wrap"><table><thead><tr><th>ID</th><th>TÍTULO</th><th>ÉPICO</th><th>SITUAÇÃO</th><th>ESTADO DA CANDIDATA</th><th>VERSÃO PUBLICADA</th><th>ÚLTIMA ATUALIZAÇÃO</th></tr></thead><tbody>@for (requisito of filtrados(); track requisito.requisitoId) { <tr (click)="abrir(requisito)"><td><span class="req-code">{{ requisito.codigo }}</span></td><td class="req-title">{{ requisito.titulo }}</td><td>{{ epicoDo(requisito) }}</td><td><span class="state" [class.active-state]="requisito.situacao === 'ATIVO'">● {{ requisito.situacao }}</span></td><td><span class="state" [class.published]="requisito.candidata?.estadoVersao === 'PUBLICADA'">● {{ status(requisito) }}</span></td><td class="version">{{ publicado(requisito) }}</td><td>{{ requisito.atualizadoEm | date: 'dd/MM/yyyy' }} <button class="row-open" (click)="$event.stopPropagation(); abrir(requisito)">Detalhes</button></td></tr> } @empty { <tr><td colspan="7"><div class="empty-state"><span>▤</span><strong>{{ carregando() ? 'Carregando requisitos...' : 'Nenhuma história encontrada para os filtros aplicados.' }}</strong><p>{{ !carregando() ? 'Crie um requisito ou ajuste os filtros.' : '' }}</p></div></td></tr> }</tbody></table></div></section>
+      @if (pagina() === 'requisitos') {
+        <div class="advanced-filter-bar">
+          <label
+            >Tipo<input
+              aria-label="Filtrar por tipo"
+              [ngModel]="filtroTipo()"
+              (ngModelChange)="filtroTipo.set($event)"
+              placeholder="Ex.: FUNCIONAL" /></label
+          ><label
+            >Épico<select
+              aria-label="Filtrar por épico"
+              [ngModel]="filtroEpico()"
+              (ngModelChange)="filtroEpico.set($event)"
+            >
+              <option>Todos</option>
+              <option>Sem épico</option>
+              @for (epico of epicosRemotos(); track epico.epicoId) {
+                <option [value]="epico.epicoId">{{ epico.titulo }}</option>
+              }
+            </select></label
+          ><label
+            >Responsável (ID)<input
+              aria-label="Filtrar por responsável"
+              [ngModel]="filtroResponsavel()"
+              (ngModelChange)="filtroResponsavel.set($event)"
+              placeholder="UUID" /></label
+          ><button class="button outline" (click)="carregar()">Aplicar filtros</button>
+        </div>
+        <section class="table-card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>TÍTULO</th>
+                  <th>ÉPICO</th>
+                  <th>SITUAÇÃO</th>
+                  <th>ESTADO DA CANDIDATA</th>
+                  <th>VERSÃO PUBLICADA</th>
+                  <th>ÚLTIMA ATUALIZAÇÃO</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (requisito of filtrados(); track requisito.requisitoId) {
+                  <tr (click)="abrir(requisito)">
+                    <td>
+                      <span class="req-code">{{ requisito.codigo }}</span>
+                    </td>
+                    <td class="req-title">{{ requisito.titulo }}</td>
+                    <td>{{ epicoDo(requisito) }}</td>
+                    <td>
+                      <span class="state" [class.active-state]="requisito.situacao === 'ATIVO'"
+                        >● {{ requisito.situacao }}</span
+                      >
+                    </td>
+                    <td>
+                      <span
+                        class="state"
+                        [class.published]="requisito.candidata?.estadoVersao === 'PUBLICADA'"
+                        >● {{ status(requisito) }}</span
+                      >
+                    </td>
+                    <td class="version">{{ publicado(requisito) }}</td>
+                    <td>
+                      {{ requisito.atualizadoEm | date: 'dd/MM/yyyy' }}
+                      <button class="row-open" (click)="$event.stopPropagation(); abrir(requisito)">
+                        Detalhes
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7">
+                      <div class="empty-state">
+                        <span>▤</span
+                        ><strong>{{
+                          carregando()
+                            ? 'Carregando requisitos...'
+                            : 'Nenhuma história encontrada para os filtros aplicados.'
+                        }}</strong>
+                        <p>{{ !carregando() ? 'Crie um requisito ou ajuste os filtros.' : '' }}</p>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
       }
-      @if (detalhe(); as visao) { <aside class="requirement-drawer"><header><div><span class="req-code">{{ visao.codigo }}</span><span class="state" [class.published]="visao.estadoVersao === 'PUBLICADA'">{{ visao.estadoVersao ?? 'Rascunho' }}</span><small class="drawer-published">{{ visao.estadoVersao === 'PUBLICADA' ? 'v' + visao.versaoEmEdicao + ' publicada' : '' }}</small></div><button class="icon-button" aria-label="Fechar detalhe" (click)="fecharDetalhes()">×</button></header><h2>{{ visao.titulo }}</h2><p class="drawer-meta">História de usuário · Atualizada {{ visao.atualizadoEm | date: 'dd/MM/yyyy' }} por Ana Clara<br />Situação: {{ visao.situacao }}</p><section class="drawer-section"><div class="drawer-section-title"><h3>‹ &nbsp; Relações ({{ relacoesDo(visao.requisitoId).length }})</h3><button class="text-action" (click)="conectarAberto.set(!conectarAberto())">＋ Conectar relação</button></div>@for (relacao of relacoesDo(visao.requisitoId); track relacao.relacaoId) { <button class="drawer-relation" (click)="abrirRelacao(relacao, visao.requisitoId)">{{ relacao.tipo.replaceAll('_', ' ') }} <b>{{ codigoDo(relacao.origemId === visao.requisitoId ? relacao.destinoId : relacao.origemId) }}</b><span>›</span></button> } @empty { <p>Esta história ainda não tem relações.</p> }@if (conectarAberto()) { <form class="relation-compose" (ngSubmit)="criarRelacao(visao)"><label>Requisito relacionado<select name="destino" [ngModel]="requisitoDestino()" (ngModelChange)="requisitoDestino.set($event)" required><option value="">Selecione uma história</option>@for (item of outrosRequisitos(visao.requisitoId); track item.requisitoId) { <option [value]="item.requisitoId">{{ item.codigo }} · {{ item.titulo }}</option> }</select></label><label>Tipo de relação<select name="tipoRelacao" [ngModel]="tipoNovaRelacao()" (ngModelChange)="tipoNovaRelacao.set($event)"><option value="DEPENDE_DE">Depende de</option><option value="BLOQUEIA">Bloqueia</option><option value="RELACIONADO_A">Relacionada</option></select></label><label>Justificativa<textarea name="justificativa" rows="2" [ngModel]="justificativaRelacao()" (ngModelChange)="justificativaRelacao.set($event)" maxlength="1000"></textarea></label>@if (erroCriacaoRelacao()) { <p class="auth-error">{{ erroCriacaoRelacao() }}</p> }<button class="button primary wide" type="submit" [disabled]="!requisitoDestino() || salvandoRelacao()">{{ salvandoRelacao() ? 'Conectando…' : 'Criar relação' }}</button></form> }</section><section class="drawer-section"><h3>‹ &nbsp; Critérios de aceite ({{ criteriosDetalhe().length }})</h3>@for (criterio of criteriosDetalhe(); track criterio; let index = $index) { <p>{{ index + 1 }}. {{ criterio }}</p> } @empty { <p>Não há critérios informados na versão candidata.</p> }</section><section class="drawer-section"><h3>‹ &nbsp; Origem</h3><p>Documento de requisitos · ATHENA</p></section><footer><button class="button quiet" (click)="centralizarRequisitoNoMapa(visao.requisitoId)">◎ &nbsp; Centralizar no mapa</button><button class="button primary" (click)="pagina.set('requisitos'); fecharDetalhes()">↗ &nbsp; Abrir requisito</button></footer></aside> }
+      @if (detalhe(); as visao) {
+        <aside class="requirement-drawer">
+          <header>
+            <div>
+              <span class="req-code">{{ visao.codigo }}</span
+              ><span class="state" [class.published]="visao.estadoVersao === 'PUBLICADA'">{{
+                visao.estadoVersao ?? 'Rascunho'
+              }}</span
+              ><small class="drawer-published">{{
+                visao.estadoVersao === 'PUBLICADA' ? 'v' + visao.versaoEmEdicao + ' publicada' : ''
+              }}</small>
+            </div>
+            <button class="icon-button" aria-label="Fechar detalhe" (click)="fecharDetalhes()">
+              ×
+            </button>
+          </header>
+          <h2>{{ visao.titulo }}</h2>
+          <p class="drawer-meta">
+            História de usuário · Atualizada {{ visao.atualizadoEm | date: 'dd/MM/yyyy'
+            }}<br />Situação: {{ visao.situacao }}
+          </p>
+          <section class="drawer-section">
+            <div class="drawer-section-title">
+              <h3>‹ &nbsp; Relações ({{ relacoesDo(visao.requisitoId).length }})</h3>
+              @if (visao._actions?.['editar-metadados']) {
+                <button class="text-action" (click)="conectarAberto.set(!conectarAberto())">＋ Conectar relação</button>
+              }
+            </div>
+            @if (erroRelacoes(); as mensagemRelacao) { <p class="auth-error" role="alert">{{ mensagemRelacao }}</p> }
+            @for (relacao of relacoesDo(visao.requisitoId); track relacao.relacaoId) {
+              <div class="drawer-relation-row">
+                <button type="button" class="drawer-relation" (click)="abrirRelacao(relacao, visao.requisitoId)">
+                  {{ rotuloRelacaoNoPainel(relacao, visao.requisitoId) }}
+                  <b>{{ codigoDo(relacao.origemId === visao.requisitoId ? relacao.destinoId : relacao.origemId) }}</b>
+                </button>
+                @if (visao._actions?.['editar-metadados']) {
+                  <button type="button" class="icon-button" aria-label="Remover relação" title="Remover relação" (click)="removerRelacaoDoMapa(relacao)">×</button>
+                }
+              </div>
+            } @empty {
+              <p>Esta história ainda não tem relações.</p>
+            }
+            @if (conectarAberto()) {
+              <form class="relation-compose" (ngSubmit)="criarRelacao(visao)">
+                <label
+                  >Requisito relacionado<select
+                    name="destino"
+                    [ngModel]="requisitoDestino()"
+                    (ngModelChange)="requisitoDestino.set($event)"
+                    required
+                  >
+                    <option value="">Selecione uma história</option>
+                    @for (item of outrosRequisitos(visao.requisitoId); track item.requisitoId) {
+                      <option [value]="item.requisitoId">
+                        {{ item.codigo }} · {{ item.titulo }}
+                      </option>
+                    }
+                  </select></label
+                ><label
+                  >Tipo de relação<select
+                    name="tipoRelacao"
+                    [ngModel]="tipoNovaRelacao()"
+                    (ngModelChange)="tipoNovaRelacao.set($event)"
+                  >
+                    <option value="DEPENDE_DE">Depende de</option>
+                    <option value="BLOQUEIA">Bloqueia</option>
+                    <option value="RELACIONADO_A">Relacionada</option>
+                  </select></label
+                ><label
+                  >Justificativa<textarea
+                    name="justificativa"
+                    rows="2"
+                    [ngModel]="justificativaRelacao()"
+                    (ngModelChange)="justificativaRelacao.set($event)"
+                    maxlength="1000"
+                  ></textarea>
+                </label>
+                @if (erroCriacaoRelacao()) {
+                  <p class="auth-error">{{ erroCriacaoRelacao() }}</p>
+                }
+                <button
+                  class="button primary wide"
+                  type="submit"
+                  [disabled]="!requisitoDestino() || salvandoRelacao()"
+                >
+                  {{ salvandoRelacao() ? 'Conectando…' : 'Criar relação' }}
+                </button>
+              </form>
+            }
+          </section>
+          <section class="drawer-section">
+            <h3>‹ &nbsp; Critérios de aceite ({{ criteriosDetalhe().length }})</h3>
+            @for (criterio of criteriosDetalhe(); track criterio; let index = $index) {
+              <p>{{ index + 1 }}. {{ criterio }}</p>
+            } @empty {
+              <p>Não há critérios informados na versão candidata.</p>
+            }
+          </section>
+          <section class="drawer-section">
+            <h3>‹ &nbsp; Origem</h3>
+            <p>Documento de requisitos · ATHENA</p>
+          </section>
+          <footer>
+            <button class="button quiet" (click)="centralizarRequisitoNoMapa(visao.requisitoId)">
+              ◎ &nbsp; Centralizar no mapa</button
+            ><button class="button primary" (click)="abrirEditor()">
+              ↗ &nbsp; Abrir requisito
+            </button>
+          </footer>
+        </aside>
+      }
     </main>
+    }
   </div>
-  @if (novoAberto()) { <div class="modal-backdrop" (click)="novoAberto.set(false)"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="new-title" (click)="$event.stopPropagation()"><header><div><h2 id="new-title">Adicionar requisito</h2><p>Defina o título, o épico de destino e como inicializar a história.</p></div><button class="icon-button" aria-label="Fechar" (click)="novoAberto.set(false)">×</button></header><form (ngSubmit)="criar()"><label>Título<input name="titulo" [ngModel]="titulo()" (ngModelChange)="titulo.set($event)" placeholder="Ex.: Acesso à conta (Login)" maxlength="300" required /></label><label>Pasta / Épico<select name="epico" [ngModel]="epicoSelecionado()" (ngModelChange)="epicoSelecionado.set($event)"><option value="">Sem épico</option>@for (epicoId of epicosComId(); track epicoId) { <option [value]="epicoId">{{ rotuloEpico(epicoId) }}</option> }</select>@if (epicosComId().length === 0) { <small>Este projeto ainda não tem épicos vinculados no serviço.</small> }</label><fieldset><legend>Começar com</legend><label class="template-choice"><input type="radio" name="template" [checked]="!templateCompleto()" (change)="templateCompleto.set(false)" /><span><b>Em branco</b><small>Editor vazio, sem template.</small></span></label><label class="template-choice"><input type="radio" name="template" [checked]="templateCompleto()" (change)="templateCompleto.set(true)" /><span><b>User Story completa</b><small>Inclui Especificação, Campos e comportamento e Regras de negócio.</small></span></label></fieldset><label>Descrição inicial<textarea name="conteudo" rows="3" [ngModel]="conteudo()" (ngModelChange)="conteudo.set($event)" placeholder="Como usuário, quero..." required></textarea></label><label>Critérios de aceite <small>(um por linha)</small><textarea name="criterios" rows="3" [ngModel]="criterios()" (ngModelChange)="criterios.set($event)" placeholder="Dado que... Quando... Então..."></textarea></label><footer><button type="button" class="button quiet" (click)="novoAberto.set(false)">Cancelar</button><button type="submit" class="button primary" [disabled]="!podeCriar()">{{ salvando() ? 'Salvando…' : 'Adicionar' }}</button></footer></form></section></div> }
-  @if (modalNovoEpico()) { <div class="modal-backdrop" (click)="modalNovoEpico.set(false)"><section class="modal compact-modal" role="dialog" aria-modal="true" aria-labelledby="epic-title" (click)="$event.stopPropagation()"><header><div><h2 id="epic-title">Novo Épico</h2><p>Crie um agrupamento para as histórias de usuário.</p></div><button class="icon-button" (click)="modalNovoEpico.set(false)">×</button></header><form (ngSubmit)="adicionarEpico()"><label>Nome do épico<input name="nomeEpico" [ngModel]="nomeEpico()" (ngModelChange)="nomeEpico.set($event)" placeholder="Ex.: Pagamentos e Cash-out" required /></label><p class="form-note">Este agrupamento ficará apenas nesta sessão; não há API de épicos ativa.</p><footer><button type="button" class="button quiet" (click)="modalNovoEpico.set(false)">Cancelar</button><button type="submit" class="button primary" [disabled]="!nomeEpico().trim()">Criar</button></footer></form></section></div> }
-  @if (configuracoesAbertas()) { <div class="modal-backdrop" (click)="configuracoesAbertas.set(false)"><section class="modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" (click)="$event.stopPropagation()"><header><h2 id="settings-title">Configurações do projeto</h2><button class="icon-button" (click)="configuracoesAbertas.set(false)">×</button></header><nav class="settings-tabs"><button [class.active]="abaConfiguracoes() === 'geral'" (click)="abaConfiguracoes.set('geral')">Geral</button><button [class.active]="abaConfiguracoes() === 'pastas'" (click)="abaConfiguracoes.set('pastas')">Pastas</button><button [class.active]="abaConfiguracoes() === 'membros'" (click)="abaConfiguracoes.set('membros')">Membros</button></nav>@if (abaConfiguracoes() === 'geral') { <div class="settings-body"><label>Nome do projeto<input [value]="projetoNome()" disabled /></label><label>Código<input value="ATH" disabled /></label><p class="form-note">Metadados do projeto são somente leitura nesta etapa do serviço.</p></div> } @else if (abaConfiguracoes() === 'pastas') { <div class="settings-body"><p class="form-note">Épicos agrupam histórias. A API ainda não oferece persistência de épicos.</p>@for (epico of epicos(); track epico) { <div class="settings-epic">▱ <strong>{{ epico }}</strong><small>{{ requisitosDoEpico(epico).length }} US</small><button disabled>✎</button><button disabled>▢</button></div> }<button class="button outline wide" disabled>＋ Novo Épico (sessão)</button></div> } @else { <div class="settings-body"><p class="form-note">Papéis acumulativos por projeto: Leitor → Repórter → Editor → Aprovador → Mantenedor → Owner. Dados de demonstração; ainda sem API de membros.</p>@for (membro of membrosDemo; track membro.email) { <div class="member-row"><span class="member-avatar">{{ membro.iniciais }}</span><strong>{{ membro.nome }}<small>{{ membro.email }}</small></strong><select disabled><option>{{ membro.papel }}</option></select></div> }</div> }<footer><button class="button quiet" (click)="configuracoesAbertas.set(false)">Concluir</button></footer></section></div> }
-  @if (modalTrocarProjeto()) { <div class="modal-backdrop" (click)="modalTrocarProjeto.set(false)"><section class="modal switch-project-modal" role="dialog" aria-modal="true" aria-labelledby="switch-title" (click)="$event.stopPropagation()"><header><div><h2 id="switch-title">Trocar projeto</h2><p>Escolha o workspace à esquerda e o projeto à direita.</p></div><button class="icon-button" (click)="modalTrocarProjeto.set(false)">×</button></header><div class="switch-columns"><section><h3>WORKSPACES</h3>@for (workspace of workspacesDemo(); track workspace.id) { <button [class.active]="workspaceId() === workspace.id" (click)="alternarWorkspace(workspace.id, workspace.nome)">▱ &nbsp; {{ workspace.nome }}</button> }</section><section><h3>PROJETOS</h3>@for (projeto of projetos(); track projeto.projetoId) { @if (projeto.workspaceId === workspaceId() && !projeto.arquivado) { <button [class.active]="projeto.projetoId === projetoId()" (click)="trocarProjeto(projeto)">{{ projeto.nome }} <span>{{ projeto.projetoId === projetoId() ? 'Atual' : 'Abrir' }}</span></button> } } @empty { <p>Este workspace ainda não tem projetos.</p> }</section></div><footer><button class="button quiet" (click)="tela.set('workspaces'); modalTrocarProjeto.set(false)">▦ &nbsp; Gerenciar workspaces</button><button class="button quiet" (click)="modalTrocarProjeto.set(false)">Fechar</button></footer></section></div> }
-  @if (perfilAberto()) { <div class="modal-backdrop" (click)="perfilAberto.set(false)"><section class="modal compact-modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-title" (click)="$event.stopPropagation()"><header><div><h2 id="profile-title">Perfil</h2><p>Conta de demonstração</p></div><button class="icon-button" aria-label="Fechar" (click)="perfilAberto.set(false)">×</button></header><div class="profile-details"><span class="avatar">AC</span><div><strong>Ana Clara</strong><small>anagomes@athena.dev</small></div></div><footer><button class="button quiet" (click)="perfilAberto.set(false)">Concluir</button></footer></section></div> }
-  @if (modalWorkspace(); as acaoWorkspace) { <div class="modal-backdrop" (click)="modalWorkspace.set(null)"><section class="modal compact-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()"><header><div><h2>{{ acaoWorkspace === 'adicionar' ? 'Adicionar workspace' : acaoWorkspace === 'renomear' ? 'Renomear workspace' : 'Excluir workspace' }}</h2><p>{{ acaoWorkspace === 'excluir' ? 'Remover este workspace da demonstração?' : 'A alteração ficará disponível nesta sessão do protótipo.' }}</p></div><button class="icon-button" (click)="modalWorkspace.set(null)">×</button></header>@if (acaoWorkspace === 'excluir') { <p>Os projetos de exemplo permanecem disponíveis na lista local.</p><footer><button class="button quiet" (click)="modalWorkspace.set(null)">Cancelar</button><button class="button primary" (click)="excluirWorkspaceDemo()">Excluir workspace</button></footer> } @else { <form (ngSubmit)="acaoWorkspace === 'adicionar' ? salvarWorkspaceDemo() : renomearWorkspace()"><label>Nome do workspace<input name="workspaceNome" [ngModel]="workspaceNomeDraft()" (ngModelChange)="workspaceNomeDraft.set($event)" required /></label><p class="form-note">Os workspaces são dados de exemplo mantidos nesta tela.</p><footer><button type="button" class="button quiet" (click)="modalWorkspace.set(null)">Cancelar</button><button class="button primary" type="submit">{{ acaoWorkspace === 'adicionar' ? 'Adicionar' : 'Salvar' }}</button></footer></form> }</section></div> }
+  @if (novoAberto()) {
+    <div class="modal-backdrop" (click)="novoAberto.set(false)">
+      <section
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="new-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <div>
+            <h2 id="new-title">Adicionar requisito</h2>
+            <p>Defina o título, o épico de destino e como inicializar a história.</p>
+          </div>
+          <button class="icon-button" aria-label="Fechar" (click)="novoAberto.set(false)">×</button>
+        </header>
+        <form (ngSubmit)="criar()">
+          <label
+            >Título<input
+              name="titulo"
+              [ngModel]="titulo()"
+              (ngModelChange)="titulo.set($event)"
+              placeholder="Ex.: Acesso à conta (Login)"
+              maxlength="300"
+              required /></label
+          ><label
+            >Pasta / Épico<select
+              name="epico"
+              [ngModel]="epicoSelecionado()"
+              (ngModelChange)="epicoSelecionado.set($event)"
+            >
+              <option value="">Sem épico</option>
+              @for (epico of epicosRemotos(); track epico.epicoId) {
+                <option [value]="epico.epicoId">{{ epico.titulo }}</option>
+              }
+            </select>
+            @if (epicosRemotos().length === 0) {
+              <small>Este projeto ainda não tem épicos vinculados no serviço.</small>
+            }
+          </label>
+          <fieldset>
+            <legend>Começar com</legend>
+            <label class="template-choice"
+              ><input
+                type="radio"
+                name="template"
+                [checked]="!templateCompleto()"
+                (change)="templateCompleto.set(false)"
+              /><span><b>Em branco</b><small>Editor vazio, sem template.</small></span></label
+            ><label class="template-choice"
+              ><input
+                type="radio"
+                name="template"
+                [checked]="templateCompleto()"
+                (change)="templateCompleto.set(true)"
+              /><span
+                ><b>User Story completa</b
+                ><small
+                  >Inclui Especificação, Campos e comportamento e Regras de negócio.</small
+                ></span
+              ></label
+            >
+          </fieldset>
+          <label
+            >Descrição inicial<textarea
+              name="conteudo"
+              rows="3"
+              [ngModel]="conteudo()"
+              (ngModelChange)="conteudo.set($event)"
+              placeholder="Como usuário, quero..."
+              required
+            ></textarea></label
+          ><label
+            >Critérios de aceite <small>(um por linha)</small
+            ><textarea
+              name="criterios"
+              rows="3"
+              [ngModel]="criterios()"
+              (ngModelChange)="criterios.set($event)"
+              placeholder="Dado que... Quando... Então..."
+            ></textarea>
+          </label>
+          <footer>
+            <button type="button" class="button quiet" (click)="novoAberto.set(false)">
+              Cancelar</button
+            ><button type="submit" class="button primary" [disabled]="!podeCriar()">
+              {{ salvando() ? 'Salvando…' : 'Adicionar' }}
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  }
+  @if (projetoEditando()) {
+    <div class="modal-backdrop" (click)="projetoEditando.set(false)">
+      <section
+        class="modal compact-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-project-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <div>
+            <h2 id="edit-project-title">Editar projeto</h2>
+            <p>As alterações usam a revisão atual do projeto.</p>
+          </div>
+          <button class="icon-button" (click)="projetoEditando.set(false)">×</button>
+        </header>
+        <form (ngSubmit)="salvarEdicaoProjeto()">
+          <label
+            >Nome<input
+              name="projectNameEdit"
+              [ngModel]="nomeProjetoDraft()"
+              (ngModelChange)="nomeProjetoDraft.set($event)"
+              required /></label
+          ><label
+            >Descrição<textarea
+              name="projectDescriptionEdit"
+              rows="3"
+              [ngModel]="descricaoProjetoDraft()"
+              (ngModelChange)="descricaoProjetoDraft.set($event)"
+            ></textarea>
+          </label>
+          <footer>
+            <button type="button" class="button quiet" (click)="projetoEditando.set(false)">
+              Cancelar</button
+            ><button class="button primary" type="submit" [disabled]="!nomeProjetoDraft().trim()">
+              Salvar alterações
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  }
+  @if (projetoParaExcluir(); as projetoExclusao) {
+    <div class="modal-backdrop" (click)="projetoParaExcluir.set(null)">
+      <section
+        class="modal compact-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-project-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <div>
+            <h2 id="delete-project-title">Excluir projeto</h2>
+            <p>
+              O projeto será arquivado para exclusão. A conclusão ocorre após o processamento dos
+              domínios.
+            </p>
+          </div>
+          <button class="icon-button" (click)="projetoParaExcluir.set(null)">×</button>
+        </header>
+        <label
+          >Digite <strong>{{ projetoExclusao.nome }}</strong> para confirmar<input
+            [ngModel]="confirmacaoExcluirProjeto()"
+            (ngModelChange)="confirmacaoExcluirProjeto.set($event)"
+        /></label>
+        <footer>
+          <button class="button quiet" (click)="projetoParaExcluir.set(null)">Cancelar</button
+          ><button
+            class="button primary"
+            [disabled]="confirmacaoExcluirProjeto() !== projetoExclusao.nome"
+            (click)="solicitarExclusaoProjeto()"
+          >
+            Solicitar exclusão
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+  @if (epicoEmRenomeacao(); as epico) {
+    <div class="modal-backdrop" (click)="fecharRenomearEpico()">
+      <section class="modal compact-modal" role="dialog" aria-modal="true" aria-labelledby="rename-epic-title"
+        (click)="$event.stopPropagation()" (keydown.escape)="fecharRenomearEpico()">
+        <header>
+          <h2 id="rename-epic-title">Renomear épico</h2>
+          <button type="button" class="icon-button" aria-label="Fechar" [disabled]="renomeandoEpico()" (click)="fecharRenomearEpico()">×</button>
+        </header>
+        <form (ngSubmit)="salvarNomeEpico()" [attr.aria-busy]="renomeandoEpico()">
+          <label>Nome do épico
+            <input name="novoNomeEpico" [ngModel]="novoNomeEpico()" (ngModelChange)="novoNomeEpico.set($event)"
+              maxlength="120" required autofocus [readOnly]="renomeandoEpico()" />
+          </label>
+          @if (erroRenomearEpico()) { <p class="auth-error" role="alert">{{ erroRenomearEpico() }}</p> }
+          <footer>
+            <button type="button" class="button quiet" [disabled]="renomeandoEpico()" (click)="fecharRenomearEpico()">Cancelar</button>
+            <button type="submit" class="button primary" [disabled]="!novoNomeEpico().trim() || novoNomeEpico().trim() === epico.titulo || renomeandoEpico()">
+              {{ renomeandoEpico() ? 'Salvando…' : 'Salvar' }}
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  }
+  @if (modalNovoEpico()) {
+    <div class="modal-backdrop" (click)="modalNovoEpico.set(false)">
+      <section
+        class="modal compact-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="epic-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <div>
+            <h2 id="epic-title">Novo Épico</h2>
+            <p>Crie um agrupamento para as histórias de usuário.</p>
+          </div>
+          <button class="icon-button" (click)="modalNovoEpico.set(false)">×</button>
+        </header>
+        <form (ngSubmit)="adicionarEpico()">
+          <label
+            >Nome do épico<input
+              name="nomeEpico"
+              [ngModel]="nomeEpico()"
+              (ngModelChange)="nomeEpico.set($event)"
+              placeholder="Ex.: Pagamentos e Cash-out"
+              required
+          /></label>
+          <footer>
+            <button type="button" class="button quiet" (click)="modalNovoEpico.set(false)">
+              Cancelar</button
+            ><button type="submit" class="button primary" [disabled]="!nomeEpico().trim()">
+              Criar
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  }
+  @if (baselinesAbertas()) {
+    <div class="modal-backdrop" (click)="baselinesAbertas.set(false)">
+      <section
+        class="modal settings-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="baselines-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <div>
+            <h2 id="baselines-title">Baselines de {{ projetoNome() }}</h2>
+            <p>Uma baseline captura as versões publicadas atuais e permanece imutável.</p>
+          </div>
+          <button class="icon-button" aria-label="Fechar" (click)="baselinesAbertas.set(false)">
+            ×
+          </button>
+        </header>
+        <form class="baseline-create" (ngSubmit)="criarBaseline()">
+          <label
+            >Nome da baseline<input
+              name="baselineName"
+              [ngModel]="nomeBaseline()"
+              (ngModelChange)="nomeBaseline.set($event)"
+              required
+              placeholder="Ex.: Entrega 1" /></label
+          ><button class="button primary" type="submit" [disabled]="!nomeBaseline().trim()">
+            Criar baseline
+          </button>
+        </form>
+        <section class="settings-body">
+          @for (baseline of baselines(); track baseline.baselineId) {
+            <article class="baseline-row">
+              <strong>{{ baseline.nome }}</strong
+              ><button class="button outline" (click)="compararBaseline(baseline)">
+                Comparar com o Livro atual
+              </button>
+            </article>
+          } @empty {
+            <p>Nenhuma baseline criada.</p>
+          }
+        </section>
+        @if (comparacaoBaseline()) {
+          <pre class="baseline-comparison">{{ comparacaoBaseline() }}</pre>
+        }
+      </section>
+    </div>
+  }
+  @if (configuracoesAbertas()) {
+    <div class="modal-backdrop" (click)="configuracoesAbertas.set(false)">
+      <section
+        class="modal settings-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <h2 id="settings-title">Configurações do projeto</h2>
+          <button class="icon-button" (click)="configuracoesAbertas.set(false)">×</button>
+        </header>
+        <nav class="settings-tabs">
+          <button
+            [class.active]="abaConfiguracoes() === 'geral'"
+            (click)="abaConfiguracoes.set('geral')"
+          >
+            Geral</button
+          ><button
+            [class.active]="abaConfiguracoes() === 'pastas'"
+            (click)="abaConfiguracoes.set('pastas')"
+          >
+            Pastas</button
+          ><button
+            [class.active]="abaConfiguracoes() === 'membros'"
+            (click)="abaConfiguracoes.set('membros')"
+          >
+            Membros
+          </button>
+        </nav>
+        @if (abaConfiguracoes() === 'geral') {
+          <div class="settings-body">
+            <label>Nome do projeto<input [value]="projetoNome()" disabled /></label
+            ><label>Código<input value="ATH" disabled /></label>
+            <p class="form-note">
+              Metadados do projeto são somente leitura nesta etapa do serviço.
+            </p>
+          </div>
+        } @else if (abaConfiguracoes() === 'pastas') {
+          <div class="settings-body">
+            <p class="form-note">Épicos agrupam histórias. Épicos persistidos neste projeto.</p>
+            @for (epico of epicos(); track epico) {
+              <div class="settings-epic">
+                ▱ <strong>{{ epico }}</strong><small>{{ requisitosDoEpico(epico).length }} US</small
+                ><button (click)="editarEpico(epico)">✎</button>
+              </div>
+            }
+            <button class="button outline wide" disabled>＋ Novo Épico</button>
+          </div>
+        } @else {
+          <div class="settings-body">
+            <p class="form-note">
+              Papéis acumulativos por projeto: Leitor → Repórter → Editor → Aprovador → Mantenedor →
+              Owner. Membros e papéis vinculados a este projeto.
+            </p>
+            @for (membro of membrosDemo; track membro.email) {
+              <div class="member-row">
+                <span class="member-avatar">{{ membro.iniciais }}</span
+                ><strong
+                  >{{ membro.nome }}
+                  @if (membroDaConta(membro)) {
+                    <small>Você</small>
+                  }
+                  <small>{{ membro.email }}</small></strong
+                >
+                @if (!membroDaConta(membro) && papeisParaConceder().includes(membro.papel)) {
+                  <select
+                    [attr.aria-label]="'Papel de ' + membro.nome"
+                    [ngModel]="membro.papel"
+                    (ngModelChange)="alterarPapelMembro(membro, $event)"
+                  >
+                    @for (papel of papeisParaConceder(); track papel) {
+                      <option>{{ papel }}</option>
+                    }
+                  </select>
+                } @else {
+                  <span>{{ membro.papel }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+        <footer>
+          <button class="button quiet" (click)="configuracoesAbertas.set(false)">Concluir</button>
+        </footer>
+      </section>
+    </div>
+  }
+  @if (modalTrocarProjeto()) {
+    <div class="modal-backdrop" (click)="modalTrocarProjeto.set(false)">
+      <section
+        class="modal switch-project-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="switch-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <div>
+            <h2 id="switch-title">Trocar projeto</h2>
+            <p>Escolha o workspace à esquerda e o projeto à direita.</p>
+          </div>
+          <button class="icon-button" aria-label="Fechar" (click)="modalTrocarProjeto.set(false)">
+            ×
+          </button>
+        </header>
+        <label
+          >Buscar projeto ou workspace<input
+            type="search"
+            [ngModel]="buscaTroca()"
+            (ngModelChange)="buscaTroca.set($event)"
+        /></label>
+        <div class="switch-columns">
+          <section>
+            <h3>Workspaces</h3>
+            @for (workspace of workspacesDaTroca(); track workspace.id) {
+              <button
+                [class.active]="workspaceDaTroca() === workspace.id"
+                (click)="alternarWorkspace(workspace.id)"
+              >
+                {{ workspace.nome }}
+                @if (workspaceId() === workspace.id) {
+                  <span aria-label="Workspace atual">✓</span>
+                }
+              </button>
+            } @empty {
+              <p>Nenhum workspace corresponde à busca.</p>
+            }
+          </section>
+          <section>
+            <h3>Projetos</h3>
+            @if (carregandoTroca()) {
+              <p role="status">Carregando projetos…</p>
+            } @else if (erroTroca()) {
+              <p role="alert">{{ erroTroca() }}</p>
+            } @else {
+              @for (projeto of projetosFiltradosDaTroca(); track projeto.projetoId) {
+                <button
+                  [class.active]="projeto.projetoId === projetoId()"
+                  (click)="trocarProjeto(projeto)"
+                >
+                  {{ projeto.nome }}
+                  <span>{{ projeto.projetoId === projetoId() ? 'Atual' : 'Abrir' }}</span>
+                </button>
+              } @empty {
+                <p>Nenhum projeto encontrado neste workspace.</p>
+              }
+            }
+          </section>
+        </div>
+        <footer>
+          <button class="button quiet" (click)="voltarAosWorkspaces()">Gerenciar workspaces</button
+          ><button class="button quiet" (click)="modalTrocarProjeto.set(false)">Fechar</button>
+        </footer>
+      </section>
+    </div>
+  }
+}
+@if (perfilAberto()) {
+  <div class="modal-backdrop" (click)="perfilAberto.set(false)">
+    <section
+      class="modal compact-modal profile-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="profile-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <div>
+          <h2 id="profile-title">Perfil</h2>
+          <p>Conta autenticada</p>
+        </div>
+        <button class="icon-button" aria-label="Fechar" (click)="perfilAberto.set(false)">×</button>
+      </header>
+      <div class="profile-details">
+        <span class="avatar">{{ iniciaisConta() }}</span>
+        <div>
+          <strong>{{ nomeConta() || emailAtual() }}</strong>
+          @if (nomeConta()) {
+            <small>{{ emailAtual() }}</small>
+          }
+        </div>
+      </div>
+      <footer>
+        <button class="button quiet" (click)="perfilAberto.set(false)">Concluir</button>
+      </footer>
+    </section>
+  </div>
+}
+@if (configuracoesAbertas() && abaConfiguracoes() === 'membros') {
+  @if (papeisParaConceder().length) {
+    <button class="member-transfer-trigger button outline" (click)="abrirConvite()">
+      Convidar membro
+    </button>
+  }
+  @if (podeTransferirPropriedade()) {
+    <button
+      class="member-transfer-trigger member-transfer-second button outline"
+      (click)="transferenciaAberta.set(true)"
+    >
+      Transferir propriedade
+    </button>
+  }
+}
+@if (conviteAberto()) {
+  <div class="modal-backdrop" (click)="conviteAberto.set(false)">
+    <section
+      class="modal compact-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="invite-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <div>
+          <h2 id="invite-title">Convidar membro</h2>
+          <p>A pessoa precisa aceitar o convite com esta conta de e-mail.</p>
+        </div>
+        <button class="icon-button" (click)="conviteAberto.set(false)">×</button>
+      </header>
+      @if (erroConvite()) {
+        <p class="auth-error" role="alert">{{ erroConvite() }}</p>
+      }
+      <form #formConvite="ngForm" (ngSubmit)="formConvite.valid && convidarMembro()">
+        <label
+          >E-mail<input
+            type="email"
+            email
+            name="emailConvite"
+            [ngModel]="conviteEmail()"
+            (ngModelChange)="conviteEmail.set($event)"
+            required
+        /></label>
+        <label
+          >Papel<select
+            name="papelConvite"
+            [ngModel]="convitePapel()"
+            (ngModelChange)="convitePapel.set($event)"
+            required
+          >
+            @for (papel of papeisParaConceder(); track papel) {
+              <option>{{ papel }}</option>
+            }
+          </select></label
+        >
+        <footer>
+          <button type="button" class="button quiet" (click)="conviteAberto.set(false)">
+            Cancelar</button
+          ><button class="button primary" [disabled]="!formConvite.valid || enviandoConvite()">
+            {{ enviandoConvite() ? 'Enviando…' : 'Enviar convite' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}
+@if (transferenciaAberta()) {
+  <div class="modal-backdrop" (click)="transferenciaAberta.set(false)">
+    <section
+      class="modal compact-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="transfer-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <div>
+          <h2 id="transfer-title">Transferir propriedade</h2>
+          <p>O membro selecionado deverá aceitar a transferência.</p>
+        </div>
+        <button class="icon-button" (click)="transferenciaAberta.set(false)">×</button>
+      </header>
+      <label
+        >Novo proprietário<select
+          [ngModel]="destinatarioTransferencia()"
+          (ngModelChange)="destinatarioTransferencia.set($event)"
+        >
+          <option value="">Selecione um membro</option>
+          @for (membro of membrosProjeto(); track membro.membroId) {
+            @if (membro.papel !== 'Owner') {
+              <option [value]="membro.usuarioId">{{ membro.nome }} · {{ membro.papel }}</option>
+            }
+          }
+        </select></label
+      >
+      <footer>
+        <button class="button quiet" (click)="transferenciaAberta.set(false)">Cancelar</button
+        ><button
+          class="button primary"
+          [disabled]="!destinatarioTransferencia()"
+          (click)="transferirPropriedade()"
+        >
+          Solicitar transferência
+        </button>
+      </footer>
+    </section>
+  </div>
+}
+@if (pagina() !== 'editor' && pagina() !== 'mapa' && detalhe(); as visao) {
+  <nav class="requirement-actions" aria-label="Ações disponíveis para este requisito">
+    <button class="button outline" (click)="carregarHistoricoRequisito()">Histórico</button>
+    <button class="button outline" (click)="carregarVersoesRequisito()">
+      Versões e comparação
+    </button>
+    @for (entrada of visao._actions ?? {} | keyvalue; track entrada.key) {
+      <button class="button outline" (click)="prepararAcao(entrada.key, entrada.value)">
+        {{ entrada.key.replaceAll('-', ' ') }}
+      </button>
+    }
+  </nav>
+}
+@if (complementoRequisito(); as complemento) {
+  <div class="modal-backdrop" (click)="complementoRequisito.set(null)">
+    <section
+      class="modal settings-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="requirement-history-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <h2 id="requirement-history-title">
+          {{ complemento === 'historico' ? 'Histórico do requisito' : 'Versões do requisito' }}
+        </h2>
+        <button class="icon-button" aria-label="Fechar" (click)="complementoRequisito.set(null)">
+          ×
+        </button>
+      </header>
+      @if (complemento === 'historico') {
+        <div class="settings-body">
+          @for (evento of historicoRequisito(); track $index) {
+            <article class="baseline-row">
+              <pre>{{ evento | json }}</pre>
+            </article>
+          } @empty {
+            <p>Nenhum evento de histórico.</p>
+          }
+        </div>
+      } @else {
+        <div class="settings-body">
+          @for (versao of versoesRequisito(); track versao.versaoId) {
+            <article class="baseline-row">
+              <span
+                ><strong>v{{ versao.numero }} · {{ versao.titulo }}</strong
+                ><small
+                  >{{ versao.estadoVersao }} ·
+                  {{ versao.atualizadoEm | date: 'dd/MM/yyyy HH:mm' }}</small
+                ></span
+              ><button class="button outline" (click)="compararVersao(versao)">
+                Comparar com a anterior
+              </button>
+            </article>
+          } @empty {
+            <p>Nenhuma versão registrada.</p>
+          }
+        </div>
+        @if (comparacaoVersao()) {
+          <pre class="baseline-comparison">{{ comparacaoVersao() }}</pre>
+        }
+      }
+    </section>
+  </div>
+}
+@if (acaoSelecionada(); as acao) {
+  <div class="modal-backdrop" (click)="fecharModalAcao()">
+    <section
+      class="modal compact-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="action-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <div>
+          <h2 id="action-title">
+            {{ decisaoEditor() === 'REJEITAR' ? 'Rejeitar candidata' : decisaoEditor() === 'APROVAR' ? 'Aprovar candidata' : acao.nome === 'cancelar' ? 'Cancelar US' : acao.nome.replaceAll('-', ' ') }}
+          </h2>
+          @if (acao.nome === 'cancelar') {
+            <p>
+              A US sairá das listagens ativas e do Livro corrente. Ela continuará na aba Requisitos como Cancelada, com histórico, versões e relações preservados.
+            </p>
+          }
+        </div>
+        <button class="icon-button" aria-label="Fechar" (click)="fecharModalAcao()">
+          ×
+        </button>
+      </header>
+      @if (
+        !decisaoEditor() && acao.nome !== 'cancelar' && acao.recurso.method !== 'GET' && acao.recurso.campos.length
+      ) {
+        <label
+          >Dados da ação (JSON)<textarea
+            rows="6"
+            [ngModel]="corpoAcao()"
+            (ngModelChange)="corpoAcao.set($event)"
+          ></textarea>
+        </label>
+      }
+      @if (decisaoEditor() === 'REJEITAR') {
+        <p>A candidata volta para Rascunho, com o conteúdo preservado para correção.</p>
+        <label>Justificativa<textarea rows="3" maxlength="2000" [readOnly]="executandoAcao()" [ngModel]="justificativaDecisao()" (ngModelChange)="justificativaDecisao.set($event)" required></textarea></label>
+      }
+      @if (!decisaoEditor() && acao.nome !== 'cancelar' && acao.recurso.precondicoes.length) {
+        <p class="form-note">
+          Será enviado {{ acao.recurso.precondicoes.join(' e ') }} a partir da revisão carregada.
+        </p>
+      }
+      @if (erroAcao()) {
+        <p class="auth-error" role="alert">{{ erroAcao() }}</p>
+      }
+      <footer>
+        <button class="button quiet" (click)="fecharModalAcao()">Cancelar</button
+        ><button class="button primary" [class.editor-danger-fill]="acao.nome === 'cancelar' || decisaoEditor() === 'REJEITAR'" [disabled]="executandoAcao() || (decisaoEditor() === 'REJEITAR' && !justificativaDecisao().trim())" (click)="confirmarAcao()">
+          {{
+            executandoAcao()
+              ? 'Enviando…'
+              : decisaoEditor() === 'REJEITAR' ? 'Rejeitar' : decisaoEditor() === 'APROVAR' ? 'Aprovar' : acao.nome === 'cancelar' ? 'Cancelar US' : 'Executar ação'
+          }}
+        </button>
+      </footer>
+    </section>
+  </div>
+}
+<ng-template #camposNovaSenha>
+  <label
+    >Senha<input
+      [type]="senhaVisivel() ? 'text' : 'password'"
+      autocomplete="new-password"
+      name="novaSenha"
+      [ngModel]="novaSenha()"
+      (ngModelChange)="novaSenha.set($event)"
+      required
+  /></label>
+  <ul class="password-checklist">
+    @for (requisito of requisitosSenha(); track requisito.nome) {
+      <li [class.valid]="requisito.valido">
+        {{ requisito.valido ? '✓' : '○' }} {{ requisito.nome }}
+      </li>
+    }
+  </ul>
+  <label
+    >Confirmar senha<input
+      [type]="senhaVisivel() ? 'text' : 'password'"
+      autocomplete="new-password"
+      name="confirmacaoSenha"
+      [ngModel]="confirmacaoSenha()"
+      (ngModelChange)="confirmacaoSenha.set($event)"
+      required
+  /></label>
+  <button type="button" class="text-action" (click)="senhaVisivel.set(!senhaVisivel())">
+    {{ senhaVisivel() ? 'Ocultar senhas' : 'Mostrar senhas' }}
+  </button>
+  @if (confirmacaoSenha() && novaSenha() !== confirmacaoSenha()) {
+    <p class="auth-error" role="alert">As senhas precisam coincidir.</p>
+  }
+</ng-template>
+
+@if (cadastroAberto()) {
+  <div class="modal-backdrop">
+    <section
+      class="modal compact-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="signup-title"
+    >
+      <header><h2 id="signup-title">Criar conta</h2></header>
+      @if (cadastroErro()) {
+        <p class="auth-error" role="alert">{{ cadastroErro() }}</p>
+      }
+      <form #cadastroForm="ngForm" (ngSubmit)="cadastroForm.valid && cadastrar()">
+        <label
+          >Nome completo<input
+            name="nome"
+            autocomplete="name"
+            maxlength="120"
+            [ngModel]="cadastroNome()"
+            (ngModelChange)="cadastroNome.set($event)"
+            required
+        /></label>
+        <label
+          >E-mail<input
+            type="email"
+            email
+            name="email"
+            autocomplete="email"
+            maxlength="254"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            required
+        /></label>
+        <ng-container [ngTemplateOutlet]="camposNovaSenha" />
+        <footer>
+          <button
+            type="button"
+            class="button quiet"
+            [disabled]="cadastrando()"
+            (click)="cadastroAberto.set(false)"
+          >
+            Voltar para entrar
+          </button>
+          <button
+            class="button primary"
+            [disabled]="!cadastroForm.valid || !senhaNovaValida() || cadastrando()"
+          >
+            {{ cadastrando() ? 'Criando…' : 'Criar conta' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}
+@if (recuperacaoAberta()) {
+  <div class="modal-backdrop" (click)="recuperacaoAberta.set(false)">
+    <section
+      class="modal compact-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="recovery-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <div>
+          <h2 id="recovery-title">
+            {{ recuperacaoEtapa() === 'email' ? 'Recuperar acesso' : 'Criar nova senha' }}
+          </h2>
+          <p>
+            {{
+              recuperacaoEtapa() === 'email'
+                ? 'Enviaremos um código para o e-mail da sua conta.'
+                : 'Informe o código recebido e escolha uma nova senha.'
+            }}
+          </p>
+        </div>
+        <button class="icon-button" aria-label="Fechar" (click)="recuperacaoAberta.set(false)">
+          ×
+        </button>
+      </header>
+      @if (recuperacaoErro()) {
+        <p class="auth-error" role="alert">{{ recuperacaoErro() }}</p>
+      }
+      @if (recuperacaoMensagem()) {
+        <p class="auth-info" role="status">{{ recuperacaoMensagem() }}</p>
+      }
+      @if (recuperacaoEtapa() === 'email') {
+        <form #emailForm="ngForm" (ngSubmit)="emailForm.valid && enviarCodigoRecuperacao()">
+          <label
+            >E-mail<input
+              type="email"
+              email
+              name="recoveryEmail"
+              [ngModel]="recuperacaoEmail()"
+              (ngModelChange)="recuperacaoEmail.set($event)"
+              required
+          /></label>
+          <footer>
+            <button type="button" class="button quiet" (click)="recuperacaoAberta.set(false)">
+              Voltar para entrar</button
+            ><button class="button primary" [disabled]="!emailForm.valid || recuperacaoEnviando()">
+              {{ recuperacaoEnviando() ? 'Enviando…' : 'Enviar código' }}
+            </button>
+          </footer>
+        </form>
+      } @else {
+        <form #redefinicaoForm="ngForm" (ngSubmit)="redefinicaoForm.valid && concluirRecuperacao()">
+          <label
+            >Código de seis dígitos<input
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              name="recoveryCode"
+              pattern="[0-9]{6}"
+              maxlength="6"
+              [ngModel]="recuperacaoCodigo()"
+              (ngModelChange)="recuperacaoCodigo.set($event)"
+              required
+          /></label>
+          <ng-container [ngTemplateOutlet]="camposNovaSenha" />
+          <footer>
+            <button
+              type="button"
+              class="button quiet"
+              [disabled]="recuperacaoEnviando()"
+              (click)="
+                recuperacaoEtapa.set('email'); recuperacaoErro.set(''); recuperacaoMensagem.set('')
+              "
+            >
+              Usar outro e-mail</button
+            ><button
+              type="button"
+              class="button quiet"
+              [disabled]="recuperacaoEnviando()"
+              (click)="enviarCodigoRecuperacao()"
+            >
+              Reenviar código
+            </button>
+          </footer>
+          <footer>
+            <button type="button" class="button quiet" (click)="recuperacaoAberta.set(false)">
+              Voltar para entrar</button
+            ><button
+              class="button primary"
+              [disabled]="recuperacaoEnviando() || !redefinicaoForm.valid || !senhaNovaValida()"
+            >
+              Redefinir senha
+            </button>
+          </footer>
+        </form>
+      }
+    </section>
+  </div>
 }

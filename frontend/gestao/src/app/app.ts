@@ -325,8 +325,6 @@ export class App {
   protected readonly titulo = signal('');
   protected readonly menuEpico = signal<string | null>(null);
   protected readonly epicoSelecionado = signal('');
-  protected readonly conteudo = signal('');
-  protected readonly criterios = signal('');
   protected readonly salvando = signal(false);
   protected readonly pagina = signal<'visao' | 'requisitos' | 'mapa' | 'editor'>('visao');
   protected readonly busca = signal('');
@@ -1714,24 +1712,22 @@ export class App {
   }
 
   protected criar(): void {
+    if (!this.podeCriar()) return;
     this.salvando.set(true);
     this.erro.set(null);
-    const criteriosAceite = this.criterios().split('\n').map((linha) => linha.trim()).filter(Boolean);
     const corpo = this.templateCompleto()
-      ? `${this.conteudo().trim()}\n\n## Especificação\n\n## Campos e comportamento\n\n## Regras de negócio\n\n## Critérios de aceite\n`
-      : this.conteudo().trim();
+      ? '## Especificação\n\n## Campos e comportamento\n\n## Regras de negócio\n\n## Critérios de aceite\n'
+      : '';
     this.api.criarRequisito(this.projetoId(), {
       documentoId: DOCUMENTO_DEMO,
       ...(this.epicoSelecionado() ? { epicoId: this.epicoSelecionado() } : {}),
       titulo: this.titulo().trim(),
       conteudo: corpo,
-      criteriosAceite,
+      criteriosAceite: [],
     }).subscribe({
       next: requisito => {
         this.titulo.set('');
         this.epicoSelecionado.set('');
-        this.conteudo.set('');
-        this.criterios.set('');
         this.novoAberto.set(false);
         this.salvando.set(false);
         this.registrarPagina('requisitos');
@@ -1899,7 +1895,7 @@ export class App {
   }
 
   protected podeCriar(): boolean {
-    return this.titulo().trim().length > 0 && this.conteudo().trim().length > 0 && !this.salvando();
+    return this.titulo().trim().length > 0 && !this.salvando();
   }
 
   private descrever(falha: HttpErrorResponse): string {

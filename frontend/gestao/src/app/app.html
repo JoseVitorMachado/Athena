@@ -1249,25 +1249,6 @@
               ></label
             >
           </fieldset>
-          <label
-            >Descrição inicial<textarea
-              name="conteudo"
-              rows="3"
-              [ngModel]="conteudo()"
-              (ngModelChange)="conteudo.set($event)"
-              placeholder="Como usuário, quero..."
-              required
-            ></textarea></label
-          ><label
-            >Critérios de aceite <small>(um por linha)</small
-            ><textarea
-              name="criterios"
-              rows="3"
-              [ngModel]="criterios()"
-              (ngModelChange)="criterios.set($event)"
-              placeholder="Dado que... Quando... Então..."
-            ></textarea>
-          </label>
           <footer>
             <button type="button" class="button quiet" (click)="novoAberto.set(false)">
               Cancelar</button

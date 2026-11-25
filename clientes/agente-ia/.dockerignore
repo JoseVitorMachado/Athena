@@ -1,0 +1,12 @@
+*
+!Dockerfile
+!requirements.txt
+!perguntas.json
+!popular_demo.py
+!fluxo_requisito.py
+!dados
+!dados/**
+!athena_ia
+!athena_ia/**
+**/__pycache__
+**/*.pyc

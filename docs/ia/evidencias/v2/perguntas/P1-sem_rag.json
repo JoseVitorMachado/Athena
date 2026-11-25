@@ -1,0 +1,64 @@
+{
+  "pergunta": "Qual funcionalidade a versão publicada do REQ-1 descreve e o que deve ser preservado?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "REQ-1 não possui especificações ou detalhes suficientes para fornecer uma descrição de funcionalidade ou preservação de requisitos.",
+    "justificativa": "Não há informações sobre o REQ-1 no conjunto de evidências fornecido.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "09784ec4-e90b-4882-8426-617031cea3e2",
+    "iniciado_em": "2026-11-25T04:05:38.247477+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 7716.79,
+    "total_ms": 7724.35,
+    "tokens_entrada": 446,
+    "tokens_saida": 71,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 446,
+        "tokens_saida": 71,
+        "carga_modelo_ms": 0.71,
+        "estado": "ok",
+        "duracao_ms": 7691.19
+      }
+    ],
+    "custo_referencia_usd": 0.000292,
+    "custo_tokens_observados_usd": 0.000292,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P1",
+  "esperado": "Exportar o documento de requisitos preservando os requisitos. Não atribuir PDF/Markdown da candidata à publicada.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-1"
+    ],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": 0.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

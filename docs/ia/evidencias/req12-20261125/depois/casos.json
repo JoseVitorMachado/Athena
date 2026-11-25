@@ -1,0 +1,56 @@
+{
+  "controle-sem-mudanca": {
+    "candidata": {
+      "titulo": "Limitar quantidade de requisitos por exportação",
+      "conteudo": "O sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.",
+      "criteriosAceite": [
+        "Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos.",
+        "Bloquear a exportação quando houver 101 ou mais requisitos selecionados.",
+        "Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação.",
+        "Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas."
+      ]
+    },
+    "esperado": "Zero sugestões e zero chamadas LLM."
+  },
+  "limite-1000": {
+    "candidata": {
+      "titulo": "Limitar quantidade de requisitos por exportação",
+      "conteudo": "O sistema deve permitir exportar documentos contendo de 1 a 1000 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.",
+      "criteriosAceite": [
+        "Permitir a exportação de uma seleção contendo entre 1 e 1000 requisitos.",
+        "Bloquear a exportação quando houver 1001 ou mais requisitos selecionados.",
+        "Ao bloquear por excesso de requisitos, informar que o limite é de 1000 requisitos por exportação.",
+        "Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas."
+      ]
+    },
+    "positivos": [
+      "REQ-1"
+    ],
+    "negativos": [
+      "REQ-9",
+      "REQ-10"
+    ]
+  },
+  "conflito-descarte": {
+    "candidata": {
+      "titulo": "Limitar quantidade de requisitos por exportação",
+      "conteudo": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e informar sucesso ao usuário sem avisar sobre as omissões. A contagem de relações do arquivo pode ser menor que a contagem de relações da seleção original.",
+      "criteriosAceite": [
+        "Até 100 requisitos selecionados, incluir todos no arquivo.",
+        "Com 101 ou mais requisitos selecionados, incluir somente os primeiros 100 e descartar os demais.",
+        "Excluir do arquivo as relações associadas aos requisitos descartados.",
+        "Informar sucesso sem avisar sobre omissões e sem bloquear a exportação.",
+        "Permitir que a contagem de relações exportadas seja menor que a contagem na seleção original."
+      ]
+    },
+    "positivos": [
+      "REQ-1",
+      "REQ-4"
+    ],
+    "negativos": [
+      "REQ-9",
+      "REQ-10"
+    ]
+  },
+  "nota": "Expectativas autoradas para o teste, não enviadas ao LLM. Ausência de um alvo no contexto é falha/limitação de cobertura, não rejeição correta."
+}

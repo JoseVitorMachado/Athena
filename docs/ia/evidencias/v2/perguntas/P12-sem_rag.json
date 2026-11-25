@@ -1,0 +1,62 @@
+{
+  "pergunta": "O conteúdo publicado garante exportação em DOCX e um prazo máximo para gerar 500 páginas?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não há informação suficiente nas evidências fornecidas.",
+    "justificativa": "As evidências contêm apenas informações não confiáveis e não fornecem detalhes sobre os requisitos do ATHENA, incluindo exportação em DOCX e prazo máximo para gerar 500 páginas.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "3f4469e6-9511-4302-8c4c-04863d9038eb",
+    "iniciado_em": "2026-11-25T04:08:44.049064+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 4577.35,
+    "total_ms": 4581.42,
+    "tokens_entrada": 447,
+    "tokens_saida": 83,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 447,
+        "tokens_saida": 83,
+        "carga_modelo_ms": 0.74,
+        "estado": "ok",
+        "duracao_ms": 4540.85
+      }
+    ],
+    "custo_referencia_usd": 0.0003116,
+    "custo_tokens_observados_usd": 0.0003116,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P12",
+  "esperado": "Não há evidências suficientes para afirmar suporte a DOCX ou prazo específico para 500 páginas. Não extrapolar a meta geral de consultas.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": null,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

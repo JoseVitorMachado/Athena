@@ -1,0 +1,64 @@
+{
+  "pergunta": "Qual percentil e limite de latência o REQ-3 define e com quantos usuários simultâneos deve ser medido?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não há informação suficiente nas evidências fornecidas para responder a essa pergunta.",
+    "justificativa": "As evidências fornecidas não contêm informações sobre o REQ-3, seus percentis, limites de latência ou quantos usuários simultâneos devem ser medidos.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "9531e015-755d-4f75-b2ee-4c718bf544de",
+    "iniciado_em": "2026-11-25T04:06:14.388343+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 4369.96,
+    "total_ms": 4373.83,
+    "tokens_entrada": 449,
+    "tokens_saida": 81,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 449,
+        "tokens_saida": 81,
+        "carga_modelo_ms": 0.69,
+        "estado": "ok",
+        "duracao_ms": 4339.16
+      }
+    ],
+    "custo_referencia_usd": 0.0003092,
+    "custo_tokens_observados_usd": 0.0003092,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P3",
+  "esperado": "p95 de até 1 segundo com 20 usuários simultâneos. É uma meta, não desempenho já comprovado.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-3"
+    ],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": 0.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "versaoId": "e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+  "requisitoId": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+  "numero": 2,
+  "estadoVersao": "RASCUNHO",
+  "titulo": "Limitar quantidade de requisitos por exportação",
+  "conteudo": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e informar sucesso ao usuário sem avisar sobre as omissões. A contagem de relações do arquivo pode ser menor que a contagem de relações da seleção original.",
+  "criteriosAceite": [
+    "Até 100 requisitos selecionados, incluir todos no arquivo.",
+    "Com 101 ou mais requisitos selecionados, incluir somente os primeiros 100 e descartar os demais.",
+    "Excluir do arquivo as relações associadas aos requisitos descartados.",
+    "Informar sucesso sem avisar sobre omissões e sem bloquear a exportação.",
+    "Permitir que a contagem de relações exportadas seja menor que a contagem na seleção original."
+  ],
+  "hashConteudo": "d5375cd4c9daf927f13bddf991e7d7e2814b544bc24bcda9ab39db295bbb4546",
+  "atualizadoEm": "2026-11-25T12:00:23.447Z"
+}

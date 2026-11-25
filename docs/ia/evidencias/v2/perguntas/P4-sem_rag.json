@@ -1,0 +1,64 @@
+{
+  "pergunta": "Quais dados de cada relação oficial devem ser preservados na exportação de documentos?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não há informação suficiente nas evidências fornecidas para responder a essa pergunta.",
+    "justificativa": "As evidências fornecidas não contêm informações sobre quais dados de cada relação oficial devem ser preservados na exportação de documentos.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "3e2aea0d-54fa-4c19-8de0-e33ea9c482b5",
+    "iniciado_em": "2026-11-25T04:06:44.726089+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 4351.11,
+    "total_ms": 4355.41,
+    "tokens_entrada": 440,
+    "tokens_saida": 71,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 440,
+        "tokens_saida": 71,
+        "carga_modelo_ms": 0.99,
+        "estado": "ok",
+        "duracao_ms": 4311.83
+      }
+    ],
+    "custo_referencia_usd": 0.0002896,
+    "custo_tokens_observados_usd": 0.0002896,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P4",
+  "esperado": "Código de origem, código de destino e tipo. A contagem de relações deve coincidir com a seleção original.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-4"
+    ],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": 0.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

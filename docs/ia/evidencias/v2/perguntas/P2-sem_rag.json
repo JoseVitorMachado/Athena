@@ -1,0 +1,64 @@
+{
+  "pergunta": "Quais formatos de arquivo são explicitamente garantidos pela versão publicada do REQ-1?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não há informação suficiente nas evidências fornecidas para listar quais formatos de arquivo são garantidos pelo REQ-1.",
+    "justificativa": "As evidências contidas não fornecem detalhes sobre os requisitos ou especificações de formato de arquivo.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "c589810c-a0dc-44f1-a6d7-35fcdf7a38d1",
+    "iniciado_em": "2026-11-25T04:06:10.409789+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 3973.8,
+    "total_ms": 3977.76,
+    "tokens_entrada": 442,
+    "tokens_saida": 73,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 442,
+        "tokens_saida": 73,
+        "carga_modelo_ms": 0.7,
+        "estado": "ok",
+        "duracao_ms": 3937.55
+      }
+    ],
+    "custo_referencia_usd": 0.0002936,
+    "custo_tokens_observados_usd": 0.0002936,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P2",
+  "esperado": "O REQ-1 publicado não especifica formatos. PDF e Markdown constam apenas da candidata.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-1"
+    ],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": 0.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

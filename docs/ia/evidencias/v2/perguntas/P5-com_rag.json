@@ -1,0 +1,119 @@
+{
+  "pergunta": "Um usuário removido do projeto pode baixar um arquivo exportado antes de sua remoção?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não",
+    "justificativa": "De acordo com o requisito [REQ-5] (MCP_PUBLICADO) [IA-V2-ACESSO], somente membros ativos do projeto podem solicitar a exportação de seus requisitos. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado.",
+    "fontes_ids": [
+      "E1"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8928,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8534,
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-10",
+      "requisito_id": "cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "versao_id": "fa467316-ad48-444a-9c95-ae54fd140f14",
+      "texto": "REQ-10 [IA-V2-TEMA] Escolher tema da interface\nO usuário pode escolher tema claro ou escuro para a interface. A preferência é individual e não altera o conteúdo dos requisitos nem a aparência dos arquivos exportados. Critérios de aceite: A preferência do usuário não altera a preferência de outros membros. Trocar o tema não modifica arquivos exportados.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8371,
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-7",
+      "requisito_id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "versao_id": "62e3bf5a-0ec8-4127-8178-b6428e4d5c33",
+      "texto": "REQ-7 [IA-V2-PREVIA] Prévia textual da exportação\nAntes da exportação, apresentar uma prévia textual dos requisitos selecionados para conferência. A prévia utiliza o conteúdo das versões e é independente da geração do arquivo e do formato escolhido. Critérios de aceite: A prévia exibe o texto das versões selecionadas. Trocar o formato do arquivo não modifica a prévia textual.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8351,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-9",
+      "requisito_id": "292cc70b-8eaf-4137-9997-3c405f494255",
+      "versao_id": "7ac08e51-abec-45db-991f-53975e93fcc4",
+      "texto": "REQ-9 [IA-V2-RECUPERACAO] Recuperar senha da conta\nA recuperação de senha utiliza um token de uso único válido por 15 minutos. Depois de consumido ou expirado, o token deve ser rejeitado. Esse fluxo não lê documentos nem participa da exportação de requisitos. Critérios de aceite: O token expira em 15 minutos. Um token consumido não pode ser reutilizado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/292cc70b-8eaf-4137-9997-3c405f494255",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8225,
+      "id": "E5"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "a1a49fb5-7bdc-4b24-b4bc-0f3193235c57",
+    "iniciado_em": "2026-11-25T04:06:52.568748+00:00",
+    "api_ms": 14.88,
+    "mcp_ms": 25.58,
+    "llm_ms": 11648.87,
+    "total_ms": 11694.31,
+    "tokens_entrada": 1011,
+    "tokens_saida": 91,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 1011,
+        "tokens_saida": 91,
+        "carga_modelo_ms": 0.82,
+        "estado": "ok",
+        "duracao_ms": 11618.53
+      }
+    ],
+    "custo_referencia_usd": 0.00055,
+    "custo_tokens_observados_usd": 0.00055,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P5",
+  "esperado": "Não. O vínculo ativo deve ser validado na solicitação e no download, inclusive para arquivos já gerados.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-5"
+    ],
+    "fontes_esperadas_recuperadas": [
+      "REQ-5"
+    ],
+    "cobertura_recuperacao": 1.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

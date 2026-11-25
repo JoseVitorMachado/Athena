@@ -1,0 +1,16 @@
+{
+  "versaoId": "e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+  "requisitoId": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+  "numero": 2,
+  "estadoVersao": "RASCUNHO",
+  "titulo": "Limitar quantidade de requisitos por exportação",
+  "conteudo": "O sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.",
+  "criteriosAceite": [
+    "Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos.",
+    "Bloquear a exportação quando houver 101 ou mais requisitos selecionados.",
+    "Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação.",
+    "Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas."
+  ],
+  "hashConteudo": "882c6453c4b37edb8fdb88f62787076b7b2b7c477aba8a2c048479fea8999cdd",
+  "atualizadoEm": "2026-11-25T12:06:31.030Z"
+}

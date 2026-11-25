@@ -1,0 +1,120 @@
+{
+  "pergunta": "Quais dados de cada relação oficial devem ser preservados na exportação de documentos?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Os códigos de origem e destino e o tipo da cada relação devem ser preservados na exportação de documentos.",
+    "justificativa": "Esta informação está diretamente relacionada aos requisitos [REQ-4] e [REQ-1]. O requisito [REQ-4] especifica que a exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. O requisito [REQ-1] afirma que o sistema deve permitir exportar o documento de requisitos, preservando requisitos.",
+    "fontes_ids": [
+      "E1",
+      "E2"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-4",
+      "requisito_id": "e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "versao_id": "019025bb-5166-4d0d-beae-196f51aea07c",
+      "texto": "REQ-4 [IA-V2-TRACO] Preservar rastreabilidade na exportação\nA exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. A regra vale para qualquer formato de arquivo disponível. Critérios de aceite: Os códigos de origem e destino e o tipo de cada relação são preservados. A contagem de relações exportadas deve coincidir com a seleção de origem.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.911,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8651,
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8541,
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8317,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-8",
+      "requisito_id": "84e4bced-d1e1-44e7-bbc2-8b49a8babe26",
+      "versao_id": "7b2ca348-b0a7-4ec3-b456-4776fb7abb7a",
+      "texto": "REQ-8 [IA-V2-NOTIFICACAO] Notificar conclusão da exportação\nO solicitante deve receber uma notificação interna quando a exportação terminar com sucesso ou falha. A mensagem deve identificar o documento e o resultado. A notificação de sucesso só é emitida depois da geração completa do arquivo. Critérios de aceite: Não emitir sucesso enquanto o arquivo estiver incompleto. Uma falha gera notificação de falha, sem link para arquivo inexistente.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/84e4bced-d1e1-44e7-bbc2-8b49a8babe26",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8312,
+      "id": "E5"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "ef69cbd7-2b13-445d-868a-74d87028a81a",
+    "iniciado_em": "2026-11-25T04:06:32.072733+00:00",
+    "api_ms": 13.52,
+    "mcp_ms": 24.72,
+    "llm_ms": 12609.47,
+    "total_ms": 12652.59,
+    "tokens_entrada": 979,
+    "tokens_saida": 157,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 979,
+        "tokens_saida": 157,
+        "carga_modelo_ms": 0.75,
+        "estado": "ok",
+        "duracao_ms": 12571.6
+      }
+    ],
+    "custo_referencia_usd": 0.0006428,
+    "custo_tokens_observados_usd": 0.0006428,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P4",
+  "esperado": "Código de origem, código de destino e tipo. A contagem de relações deve coincidir com a seleção original.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-4"
+    ],
+    "fontes_esperadas_recuperadas": [
+      "REQ-4"
+    ],
+    "cobertura_recuperacao": 1.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

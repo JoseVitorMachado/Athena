@@ -1,0 +1,126 @@
+{
+  "pergunta": "Quais outros requisitos podem precisar de revisão por causa desta alteração? Justifique com evidências.",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Nenhuma mudança nos campos comparados; nenhuma sugestão de revisão.",
+    "justificativa": "Título, conteúdo e critérios de aceite são iguais. IDs e datas de versões não indicam mudança funcional.",
+    "fontes_ids": [
+      "E1",
+      "E2"
+    ],
+    "sugestoes": [],
+    "analises": [],
+    "escopo": "Comparação determinística; LLM dispensado por ausência de mudança."
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-12",
+      "requisito_id": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "versao_id": "62a088ba-8fa8-45b9-a3a6-a083d168727e",
+      "texto": "{\"titulo\": \"Limitar quantidade de requisitos por exportação\", \"conteudo\": \"O sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.\", \"criteriosAceite\": [\"Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos.\", \"Bloquear a exportação quando houver 101 ou mais requisitos selecionados.\", \"Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação.\", \"Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/versoes/62a088ba-8fa8-45b9-a3a6-a083d168727e",
+      "origem": "API_PUBLICADA",
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-12",
+      "requisito_id": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "versao_id": "e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+      "texto": "{\"titulo\": \"Limitar quantidade de requisitos por exportação\", \"conteudo\": \"O sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.\", \"criteriosAceite\": [\"Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos.\", \"Bloquear a exportação quando houver 101 ou mais requisitos selecionados.\", \"Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação.\", \"Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas.\"], \"estadoVersao\": \"RASCUNHO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/versoes/e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+      "origem": "API_CANDIDATA",
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "{\"titulo\": \"Exportar documento de requisitos\", \"conteudo\": \"O sistema deve permitir exportar o documento de requisitos.\", \"criteriosAceite\": [\"Exportação preserva requisitos.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes/33333333-3333-4333-8333-333333333331",
+      "origem": "API_RELACIONADO",
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8862,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8767,
+      "id": "E5"
+    },
+    {
+      "codigo": "REQ-11",
+      "requisito_id": "57b5e11f-9b81-413a-a104-c94e27282f96",
+      "versao_id": "e1bf8f2b-7203-49d5-af53-36846e8240b6",
+      "texto": "REQ-11 [IA-V2-FILTRO] Filtrar lista de requisitos\nA lista de requisitos da Gestão pode ser filtrada por código e situação. Os filtros alteram somente os itens exibidos na lista; não modificam o conteúdo nem o estado dos requisitos. Critérios de aceite: Filtrar não altera requisitos. Limpar os filtros restaura a listagem autorizada.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/57b5e11f-9b81-413a-a104-c94e27282f96",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.871,
+      "id": "E6"
+    }
+  ],
+  "contexto_impacto": {
+    "requisito_analisado": "REQ-12",
+    "relacoes": [
+      {
+        "relacaoId": "aa301179-56ce-4bdb-bb61-091d309ffd7a",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+        "tipo": "RELACIONADO_A",
+        "justificativa": "O REQ-12 define o limite de 1 a 100 requisitos por exportação, condicionando a geração do documento prevista no REQ-1. Alterações nesse limite podem exigir revisão das validações e dos testes da exportação.",
+        "atualizadoEm": "2026-11-25T11:26:55.018415Z"
+      }
+    ],
+    "mudancas": [],
+    "situacao_mapa": "ATUALIZADO",
+    "mapa_atualizado_em": "2026-11-25T11:26:55.018415Z",
+    "cobertura_limitada": false
+  },
+  "metricas": {
+    "operacao_id": "40a01fee-099a-45df-94dc-a27836cd86b8",
+    "iniciado_em": "2026-11-25T12:06:31.040705+00:00",
+    "api_ms": 177.5,
+    "mcp_ms": 66.74,
+    "llm_ms": 0,
+    "total_ms": 250.95,
+    "tokens_entrada": 0,
+    "tokens_saida": 0,
+    "consumo_completo": true,
+    "tentativas": [],
+    "custo_referencia_usd": 0.0,
+    "custo_tokens_observados_usd": 0.0,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "cenario_id": "controle-sem-mudanca",
+  "avaliacao_humana": "PENDENTE"
+}

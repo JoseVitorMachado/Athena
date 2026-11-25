@@ -1,0 +1,12 @@
+{
+  "antes": {
+    "athena_ia/impacto.py": "18c4855ba58fd95a3f9ed2d7fc7831f3a4659e2ecaf9128136812fc170570e09",
+    "athena_ia/llm.py": "bfdbe82991e2a59829d988f7ce0806894a8aa2216f5de290302142442a503541",
+    "tests/test_refinamentos.py": "8d5c865c63a27e535fd3fc2c047ff7be06543c19c6e011b1bf8be3a62dac0340"
+  },
+  "depois": {
+    "athena_ia/impacto.py": "b9e4a52c98ba76541f7e8e595469b8d4c065c5458b949677d137e97e1296c3e6",
+    "athena_ia/llm.py": "3e59057ad6e56d45fa6212c07de172410b36034074bfe67797655163bc1a774e",
+    "tests/test_refinamentos.py": "fe38799e40a0905668d0dc07322a0e15a7ac88fcfcc5f10d6b25d0723b78aac1"
+  }
+}

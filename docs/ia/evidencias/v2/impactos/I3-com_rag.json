@@ -1,0 +1,135 @@
+{
+  "pergunta": "Quais requisitos podem precisar de revisão por esta alteração?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Nenhuma mudança nos campos comparados; nenhuma sugestão de revisão.",
+    "justificativa": "Título, conteúdo e critérios de aceite são iguais. IDs e datas de versões não indicam mudança funcional.",
+    "fontes_ids": [
+      "E1",
+      "E2"
+    ],
+    "sugestoes": [],
+    "analises": [],
+    "escopo": "Comparação determinística; LLM dispensado por ausência de mudança."
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-11",
+      "requisito_id": "57b5e11f-9b81-413a-a104-c94e27282f96",
+      "versao_id": "e1bf8f2b-7203-49d5-af53-36846e8240b6",
+      "texto": "{\"titulo\": \"[IA-V2-FILTRO] Filtrar lista de requisitos\", \"conteudo\": \"A lista de requisitos da Gestão pode ser filtrada por código e situação. Os filtros alteram somente os itens exibidos na lista; não modificam o conteúdo nem o estado dos requisitos.\", \"criteriosAceite\": [\"Filtrar não altera requisitos.\", \"Limpar os filtros restaura a listagem autorizada.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/57b5e11f-9b81-413a-a104-c94e27282f96/versoes/e1bf8f2b-7203-49d5-af53-36846e8240b6",
+      "origem": "API_PUBLICADA",
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-11",
+      "requisito_id": "57b5e11f-9b81-413a-a104-c94e27282f96",
+      "versao_id": "feea47c8-43f1-4240-816f-0f8a777d8419",
+      "texto": "{\"titulo\": \"[IA-V2-FILTRO] Filtrar lista de requisitos\", \"conteudo\": \"A lista de requisitos da Gestão pode ser filtrada por código e situação. Os filtros alteram somente os itens exibidos na lista; não modificam o conteúdo nem o estado dos requisitos.\", \"criteriosAceite\": [\"Filtrar não altera requisitos.\", \"Limpar os filtros restaura a listagem autorizada.\"], \"estadoVersao\": \"RASCUNHO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/57b5e11f-9b81-413a-a104-c94e27282f96/versoes/feea47c8-43f1-4240-816f-0f8a777d8419",
+      "origem": "API_CANDIDATA",
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-10",
+      "requisito_id": "cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "versao_id": "fa467316-ad48-444a-9c95-ae54fd140f14",
+      "texto": "REQ-10 [IA-V2-TEMA] Escolher tema da interface\nO usuário pode escolher tema claro ou escuro para a interface. A preferência é individual e não altera o conteúdo dos requisitos nem a aparência dos arquivos exportados. Critérios de aceite: A preferência do usuário não altera a preferência de outros membros. Trocar o tema não modifica arquivos exportados.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8624,
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8596,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8581,
+      "id": "E5"
+    },
+    {
+      "codigo": "REQ-4",
+      "requisito_id": "e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "versao_id": "019025bb-5166-4d0d-beae-196f51aea07c",
+      "texto": "REQ-4 [IA-V2-TRACO] Preservar rastreabilidade na exportação\nA exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. A regra vale para qualquer formato de arquivo disponível. Critérios de aceite: Os códigos de origem e destino e o tipo de cada relação são preservados. A contagem de relações exportadas deve coincidir com a seleção de origem.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.854,
+      "id": "E6"
+    }
+  ],
+  "contexto_impacto": {
+    "requisito_analisado": "REQ-11",
+    "relacoes": [],
+    "mudancas": [],
+    "situacao_mapa": "ATUALIZADO",
+    "mapa_atualizado_em": "2026-11-25T03:45:39.207686Z",
+    "cobertura_limitada": false
+  },
+  "metricas": {
+    "operacao_id": "afddcba0-45b0-4d6f-9248-8b4d6b5d92a9",
+    "iniciado_em": "2026-11-25T04:14:13.049350+00:00",
+    "api_ms": 54.66,
+    "mcp_ms": 33.23,
+    "llm_ms": 0,
+    "total_ms": 90.62,
+    "tokens_entrada": 0,
+    "tokens_saida": 0,
+    "consumo_completo": true,
+    "tentativas": [],
+    "custo_referencia_usd": 0.0,
+    "custo_tokens_observados_usd": 0.0,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "cenario_id": "I3",
+  "esperado": {
+    "id": "I3",
+    "requisito": "FILTRO",
+    "descricao": "Candidata igual à publicada",
+    "positivos": [],
+    "plausiveis": [],
+    "negativos": [],
+    "esperado": "Nenhuma sugestão: campos de conteúdo iguais nas duas versões.",
+    "requisito_id": "57b5e11f-9b81-413a-a104-c94e27282f96"
+  },
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "positivos_sugeridos": [],
+    "positivos_nao_sugeridos": [],
+    "negativos_sugeridos": [],
+    "negativos_analisados": [],
+    "negativos_nao_avaliados": [],
+    "nota": "Confronto com cenários autorados; conclusões semânticas exigem revisão humana. Não contar alvos ausentes como rejeições corretas."
+  }
+}

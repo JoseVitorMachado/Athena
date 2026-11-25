@@ -1,0 +1,64 @@
+{
+  "pergunta": "Um usuário removido do projeto pode baixar um arquivo exportado antes de sua remoção?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não",
+    "justificativa": "Não há informações suficientes nas evidências fornecidas para determinar se um usuário removido do projeto pode baixar um arquivo exportado antes de sua remoção.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "fcd07de1-437b-4996-9b21-9f3e6b181394",
+    "iniciado_em": "2026-11-25T04:06:49.082101+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 3481.77,
+    "total_ms": 3486.02,
+    "tokens_entrada": 443,
+    "tokens_saida": 63,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 443,
+        "tokens_saida": 63,
+        "carga_modelo_ms": 0.74,
+        "estado": "ok",
+        "duracao_ms": 3444.54
+      }
+    ],
+    "custo_referencia_usd": 0.000278,
+    "custo_tokens_observados_usd": 0.000278,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P5",
+  "esperado": "Não. O vínculo ativo deve ser validado na solicitação e no download, inclusive para arquivos já gerados.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-5"
+    ],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": 0.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

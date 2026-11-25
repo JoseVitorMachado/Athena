@@ -1,0 +1,32 @@
+PASTA /resultados/impacto-req12-20261125-085839
+CENARIO controle-sem-mudanca
+RESULTADO {"cenario": "controle-sem-mudanca", "estado": "ok", "sugestoes": [], "analises": [], "total_ms": 245.98, "chamadas": 0}
+CENARIO limite-1000
+{"evento": "impacto_alvo_iniciado", "operacao_id": "b9991900-9757-4b96-b311-a927fcca232d", "requisito": "REQ-1"}
+{"evento": "llm_falhou", "operacao_id": "b9991900-9757-4b96-b311-a927fcca232d", "tentativa": 1, "erro": "TimeoutError"}
+{"evento": "llm_retry", "operacao_id": "b9991900-9757-4b96-b311-a927fcca232d", "proxima_tentativa": 2, "espera_s": 2.0}
+{"evento": "llm_falhou", "operacao_id": "b9991900-9757-4b96-b311-a927fcca232d", "tentativa": 1, "erro": "TimeoutError"}
+{"evento": "llm_retry", "operacao_id": "b9991900-9757-4b96-b311-a927fcca232d", "proxima_tentativa": 2, "espera_s": 2.0}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-1", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "b9991900-9757-4b96-b311-a927fcca232d", "requisito": "REQ-5"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-5", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "b9991900-9757-4b96-b311-a927fcca232d", "requisito": "REQ-6"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-6", "estado": "ok", "classificacao": "INDETERMINADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "b9991900-9757-4b96-b311-a927fcca232d", "requisito": "REQ-11"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-11", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+RESULTADO {"cenario": "limite-1000", "estado": "ok", "sugestoes": ["REQ-1", "REQ-5"], "analises": [{"requisito": "REQ-1", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-5", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-6", "classificacao": "INDETERMINADO", "estado": "ok"}, {"requisito": "REQ-11", "classificacao": "SEM_IMPACTO_IDENTIFICADO", "estado": "ok"}], "total_ms": 103801.71, "chamadas": 8}
+CENARIO conflito-descarte
+{"evento": "impacto_alvo_iniciado", "operacao_id": "2740ae7a-f49b-4a6e-a7a6-a045af87e587", "requisito": "REQ-1"}
+{"evento": "llm_falhou", "operacao_id": "2740ae7a-f49b-4a6e-a7a6-a045af87e587", "tentativa": 1, "erro": "ValueError"}
+{"evento": "llm_retry", "operacao_id": "2740ae7a-f49b-4a6e-a7a6-a045af87e587", "proxima_tentativa": 2, "espera_s": 2.0}
+{"evento": "llm_falhou", "operacao_id": "2740ae7a-f49b-4a6e-a7a6-a045af87e587", "tentativa": 1, "erro": "TimeoutError"}
+{"evento": "llm_retry", "operacao_id": "2740ae7a-f49b-4a6e-a7a6-a045af87e587", "proxima_tentativa": 2, "espera_s": 2.0}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-1", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "2740ae7a-f49b-4a6e-a7a6-a045af87e587", "requisito": "REQ-4"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-4", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "2740ae7a-f49b-4a6e-a7a6-a045af87e587", "requisito": "REQ-5"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-5", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "2740ae7a-f49b-4a6e-a7a6-a045af87e587", "requisito": "REQ-6"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-6", "estado": "ok", "classificacao": "REVISAR"}
+RESULTADO {"cenario": "conflito-descarte", "estado": "ok", "sugestoes": ["REQ-1", "REQ-6"], "analises": [{"requisito": "REQ-1", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-4", "classificacao": "SEM_IMPACTO_IDENTIFICADO", "estado": "ok"}, {"requisito": "REQ-5", "classificacao": "SEM_IMPACTO_IDENTIFICADO", "estado": "ok"}, {"requisito": "REQ-6", "classificacao": "REVISAR", "estado": "ok"}], "total_ms": 112974.4, "chamadas": 8}
+FINAL {"pasta": "/resultados/impacto-req12-20261125-085839", "publicada_preservada": true, "estado_candidata": "RASCUNHO", "candidata_id": "e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b"}

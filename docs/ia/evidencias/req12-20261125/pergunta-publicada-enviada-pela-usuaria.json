@@ -1,0 +1,106 @@
+{
+  "pergunta": "Qual é a quantidade mínima e máxima de requisitos permitida por exportação?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "A quantidade mínima de requisitos permitida por exportação é 1, conforme especificado em [REQ-1] (MCP_PUBLICADO). A quantidade máxima permitida é 100 requisitos, conforme especificado em [REQ-12] (MCP_PUBLICADO).",
+    "justificativa": "Os requisitos [REQ-1] e [REQ-12] fornecem diretamente os limites de quantidade de requisitos permitidos para exportação.",
+    "fontes_ids": [
+      "E1",
+      "E2"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-12",
+      "requisito_id": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "versao_id": "62a088ba-8fa8-45b9-a3a6-a083d168727e",
+      "texto": "REQ-12 Limitar quantidade de requisitos por exportação\nO sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos. Critérios de aceite: Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos. Bloquear a exportação quando houver 101 ou mais requisitos selecionados. Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação. Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.9034,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8697,
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8531,
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-7",
+      "requisito_id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "versao_id": "62e3bf5a-0ec8-4127-8178-b6428e4d5c33",
+      "texto": "REQ-7 [IA-V2-PREVIA] Prévia textual da exportação\nAntes da exportação, apresentar uma prévia textual dos requisitos selecionados para conferência. A prévia utiliza o conteúdo das versões e é independente da geração do arquivo e do formato escolhido. Critérios de aceite: A prévia exibe o texto das versões selecionadas. Trocar o formato do arquivo não modifica a prévia textual.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8276,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-10",
+      "requisito_id": "cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "versao_id": "fa467316-ad48-444a-9c95-ae54fd140f14",
+      "texto": "REQ-10 [IA-V2-TEMA] Escolher tema da interface\nO usuário pode escolher tema claro ou escuro para a interface. A preferência é individual e não altera o conteúdo dos requisitos nem a aparência dos arquivos exportados. Critérios de aceite: A preferência do usuário não altera a preferência de outros membros. Trocar o tema não modifica arquivos exportados.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8163,
+      "id": "E5"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "2d730a6b-438a-4674-b408-7d7f2e545b05",
+    "iniciado_em": "2026-11-25T11:54:43.725024+00:00",
+    "api_ms": 89.76,
+    "mcp_ms": 25.85,
+    "llm_ms": 18616.63,
+    "total_ms": 18743.95,
+    "tokens_entrada": 1018,
+    "tokens_saida": 125,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 1018,
+        "tokens_saida": 125,
+        "carga_modelo_ms": 3297.34,
+        "estado": "ok",
+        "duracao_ms": 18590.88
+      }
+    ],
+    "custo_referencia_usd": 0.0006072,
+    "custo_tokens_observados_usd": 0.0006072,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  }
+}

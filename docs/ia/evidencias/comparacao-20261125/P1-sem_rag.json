@@ -1,0 +1,55 @@
+{
+  "pergunta": "Qual funcionalidade de exportação está descrita na versão publicada do REQ-1?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Nenhuma funcionalidade de exportação está descrita na versão publicada do REQ-1.",
+    "justificativa": "Não há evidências ou contexto fornecidos para identificar funcionalidades de exportação.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "f88f33c8-560f-4233-abc8-01f17701152d",
+    "iniciado_em": "2026-11-25T03:14:08.143082+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 4031.59,
+    "total_ms": 4038.68,
+    "tokens_entrada": 587,
+    "tokens_saida": 64,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 587,
+        "tokens_saida": 64,
+        "carga_modelo_ms": 0.74,
+        "estado": "ok",
+        "duracao_ms": 4006.37
+      }
+    ],
+    "custo_referencia_usd": 0.0003372,
+    "custo_tokens_observados_usd": 0.0003372,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P1",
+  "esperado": "Permitir exportar o documento de requisitos preservando os requisitos. Citar REQ-1. Não atribuir formatos da candidata à versão publicada.",
+  "avaliacao_humana": "PENDENTE"
+}

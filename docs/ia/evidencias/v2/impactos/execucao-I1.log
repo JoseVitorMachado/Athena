@@ -1,0 +1,18 @@
+# Trecho do log da execução de I1; log completo preservado nos diagnósticos.
+{"evento": "cenario_impacto_iniciado", "cenario": "I1"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-2"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-2", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-3"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-3", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-4"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-4", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-5"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-5", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-6"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-6", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-7"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-7", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-8"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-8", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-9"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-9", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}

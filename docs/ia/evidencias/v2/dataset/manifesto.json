@@ -1,0 +1,64 @@
+{
+  "dataset": "athena-ia-demo-v2",
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "requisitos": {
+    "REQ-1": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "codigo": "REQ-1",
+      "versao_publicada_id": "33333333-3333-4333-8333-333333333331"
+    },
+    "REQ-2": {
+      "id": "11111111-1111-4111-8111-111111111112",
+      "codigo": "REQ-2",
+      "versao_publicada_id": null
+    },
+    "REQ-3": {
+      "id": "11111111-1111-4111-8111-111111111113",
+      "codigo": "REQ-3",
+      "versao_publicada_id": "33333333-3333-4333-8333-333333333333"
+    },
+    "TRACO": {
+      "id": "e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "codigo": "REQ-4",
+      "versao_publicada_id": "019025bb-5166-4d0d-beae-196f51aea07c"
+    },
+    "ACESSO": {
+      "id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "codigo": "REQ-5",
+      "versao_publicada_id": "7790336a-648c-4f7b-82e3-6e388eef011c"
+    },
+    "AUDITORIA": {
+      "id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "codigo": "REQ-6",
+      "versao_publicada_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb"
+    },
+    "PREVIA": {
+      "id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "codigo": "REQ-7",
+      "versao_publicada_id": "62e3bf5a-0ec8-4127-8178-b6428e4d5c33",
+      "versao_candidata_id": "e71738a7-09e3-4075-bc4d-2b9b563c0474"
+    },
+    "NOTIFICACAO": {
+      "id": "84e4bced-d1e1-44e7-bbc2-8b49a8babe26",
+      "codigo": "REQ-8",
+      "versao_publicada_id": "7b2ca348-b0a7-4ec3-b456-4776fb7abb7a"
+    },
+    "RECUPERACAO": {
+      "id": "292cc70b-8eaf-4137-9997-3c405f494255",
+      "codigo": "REQ-9",
+      "versao_publicada_id": "7ac08e51-abec-45db-991f-53975e93fcc4"
+    },
+    "TEMA": {
+      "id": "cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "codigo": "REQ-10",
+      "versao_publicada_id": "fa467316-ad48-444a-9c95-ae54fd140f14"
+    },
+    "FILTRO": {
+      "id": "57b5e11f-9b81-413a-a104-c94e27282f96",
+      "codigo": "REQ-11",
+      "versao_publicada_id": "e1bf8f2b-7203-49d5-af53-36846e8240b6",
+      "versao_candidata_id": "feea47c8-43f1-4240-816f-0f8a777d8419"
+    }
+  },
+  "indexacao_verificada": true
+}

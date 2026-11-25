@@ -1,0 +1,46 @@
+[
+  {
+    "id": "I1",
+    "requisito": "REQ-1",
+    "descricao": "Adicionar PDF e Markdown na candidata",
+    "positivos": [
+      "REQ-4",
+      "REQ-6"
+    ],
+    "plausiveis": [
+      "REQ-2",
+      "REQ-3",
+      "REQ-5",
+      "REQ-8"
+    ],
+    "negativos": [
+      "REQ-7",
+      "REQ-9",
+      "REQ-10",
+      "REQ-11"
+    ],
+    "requisito_id": "11111111-1111-4111-8111-111111111111"
+  },
+  {
+    "id": "I2",
+    "requisito": "PREVIA",
+    "descricao": "Mudar só o título, sem mudar comportamento",
+    "positivos": [],
+    "plausiveis": [],
+    "negativos": [
+      "REQ-1"
+    ],
+    "esperado": "Não inventar alteração de comportamento pela troca de Prévia por Pré-visualização.",
+    "requisito_id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081"
+  },
+  {
+    "id": "I3",
+    "requisito": "FILTRO",
+    "descricao": "Candidata igual à publicada",
+    "positivos": [],
+    "plausiveis": [],
+    "negativos": [],
+    "esperado": "Nenhuma sugestão: campos de conteúdo iguais nas duas versões.",
+    "requisito_id": "57b5e11f-9b81-413a-a104-c94e27282f96"
+  }
+]

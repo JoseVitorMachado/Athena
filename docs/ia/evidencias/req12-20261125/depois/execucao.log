@@ -1,0 +1,26 @@
+PASTA /resultados/impacto-req12-ajustado-20261125-090630
+CENARIO controle-sem-mudanca
+RESULTADO {"cenario": "controle-sem-mudanca", "estado": "ok", "sugestoes": [], "analises": [], "total_ms": 250.95, "chamadas": 0}
+CENARIO limite-1000
+{"evento": "impacto_alvo_iniciado", "operacao_id": "81b08cb4-6bd3-402a-b784-3595f59cb33b", "requisito": "REQ-1"}
+{"evento": "llm_falhou", "operacao_id": "81b08cb4-6bd3-402a-b784-3595f59cb33b", "tentativa": 1, "erro": "TimeoutError"}
+{"evento": "llm_retry", "operacao_id": "81b08cb4-6bd3-402a-b784-3595f59cb33b", "proxima_tentativa": 2, "espera_s": 2.0}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-1", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "81b08cb4-6bd3-402a-b784-3595f59cb33b", "requisito": "REQ-5"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-5", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "81b08cb4-6bd3-402a-b784-3595f59cb33b", "requisito": "REQ-6"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-6", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "81b08cb4-6bd3-402a-b784-3595f59cb33b", "requisito": "REQ-11"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-11", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+RESULTADO {"cenario": "limite-1000", "estado": "ok", "sugestoes": ["REQ-1", "REQ-5", "REQ-6"], "analises": [{"requisito": "REQ-1", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-5", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-6", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-11", "classificacao": "SEM_IMPACTO_IDENTIFICADO", "estado": "ok"}], "total_ms": 103739.8, "chamadas": 8}
+CENARIO conflito-descarte
+{"evento": "impacto_alvo_iniciado", "operacao_id": "7cfcf380-d13a-44c0-8fe6-2405b8f10edc", "requisito": "REQ-1"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-1", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "7cfcf380-d13a-44c0-8fe6-2405b8f10edc", "requisito": "REQ-4"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-4", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "7cfcf380-d13a-44c0-8fe6-2405b8f10edc", "requisito": "REQ-5"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-5", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "7cfcf380-d13a-44c0-8fe6-2405b8f10edc", "requisito": "REQ-6"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-6", "estado": "ok", "classificacao": "REVISAR"}
+RESULTADO {"cenario": "conflito-descarte", "estado": "ok", "sugestoes": ["REQ-1", "REQ-4", "REQ-5", "REQ-6"], "analises": [{"requisito": "REQ-1", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-4", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-5", "classificacao": "REVISAR", "estado": "ok"}, {"requisito": "REQ-6", "classificacao": "REVISAR", "estado": "ok"}], "total_ms": 105112.63, "chamadas": 8}
+FINAL {"pasta": "/resultados/impacto-req12-ajustado-20261125-090630", "publicada_preservada": true, "estado_candidata": "RASCUNHO", "candidata_id": "e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b"}

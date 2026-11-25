@@ -1,0 +1,55 @@
+{
+  "pergunta": "Qual limite de tempo e qual percentil o REQ-3 estabelece para consultas comuns?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "REQ-3 não estabelece limite de tempo ou percentil para consultas comuns.",
+    "justificativa": "Não há evidências fornecidas para apoiar o estabelecimento de limites de tempo ou percentil para consultas comuns.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "4a1fa8dc-aecd-42f4-845a-0413efac8821",
+    "iniciado_em": "2026-11-25T03:14:28.881117+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 4502.67,
+    "total_ms": 4506.22,
+    "tokens_entrada": 589,
+    "tokens_saida": 73,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 589,
+        "tokens_saida": 73,
+        "carga_modelo_ms": 1.21,
+        "estado": "ok",
+        "duracao_ms": 4474.53
+      }
+    ],
+    "custo_referencia_usd": 0.0003524,
+    "custo_tokens_observados_usd": 0.0003524,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P3",
+  "esperado": "p95 de até 1 segundo. Citar REQ-3; é meta, não resultado medido.",
+  "avaliacao_humana": "PENDENTE"
+}

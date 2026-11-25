@@ -1,0 +1,78 @@
+{
+  "pergunta": "O conteúdo publicado informa o tempo máximo para gerar um PDF de 500 páginas?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "REQ-3 não menciona tempo de geração de PDF.",
+    "justificativa": "REQ-3 fala sobre tempo de resposta para consultas comuns, não sobre geração de PDF.",
+    "fontes_ids": [
+      "E1"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "REQ-3 Consultas comuns respondem em até 1 segundo\nO p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Critérios de aceite: Medição registrada com 20 usuários simultâneos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8273,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.7868,
+      "id": "E2"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "c7ccb27c-3eb6-47e9-9d04-dfc08013c071",
+    "iniciado_em": "2026-11-25T03:14:54.395067+00:00",
+    "api_ms": 19.26,
+    "mcp_ms": 27.94,
+    "llm_ms": 5066.39,
+    "total_ms": 5118.34,
+    "tokens_entrada": 746,
+    "tokens_saida": 61,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 746,
+        "tokens_saida": 61,
+        "carga_modelo_ms": 0.76,
+        "estado": "ok",
+        "duracao_ms": 5028.76
+      }
+    ],
+    "custo_referencia_usd": 0.000396,
+    "custo_tokens_observados_usd": 0.000396,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P5",
+  "esperado": "Não há informação suficiente. A meta geral do REQ-3 não comprova prazo para esse cenário específico; não inventar tempo ou suporte publicado a PDF.",
+  "avaliacao_humana": "PENDENTE"
+}

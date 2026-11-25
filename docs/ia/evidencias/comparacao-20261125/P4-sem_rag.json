@@ -1,0 +1,55 @@
+{
+  "pergunta": "Quantos usuários simultâneos o REQ-3 exige no cenário de medição?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "REQ-3 não menciona quantos usuários simultâneos são necessários.",
+    "justificativa": "Não há dados fornecidos para determinar o número de usuários simultâneos exigidos pelo REQ-3.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "5e2d4877-6ba7-44db-9866-e702af56f9c8",
+    "iniciado_em": "2026-11-25T03:14:46.674194+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 3766.85,
+    "total_ms": 3770.6,
+    "tokens_entrada": 588,
+    "tokens_saida": 66,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 588,
+        "tokens_saida": 66,
+        "carga_modelo_ms": 7.59,
+        "estado": "ok",
+        "duracao_ms": 3740.64
+      }
+    ],
+    "custo_referencia_usd": 0.0003408,
+    "custo_tokens_observados_usd": 0.0003408,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P4",
+  "esperado": "20 usuários simultâneos. Citar REQ-3.",
+  "avaliacao_humana": "PENDENTE"
+}

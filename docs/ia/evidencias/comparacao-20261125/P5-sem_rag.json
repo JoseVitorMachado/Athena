@@ -1,0 +1,55 @@
+{
+  "pergunta": "O conteúdo publicado informa o tempo máximo para gerar um PDF de 500 páginas?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "O conteúdo publicado não menciona o tempo máximo para gerar um PDF de 500 páginas.",
+    "justificativa": "Não há evidências que confirmem ou neguem a existência deste requisito.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "1125f436-84f7-4275-a7f0-63a6044f09e9",
+    "iniciado_em": "2026-11-25T03:14:50.445496+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 3944.98,
+    "total_ms": 3948.9,
+    "tokens_entrada": 589,
+    "tokens_saida": 63,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 589,
+        "tokens_saida": 63,
+        "carga_modelo_ms": 0.73,
+        "estado": "ok",
+        "duracao_ms": 3919.26
+      }
+    ],
+    "custo_referencia_usd": 0.0003364,
+    "custo_tokens_observados_usd": 0.0003364,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P5",
+  "esperado": "Não há informação suficiente. A meta geral do REQ-3 não comprova prazo para esse cenário específico; não inventar tempo ou suporte publicado a PDF.",
+  "avaliacao_humana": "PENDENTE"
+}

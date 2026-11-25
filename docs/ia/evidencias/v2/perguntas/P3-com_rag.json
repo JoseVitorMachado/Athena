@@ -1,0 +1,119 @@
+{
+  "pergunta": "Qual percentil e limite de latência o REQ-3 define e com quantos usuários simultâneos deve ser medido?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "O REQ-3 define que o p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Deve ser medido com 20 usuários simultâneos.",
+    "justificativa": "Esta informação está diretamente descrita no REQ-3 em E1, que diz 'O p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Critérios de aceite: Medição registrada com 20 usuários simultâneos.'",
+    "fontes_ids": [
+      "E1"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "REQ-3 Consultas comuns respondem em até 1 segundo\nO p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Critérios de aceite: Medição registrada com 20 usuários simultâneos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8837,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-9",
+      "requisito_id": "292cc70b-8eaf-4137-9997-3c405f494255",
+      "versao_id": "7ac08e51-abec-45db-991f-53975e93fcc4",
+      "texto": "REQ-9 [IA-V2-RECUPERACAO] Recuperar senha da conta\nA recuperação de senha utiliza um token de uso único válido por 15 minutos. Depois de consumido ou expirado, o token deve ser rejeitado. Esse fluxo não lê documentos nem participa da exportação de requisitos. Critérios de aceite: O token expira em 15 minutos. Um token consumido não pode ser reutilizado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/292cc70b-8eaf-4137-9997-3c405f494255",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8416,
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8335,
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8195,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8261,
+      "id": "E5"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "9612181d-1579-43a5-986f-39252e9c8988",
+    "iniciado_em": "2026-11-25T04:06:18.762983+00:00",
+    "api_ms": 13.03,
+    "mcp_ms": 25.39,
+    "llm_ms": 13265.98,
+    "total_ms": 13309.13,
+    "tokens_entrada": 924,
+    "tokens_saida": 137,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 924,
+        "tokens_saida": 137,
+        "carga_modelo_ms": 0.73,
+        "estado": "ok",
+        "duracao_ms": 13237.94
+      }
+    ],
+    "custo_referencia_usd": 0.0005888,
+    "custo_tokens_observados_usd": 0.0005888,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P3",
+  "esperado": "p95 de até 1 segundo com 20 usuários simultâneos. É uma meta, não desempenho já comprovado.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-3"
+    ],
+    "fontes_esperadas_recuperadas": [
+      "REQ-3"
+    ],
+    "cobertura_recuperacao": 1.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

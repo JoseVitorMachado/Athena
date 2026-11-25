@@ -1,0 +1,55 @@
+{
+  "pergunta": "Quais formatos de arquivo são garantidos pela versão publicada do REQ-1?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não há evidências para identificar formatos de arquivo garantidos pela versão publicada do REQ-1.",
+    "justificativa": "Não foram fornecidas evidências específicas sobre os formatos de arquivo garantidos pela versão publicada.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "1298db02-8df2-4a33-a0d6-755d98f8d59d",
+    "iniciado_em": "2026-11-25T03:14:24.910294+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 3966.59,
+    "total_ms": 3970.16,
+    "tokens_entrada": 586,
+    "tokens_saida": 69,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 586,
+        "tokens_saida": 69,
+        "carga_modelo_ms": 0.69,
+        "estado": "ok",
+        "duracao_ms": 3939.3
+      }
+    ],
+    "custo_referencia_usd": 0.0003448,
+    "custo_tokens_observados_usd": 0.0003448,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P2",
+  "esperado": "Os trechos publicados não especificam formatos. Não afirmar PDF ou Markdown com base na candidata, que não é recuperada pelo RAG.",
+  "avaliacao_humana": "PENDENTE"
+}

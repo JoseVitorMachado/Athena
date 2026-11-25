@@ -50,7 +50,7 @@
 
 ## Como executar
 
-O sistema roda de duas formas: **Docker Compose** (um comando, ideal para desenvolvimento) e **Kubernetes** local com minikube. As duas sobem os mesmos containers: 6 serviços de domínio, 6 PostgreSQL, RabbitMQ, Gateway, 2 BFFs e 2 clientes Angular; no compose há ainda o Mailpit, caixa de e-mails de desenvolvimento, Prometheus e Grafana (21 no total). Os bancos já sobem com um projeto de demonstração.
+O sistema roda de duas formas: **Docker Compose** (um comando, ideal para desenvolvimento) e **Kubernetes** local com minikube. As duas sobem os mesmos containers: 6 serviços de domínio, 6 PostgreSQL, RabbitMQ, Gateway, 2 BFFs e 2 clientes Angular; no compose há ainda o Mailpit, caixa de e-mails de desenvolvimento, Prometheus e Grafana (21 componentes de base; com IA, mais Ollama, cliente Python e uma tarefa de inicialização do modelo). Os bancos já sobem com um projeto de demonstração.
 
 ### Pré-requisitos
 
@@ -69,7 +69,7 @@ Na raiz do repositório:
 docker compose up -d --build --wait
 ```
 
-A primeira vez leva alguns minutos (download das imagens base, compilação e o modelo de embeddings do RAG, que vai dentro da imagem do impacto-mcp). O `--wait` só devolve o terminal quando os 21 containers estiverem em execução ou saudáveis. Depois, acesse:
+A primeira vez leva alguns minutos (download das imagens base, compilação e o modelo de embeddings do RAG, que vai dentro da imagem do impacto-mcp). O `--wait` só devolve o terminal quando os serviços estiverem em execução ou saudáveis e o modelo local tiver sido preparado. Depois, acesse:
 
 | O quê | Endereço |
 |---|---|
@@ -299,6 +299,27 @@ Além do tamanho, a imagem final tem menos pacotes para manter atualizados e nã
 - **Gestão:** workspaces, projetos (arquivar e restaurar), membros, convites e transferência de propriedade; épicos; requisitos com filtros, metadados, cancelamento e reativação; comentários com menções e âncoras; revisão e publicação; notificações; HATEOAS (`_links` e `_actions` conforme estado e papel).
 
 Ainda não implementado: integrações com GitHub, OpenProject e Google Drive (o serviço `integracoes` é só esqueleto) e a autorização OAuth própria do agente MCP (hoje o agente usa o JWT do usuário).
+
+### Cliente de IA: LangChain, RAG e Ollama local
+
+O Compose também prepara um modelo Qwen local e o cliente Python. Após subir:
+
+```sh
+docker compose exec agente-ia python -m athena_ia verificar
+docker compose exec agente-ia python -m athena_ia impacto
+docker compose exec agente-ia python -m athena_ia avaliar --destino /resultados
+```
+
+Consulte [o guia do cliente](clientes/agente-ia/README.md) para configuração,
+comparação com/sem RAG, métricas de custo, testes e demonstração de falha induzida.
+O [relatório de execução e as evidências](docs/ia/README.md) registram a avaliação
+real, os tempos medidos e as limitações observadas.
+O [refinamento da avaliação](docs/ia/avaliacao-v2.md) usa dez requisitos publicados,
+doze perguntas em dois modos, três controles de impacto e uma ficha de revisão humana.
+O guia explica a carga explícita das oito fixtures adicionais pelo utilitário `popular_demo.py`.
+O primeiro download inclui cerca de 1,9 GB de pesos. O orçamento de RAM acima se
+refere à base; o Ollama acrescenta consumo e precisa ser medido na máquina da demo.
+As sugestões não alteram requisitos nem substituem a decisão humana.
 
 ### Contratos de API
 

@@ -1,0 +1,170 @@
+ Container athena-sd-ollama-1  Stopping
+ Container athena-sd-ollama-1  Stopped
+{"evento": "llm_falhou", "operacao_id": "4749c794-99c6-4c09-8b81-431708c2b536", "tentativa": 1, "erro": "ConnectError"}
+{"evento": "llm_retry", "operacao_id": "4749c794-99c6-4c09-8b81-431708c2b536", "proxima_tentativa": 2, "espera_s": 2.0}
+{"evento": "llm_falhou", "operacao_id": "4749c794-99c6-4c09-8b81-431708c2b536", "tentativa": 2, "erro": "ConnectError"}
+{"evento": "llm_fallback", "operacao_id": "4749c794-99c6-4c09-8b81-431708c2b536", "quantidade_fontes": 2}
+{
+  "pergunta": "Qual é a meta do REQ-3?",
+  "modo": "com_rag",
+  "estado": "degradado",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Geração indisponível ou resposta inválida. Consulte as evidências recuperadas para continuar manualmente.",
+    "justificativa": "Nenhuma conclusão automática foi produzida; referências abaixo são dados recuperados, não uma decisão.",
+    "fontes_ids": [
+      "E1",
+      "E2"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "REQ-3 Consultas comuns respondem em até 1 segundo\nO p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Critérios de aceite: Medição registrada com 20 usuários simultâneos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8341,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.798,
+      "id": "E2"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "4749c794-99c6-4c09-8b81-431708c2b536",
+    "iniciado_em": "2026-11-25T03:12:57.115940+00:00",
+    "api_ms": 69.24,
+    "mcp_ms": 22.69,
+    "llm_ms": 2055.86,
+    "total_ms": 2159.6,
+    "tokens_entrada": 0,
+    "tokens_saida": 0,
+    "consumo_completo": false,
+    "tentativas": [
+      {
+        "numero": 1,
+        "estado": "falha",
+        "erro": "ConnectError",
+        "backoff_s": 2.0,
+        "duracao_ms": 2017.25
+      },
+      {
+        "numero": 2,
+        "estado": "falha",
+        "erro": "ConnectError",
+        "duracao_ms": 12.45
+      }
+    ],
+    "custo_referencia_usd": null,
+    "custo_tokens_observados_usd": 0.0,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  }
+}
+ Container athena-sd-ollama-1  Starting
+ Container athena-sd-ollama-1  Started
+{
+  "estado": "aquecido",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "total_ms": 2615.728741,
+  "carga_ms": 2287.283533
+}
+{
+  "pergunta": "Qual é a meta do REQ-3?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "REQ-3 visa atingir consultas comuns em até 1 segundo.",
+    "justificativa": "REQ-3 especifica um tempo de resposta para consultas comuns.",
+    "fontes_ids": [
+      "E1"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "REQ-3 Consultas comuns respondem em até 1 segundo\nO p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Critérios de aceite: Medição registrada com 20 usuários simultâneos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8341,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.798,
+      "id": "E2"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "ebcbe121-1d4d-4985-8866-ef76da20506a",
+    "iniciado_em": "2026-11-25T03:13:04.435023+00:00",
+    "api_ms": 65.69,
+    "mcp_ms": 21.97,
+    "llm_ms": 9509.76,
+    "total_ms": 9604.8,
+    "tokens_entrada": 733,
+    "tokens_saida": 58,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 733,
+        "tokens_saida": 58,
+        "carga_modelo_ms": 0.84,
+        "estado": "ok",
+        "duracao_ms": 9482.91
+      }
+    ],
+    "custo_referencia_usd": 0.000386,
+    "custo_tokens_observados_usd": 0.000386,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  }
+}

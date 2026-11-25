@@ -1,0 +1,78 @@
+{
+  "pergunta": "Qual funcionalidade de exportação está descrita na versão publicada do REQ-1?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "A funcionalidade de exportação descrita na versão publicada do REQ-1 é a exportação de documento de requisitos.",
+    "justificativa": "A versão publicada do REQ-1 descreve apenas a funcionalidade de exportação de documento de requisitos, sem mencionar outras funcionalidades.",
+    "fontes_ids": [
+      "E1"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.888,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "REQ-3 Consultas comuns respondem em até 1 segundo\nO p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Critérios de aceite: Medição registrada com 20 usuários simultâneos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8272,
+      "id": "E2"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "40bb7700-1332-4ab2-8c0e-186ccd0de204",
+    "iniciado_em": "2026-11-25T03:14:12.182540+00:00",
+    "api_ms": 151.16,
+    "mcp_ms": 24.79,
+    "llm_ms": 6429.85,
+    "total_ms": 6610.32,
+    "tokens_entrada": 744,
+    "tokens_saida": 89,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 744,
+        "tokens_saida": 89,
+        "carga_modelo_ms": 0.67,
+        "estado": "ok",
+        "duracao_ms": 6404.61
+      }
+    ],
+    "custo_referencia_usd": 0.00044,
+    "custo_tokens_observados_usd": 0.00044,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P1",
+  "esperado": "Permitir exportar o documento de requisitos preservando os requisitos. Citar REQ-1. Não atribuir formatos da candidata à versão publicada.",
+  "avaliacao_humana": "PENDENTE"
+}

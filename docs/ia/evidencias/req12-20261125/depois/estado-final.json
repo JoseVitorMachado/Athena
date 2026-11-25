@@ -1,0 +1,122 @@
+{
+  "requisitoId": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+  "projetoId": "22222222-2222-4222-8222-222222222222",
+  "codigo": "REQ-12",
+  "titulo": "Limitar quantidade de requisitos por exportação",
+  "situacao": "ATIVO",
+  "noLivro": true,
+  "versaoPublicadaId": "62a088ba-8fa8-45b9-a3a6-a083d168727e",
+  "versaoEmEdicao": 2,
+  "versaoId": "e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+  "estadoVersao": "RASCUNHO",
+  "loteId": "a5259b06-6644-4471-a75e-0ad1a9688b62",
+  "pendenciasAbertas": 2,
+  "atualizadoEm": "2026-11-25T12:10:00.343Z",
+  "_links": {
+    "self": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4"
+    },
+    "colecao": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos"
+    },
+    "historico": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/historico"
+    },
+    "diferencas": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/versoes/e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b/diferencas?com=62a088ba-8fa8-45b9-a3a6-a083d168727e"
+    },
+    "versoes": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/versoes"
+    },
+    "comentarios": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/comentarios"
+    },
+    "candidata": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/candidata"
+    },
+    "submissao": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/submissoes/f14aacd2-10cf-4d53-9c51-08ef9d165bf8"
+    },
+    "revisao": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/revisoes/a5259b06-6644-4471-a75e-0ad1a9688b62"
+    }
+  },
+  "_actions": {
+    "comentar": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/comentarios",
+      "method": "POST",
+      "contentType": "application/json",
+      "campos": [
+        "versaoId",
+        "texto",
+        "ancora",
+        "mencoes"
+      ],
+      "precondicoes": [
+        "Requisito ATIVO",
+        "Papel Repórter ou superior"
+      ]
+    },
+    "editar-metadados": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "method": "PATCH",
+      "contentType": "application/json",
+      "campos": [
+        "responsavelId",
+        "epicoId",
+        "tipo"
+      ],
+      "precondicoes": [
+        "If-Match",
+        "Requisito ATIVO",
+        "Papel Editor ou superior"
+      ]
+    },
+    "cancelar": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/cancelamentos",
+      "method": "POST",
+      "contentType": "application/json",
+      "campos": [
+        "confirmacao"
+      ],
+      "precondicoes": [
+        "If-Match",
+        "Idempotency-Key",
+        "Confirmação verdadeira",
+        "Requisito ATIVO",
+        "Sem submissão ou revisão em andamento",
+        "Papel Editor ou superior"
+      ]
+    },
+    "editar-candidata": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/candidata",
+      "method": "PATCH",
+      "contentType": "application/json",
+      "campos": [
+        "titulo",
+        "conteudo",
+        "criteriosAceite"
+      ],
+      "precondicoes": [
+        "If-Match",
+        "Candidata em RASCUNHO ou APROVADA",
+        "Papel Editor ou superior"
+      ]
+    },
+    "submeter": {
+      "href": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/submissoes",
+      "method": "POST",
+      "contentType": "application/json",
+      "campos": [
+        "versaoId"
+      ],
+      "precondicoes": [
+        "If-Match",
+        "Idempotency-Key",
+        "Candidata em RASCUNHO",
+        "Papel Editor ou superior"
+      ]
+    }
+  },
+  "avisos": []
+}

@@ -1,0 +1,119 @@
+{
+  "pergunta": "Qual é a validade do token de recuperação de senha e ele pode ser reutilizado?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "O token de recuperação de senha tem uma validade de 15 minutos. Ele não pode ser reutilizado após ser consumido.",
+    "justificativa": "Este requisito está documentado em [REQ-9]. Os critérios de aceite especificam que o token expira em 15 minutos e não pode ser reutilizado após ser consumido.",
+    "fontes_ids": [
+      "E1"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-9",
+      "requisito_id": "292cc70b-8eaf-4137-9997-3c405f494255",
+      "versao_id": "7ac08e51-abec-45db-991f-53975e93fcc4",
+      "texto": "REQ-9 [IA-V2-RECUPERACAO] Recuperar senha da conta\nA recuperação de senha utiliza um token de uso único válido por 15 minutos. Depois de consumido ou expirado, o token deve ser rejeitado. Esse fluxo não lê documentos nem participa da exportação de requisitos. Critérios de aceite: O token expira em 15 minutos. Um token consumido não pode ser reutilizado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/292cc70b-8eaf-4137-9997-3c405f494255",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.9062,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-11",
+      "requisito_id": "57b5e11f-9b81-413a-a104-c94e27282f96",
+      "versao_id": "e1bf8f2b-7203-49d5-af53-36846e8240b6",
+      "texto": "REQ-11 [IA-V2-FILTRO] Filtrar lista de requisitos\nA lista de requisitos da Gestão pode ser filtrada por código e situação. Os filtros alteram somente os itens exibidos na lista; não modificam o conteúdo nem o estado dos requisitos. Critérios de aceite: Filtrar não altera requisitos. Limpar os filtros restaura a listagem autorizada.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/57b5e11f-9b81-413a-a104-c94e27282f96",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8069,
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8232,
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-10",
+      "requisito_id": "cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "versao_id": "fa467316-ad48-444a-9c95-ae54fd140f14",
+      "texto": "REQ-10 [IA-V2-TEMA] Escolher tema da interface\nO usuário pode escolher tema claro ou escuro para a interface. A preferência é individual e não altera o conteúdo dos requisitos nem a aparência dos arquivos exportados. Critérios de aceite: A preferência do usuário não altera a preferência de outros membros. Trocar o tema não modifica arquivos exportados.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8211,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8404,
+      "id": "E5"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "50a9d488-85bf-41d5-8420-07d55bde7366",
+    "iniciado_em": "2026-11-25T04:07:54.190021+00:00",
+    "api_ms": 16.28,
+    "mcp_ms": 29.42,
+    "llm_ms": 11306.48,
+    "total_ms": 11356.77,
+    "tokens_entrada": 1006,
+    "tokens_saida": 99,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 1006,
+        "tokens_saida": 99,
+        "carga_modelo_ms": 0.76,
+        "estado": "ok",
+        "duracao_ms": 11267.5
+      }
+    ],
+    "custo_referencia_usd": 0.0005608,
+    "custo_tokens_observados_usd": 0.0005608,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P9",
+  "esperado": "15 minutos, uso único; rejeitar tokens consumidos ou expirados.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-9"
+    ],
+    "fontes_esperadas_recuperadas": [
+      "REQ-9"
+    ],
+    "cobertura_recuperacao": 1.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

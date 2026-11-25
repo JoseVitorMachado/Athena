@@ -1,0 +1,4 @@
+{"evento": "llm_falhou", "operacao_id": "c7c4a419-a771-4eef-bf04-89f0c2dab399", "tentativa": 1, "erro": "TimeoutError"}
+{"evento": "llm_retry", "operacao_id": "c7c4a419-a771-4eef-bf04-89f0c2dab399", "proxima_tentativa": 2, "espera_s": 2.0}
+{"evento": "llm_falhou", "operacao_id": "c7c4a419-a771-4eef-bf04-89f0c2dab399", "tentativa": 2, "erro": "TimeoutError"}
+{"evento": "llm_fallback", "operacao_id": "c7c4a419-a771-4eef-bf04-89f0c2dab399", "quantidade_fontes": 2}

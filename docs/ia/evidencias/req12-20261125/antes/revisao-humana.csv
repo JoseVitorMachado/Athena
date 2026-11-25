@@ -1,0 +1,4 @@
+operacao_id,caso,modo,arquivo,correcao,fundamentacao,ausencia,observacoes,revisor,data
+450f88d4-4f0d-4035-b531-944ba182d7b9,controle-sem-mudanca,com_rag,controle-sem-mudanca.json,,,,,,
+b9991900-9757-4b96-b311-a927fcca232d,limite-1000,com_rag,limite-1000.json,,,,,,
+2740ae7a-f49b-4a6e-a7a6-a045af87e587,conflito-descarte,com_rag,conflito-descarte.json,,,,,,

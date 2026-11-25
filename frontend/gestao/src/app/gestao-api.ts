@@ -1,6 +1,6 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, defer, finalize, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 
 /**
  * Cliente do BFF Gestão. O caminho é sempre relativo à origem da página: o
@@ -113,57 +113,118 @@ export interface NovoRequisito {
 @Injectable({ providedIn: 'root' })
 export class GestaoApi {
   private readonly http = inject(HttpClient);
-  private accessToken: string | null = null;
+  private sessao: Sessao | null = null;
+  private geracaoSessao = 0;
+  private renovacao: Observable<Sessao> | null = null;
 
   autenticar(credenciais: CredenciaisLogin): Observable<Sessao> {
     return this.http.post<Sessao>(`${AUTH_BASE}/login`, credenciais, { withCredentials: true });
   }
 
   definirSessao(sessao: Sessao | null): void {
-    this.accessToken = sessao?.accessToken ?? null;
+    this.sessao = sessao;
+    this.geracaoSessao++;
+    this.renovacao = null;
   }
 
-  private opcoesAutenticadas(): { headers?: Record<string, string> } {
-    return this.accessToken ? { headers: { Authorization: `Bearer ${this.accessToken}` } } : {};
+  private sessaoExpirada(): HttpErrorResponse {
+    return new HttpErrorResponse({ status: 401, error: { detail: 'Sessão expirada. Saia da conta e entre novamente.' } });
+  }
+
+  private renovarSessao(): Observable<Sessao> {
+    if (this.renovacao) return this.renovacao;
+    const sessao = this.sessao;
+    if (!sessao) return throwError(() => this.sessaoExpirada());
+    const geracao = this.geracaoSessao;
+    // O cookie HttpOnly é rotacionado pelo backend. Requisições simultâneas
+    // compartilham uma renovação para não reutilizar o mesmo refresh token.
+    const renovacao = this.http.post<Sessao>(`${AUTH_BASE}/renovacao`, null, {
+      withCredentials: true,
+      headers: { 'X-CSRF-Token': sessao.csrfToken },
+    }).pipe(
+      tap((nova) => {
+        if (geracao !== this.geracaoSessao) throw this.sessaoExpirada();
+        this.sessao = nova;
+      }),
+      catchError((falha: HttpErrorResponse) => {
+        if (geracao === this.geracaoSessao && (falha.status === 401 || falha.status === 403)) {
+          this.definirSessao(null);
+          return throwError(() => this.sessaoExpirada());
+        }
+        return throwError(() => falha);
+      }),
+      finalize(() => {
+        if (this.renovacao === renovacao) this.renovacao = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    this.renovacao = renovacao;
+    return renovacao;
+  }
+
+  private autenticada<T>(enviar: (opcoes: { headers: Record<string, string> }) => Observable<T>): Observable<T> {
+    return defer(() => {
+      const geracao = this.geracaoSessao;
+      const sessao = this.sessao;
+      if (!sessao) return throwError(() => this.sessaoExpirada());
+      const pronta = Date.parse(sessao.expiraEm) > Date.now() + 30_000 ? of(sessao) : this.renovarSessao();
+      const executar = (atual: Sessao) => enviar({ headers: { Authorization: `Bearer ${atual.accessToken}` } });
+      return pronta.pipe(
+        switchMap((usada) => executar(usada).pipe(
+          catchError((falha: HttpErrorResponse) => {
+            if (falha.status !== 401 || geracao !== this.geracaoSessao) return throwError(() => falha);
+            // Outra requisição pode já ter renovado enquanto esta aguardava.
+            const atual = this.sessao;
+            const nova = atual && atual !== usada ? of(atual) : this.renovarSessao();
+            // Repetir uma vez apenas; erros na repetição não entram neste catch.
+            return nova.pipe(switchMap(executar));
+          }),
+        )),
+        catchError((falha: HttpErrorResponse) => {
+          if (falha.status === 401 && geracao === this.geracaoSessao) this.definirSessao(null);
+          return throwError(() => falha);
+        }),
+      );
+    });
   }
 
   listarProjetos(workspaceId: string): Observable<HttpResponse<Pagina<Projeto>>> {
-    return this.http.get<Pagina<Projeto>>(`${BASE}/projetos`, {
+    return this.autenticada((opcoes) => this.http.get<Pagina<Projeto>>(`${BASE}/projetos`, {
       params: { workspaceId, size: 100 },
       observe: 'response',
-      ...this.opcoesAutenticadas(),
-    });
+      ...opcoes,
+    }));
   }
 
   criarProjeto(projeto: NovoProjeto): Observable<Projeto> {
-    return this.http.post<Projeto>(`${BASE}/projetos`, projeto, this.opcoesAutenticadas());
+    return this.autenticada((opcoes) => this.http.post<Projeto>(`${BASE}/projetos`, projeto, opcoes));
   }
 
   listarRequisitos(projetoId: string, situacao = 'ATIVO'): Observable<HttpResponse<Pagina<Requisito>>> {
-    return this.http.get<Pagina<Requisito>>(`${BASE}/projetos/${projetoId}/requisitos`, {
+    return this.autenticada((opcoes) => this.http.get<Pagina<Requisito>>(`${BASE}/projetos/${projetoId}/requisitos`, {
       params: { size: 100, situacao },
       observe: 'response',
-      ...this.opcoesAutenticadas(),
-    });
+      ...opcoes,
+    }));
   }
 
   listarRelacoes(projetoId: string): Observable<HttpResponse<Pagina<Relacao>>> {
-    return this.http.get<Pagina<Relacao>>(`${BASE}/projetos/${projetoId}/relacoes`, {
+    return this.autenticada((opcoes) => this.http.get<Pagina<Relacao>>(`${BASE}/projetos/${projetoId}/relacoes`, {
       params: { size: 100 },
       observe: 'response',
-      ...this.opcoesAutenticadas(),
-    });
+      ...opcoes,
+    }));
   }
 
   criarRelacao(projetoId: string, relacao: NovaRelacao): Observable<Relacao> {
-    return this.http.post<Relacao>(`${BASE}/projetos/${projetoId}/relacoes`, relacao, this.opcoesAutenticadas());
+    return this.autenticada((opcoes) => this.http.post<Relacao>(`${BASE}/projetos/${projetoId}/relacoes`, relacao, opcoes));
   }
 
   obterRequisito(projetoId: string, requisitoId: string): Observable<RequisitoGestao> {
-    return this.http.get<RequisitoGestao>(`${BASE}/projetos/${projetoId}/requisitos/${requisitoId}`, this.opcoesAutenticadas());
+    return this.autenticada((opcoes) => this.http.get<RequisitoGestao>(`${BASE}/projetos/${projetoId}/requisitos/${requisitoId}`, opcoes));
   }
 
   criarRequisito(projetoId: string, requisito: NovoRequisito): Observable<Requisito> {
-    return this.http.post<Requisito>(`${BASE}/projetos/${projetoId}/requisitos`, requisito, this.opcoesAutenticadas());
+    return this.autenticada((opcoes) => this.http.post<Requisito>(`${BASE}/projetos/${projetoId}/requisitos`, requisito, opcoes));
   }
 }

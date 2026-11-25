@@ -185,11 +185,30 @@ export class App {
   }
 
   protected entrar(): void {
+    if (this.entrando()) return;
     this.erroLogin.set('');
     this.avisoLogin.set('');
     this.entrando.set(true);
-    this.entrando.set(false);
-    this.tela.set('workspaces');
+    this.api.autenticar({
+      email: this.email().trim(),
+      senha: this.senha(),
+      lembrarDispositivo: this.lembrarDispositivo(),
+    }).subscribe({
+      next: (sessao) => {
+        this.api.definirSessao(sessao);
+        this.email.set(this.email().trim());
+        this.senha.set('');
+        this.entrando.set(false);
+        this.abrirWorkspace(WORKSPACE_UFLA, 'UFLA — Sistemas Distribuídos');
+      },
+      error: (falha: HttpErrorResponse) => {
+        this.api.definirSessao(null);
+        this.entrando.set(false);
+        this.erroLogin.set(falha.status === 401
+          ? 'E-mail ou senha inválidos. Confira os dados e tente novamente.'
+          : this.descrever(falha));
+      },
+    });
   }
 
   protected alternarWorkspace(id: string, nome: string): void {
@@ -255,6 +274,11 @@ export class App {
     this.senha.set('');
     this.contaMenuAberto.set(false);
     this.detalhe.set(null);
+    this.requisitoDetalhe.set(null);
+    this.requisitos.set([]);
+    this.relacoes.set([]);
+    this.total.set(0);
+    this.erro.set(null);
   }
 
   protected abrirWorkspace(id: string, nome: string): void {
@@ -570,6 +594,7 @@ export class App {
   }
 
   private descrever(falha: HttpErrorResponse): string {
+    if (falha.status === 401) return 'Sessão expirada. Saia da conta e entre novamente.';
     const problema = falha.error as { detail?: string; title?: string } | null;
     const texto = problema?.detail ?? problema?.title ?? 'Não foi possível falar com o servidor.';
     return `${texto} (HTTP ${falha.status})`;

@@ -7,6 +7,7 @@ from uuid import UUID
 import httpx
 
 from .config import Config
+from .texto import texto_plano
 
 
 class ErroAthena(RuntimeError):
@@ -118,4 +119,8 @@ class ClienteAthena:
         return await self.get(f"/requisitos/{UUID(id_)}")
 
     async def versao(self, id_, versao_id):
-        return await self.get(f"/requisitos/{UUID(id_)}/versoes/{UUID(versao_id)}")
+        versao = await self.get(f"/requisitos/{UUID(id_)}/versoes/{UUID(versao_id)}")
+        # O editor da Gestão salva HTML; o LLM e as citações trabalham com texto plano.
+        if isinstance(versao, dict) and isinstance(versao.get("conteudo"), str):
+            versao["conteudo"] = texto_plano(versao["conteudo"])
+        return versao

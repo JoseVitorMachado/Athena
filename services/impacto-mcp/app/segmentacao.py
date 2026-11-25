@@ -1,9 +1,11 @@
 """Segmentação de conteúdo publicado, com medição de tokens injetável."""
 
+from .texto import texto_plano
+
 
 def segmentar(codigo, titulo, conteudo, criterios, contar_tokens):
     cabecalho = f"{codigo} {titulo}".strip()
-    corpo = conteudo.strip()
+    corpo = texto_plano(conteudo).strip()
     if criterios:
         corpo += "\nCritérios de aceite:\n" + "\n".join(criterios)
     palavras = corpo.split()

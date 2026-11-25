@@ -1,4 +1,4 @@
-import { DatePipe, JsonPipe, KeyValuePipe, Location, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, Location, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,10 @@ import {
   CABECALHO_INSTANCIA,
   AcaoRecurso,
   LoteRevisao,
+  EventoRequisito,
+  ComparacaoVersao,
+  ComparacaoBaseline,
+  SituacaoComparacaoBaseline,
   Versao,
   GestaoApi,
   Convite,
@@ -25,9 +29,19 @@ import {
 
 const MAPA = { colunas: 3, larguraGrupo: 474, distanciaGrupo: 108, margem: 16, cabecalho: 50, larguraCartao: 212, alturaCartao: 108, distanciaCartao: 16 };
 
+const CONFIRMACOES_REQUISITO = {
+  submeter: { titulo: 'Enviar versão para revisão', botao: 'Enviar para revisão' },
+  aprovar: { titulo: 'Aprovar versão revisada', botao: 'Aprovar versão' },
+  rejeitar: { titulo: 'Rejeitar versão revisada', botao: 'Rejeitar versão' },
+  publicar: { titulo: 'Publicar versão no Livro', botao: 'Publicar versão' },
+  cancelar: { titulo: 'Cancelar requisito', botao: 'Cancelar requisito' },
+  reativar: { titulo: 'Reativar requisito', botao: 'Reativar requisito' },
+};
+type AcaoRequisito = 'submeter' | 'decidir' | 'publicar' | 'cancelar' | 'reativar';
+
 const DOCUMENTO_DEMO = '44444444-4444-4444-8444-444444444444';
 @Component({
-  imports: [DatePipe, JsonPipe, KeyValuePipe, NgTemplateOutlet, FormsModule],
+  imports: [DatePipe, NgTemplateOutlet, FormsModule],
   host: {
     '[class.dark-theme]': 'modoEscuro()',
     '(document:click)': 'fecharMenuContaAoClicarFora($event)',
@@ -226,12 +240,25 @@ export class App {
   protected readonly confirmacaoExcluirProjeto = signal('');
   protected readonly baselinesAbertas = signal(false);
   protected readonly baselines = signal<Baseline[]>([]);
+  protected readonly carregandoBaselines = signal(false);
+  protected readonly criandoBaseline = signal(false);
+  protected readonly erroListaBaselines = signal('');
+  protected readonly erroCriarBaseline = signal('');
   protected readonly nomeBaseline = signal('');
-  protected readonly comparacaoBaseline = signal('');
+  protected readonly comparacaoBaseline = signal<ComparacaoBaseline | null>(null);
+  protected readonly baselineComparada = signal('');
+  protected readonly erroComparacaoBaseline = signal('');
+  protected readonly comparandoBaseline = signal(false);
+  protected readonly rotulosComparacaoBaseline: Record<SituacaoComparacaoBaseline, string> = {
+    INALTERADO: 'Sem alteração', ALTERADO: 'Versão alterada', FORA_DO_LIVRO: 'Fora do Livro', NOVO: 'Novo no Livro',
+  };
   protected readonly complementoRequisito = signal<'historico' | 'versoes' | null>(null);
-  protected readonly historicoRequisito = signal<Record<string, unknown>[]>([]);
+  protected readonly historicoRequisito = signal<EventoRequisito[]>([]);
   protected readonly versoesRequisito = signal<VersaoRequisito[]>([]);
-  protected readonly comparacaoVersao = signal('');
+  protected readonly comparacaoVersao = signal<ComparacaoVersao | null>(null);
+  protected readonly erroComplemento = signal('');
+  protected readonly carregandoComplemento = signal(false);
+  protected readonly comparandoVersao = signal(false);
   protected readonly modalTrocarProjeto = signal(false);
   protected readonly workspaceMenuAberto = signal(false);
   protected readonly notificacoesAbertas = signal(false);
@@ -291,8 +318,7 @@ export class App {
   protected readonly instancia = signal<string | null>(null);
   protected readonly detalhe = signal<RequisitoGestao | null>(null);
   protected readonly etagRequisito = signal<string | null>(null);
-  protected readonly acaoSelecionada = signal<{ nome: string; recurso: AcaoRecurso } | null>(null);
-  protected readonly corpoAcao = signal('{}');
+  protected readonly acaoSelecionada = signal<{ nome: AcaoRequisito; recurso: AcaoRecurso } | null>(null);
   protected readonly erroAcao = signal('');
   protected readonly executandoAcao = signal(false);
   protected readonly requisitoDetalhe = signal<Requisito | null>(null);
@@ -314,7 +340,8 @@ export class App {
   protected readonly filtroResponsavel = signal('');
   protected readonly epicos = signal<string[]>([]);
   protected readonly epicosRemotos = signal<{ epicoId: string; titulo: string }[]>([]);
-  protected readonly epicosAbertos = signal<string[]>([]);
+  protected readonly epicosRecolhidos = signal<string[]>([]);
+  protected readonly semEpicoRecolhido = signal(false);
   protected readonly nomeEpico = signal('');
   protected readonly modalNovoEpico = signal(false);
   protected readonly filtrados = computed(() => {
@@ -571,26 +598,51 @@ export class App {
 
   protected abrirBaselines(): void {
     this.baselinesAbertas.set(true);
-    this.comparacaoBaseline.set('');
-    this.api.listarBaselines(this.projetoId()).subscribe({
-      next: pagina => this.baselines.set(pagina.items),
-      error: falha => this.erroLogin.set(this.detalheErro(falha, 'Não foi possível carregar as baselines.')),
-    });
+    this.comparacaoBaseline.set(null);
+    this.erroComparacaoBaseline.set('');
+    this.erroListaBaselines.set('');
+    this.erroCriarBaseline.set('');
+    this.baselines.set([]);
+    this.carregandoBaselines.set(true);
+    this.api.listarBaselines(this.projetoId())
+      .pipe(finalize(() => this.carregandoBaselines.set(false))).subscribe({
+        next: pagina => this.baselines.set(pagina.items),
+        error: falha => this.erroListaBaselines.set(this.detalheErro(falha, 'Não foi possível carregar as baselines.')),
+      });
   }
 
   protected criarBaseline(): void {
-    if (!this.nomeBaseline().trim()) return;
-    this.api.criarBaseline(this.projetoId(), this.nomeBaseline().trim()).subscribe({
-      next: baseline => { this.baselines.update(rows => [...rows, baseline]); this.nomeBaseline.set(''); },
-      error: falha => this.erroLogin.set(this.detalheErro(falha, 'Não foi possível criar a baseline.')),
-    });
+    const nome = this.nomeBaseline().trim();
+    if (!nome || this.criandoBaseline() || this.carregandoBaselines()) return;
+    this.erroCriarBaseline.set('');
+    this.criandoBaseline.set(true);
+    this.api.criarBaseline(this.projetoId(), nome)
+      .pipe(finalize(() => this.criandoBaseline.set(false))).subscribe({
+        next: baseline => {
+          this.baselines.update(rows => [baseline, ...rows]);
+          this.nomeBaseline.set('');
+        },
+        error: falha => this.erroCriarBaseline.set(this.detalheErro(falha, 'Não foi possível criar a baseline.')),
+      });
   }
 
   protected compararBaseline(baseline: Baseline): void {
-    this.api.compararBaseline(this.projetoId(), baseline.baselineId).subscribe({
-      next: comparacao => this.comparacaoBaseline.set(JSON.stringify(comparacao, null, 2)),
-      error: falha => this.erroLogin.set(this.detalheErro(falha, 'Não foi possível comparar a baseline.')),
-    });
+    if (this.comparandoBaseline()) return;
+    this.comparacaoBaseline.set(null);
+    this.baselineComparada.set(baseline.nome);
+    this.erroComparacaoBaseline.set('');
+    this.comparandoBaseline.set(true);
+    this.api.compararBaseline(this.projetoId(), baseline.baselineId)
+      .pipe(finalize(() => this.comparandoBaseline.set(false))).subscribe({
+        next: comparacao => this.comparacaoBaseline.set(comparacao),
+        error: falha => this.erroComparacaoBaseline.set(this.detalheErro(falha, 'Não foi possível comparar com o Livro.')),
+      });
+  }
+
+  protected resumoComparacaoBaseline(comparacao: ComparacaoBaseline): string {
+    return Object.entries(this.rotulosComparacaoBaseline)
+      .map(([situacao, rotulo]) => `${rotulo} · ${comparacao.contagens[situacao as SituacaoComparacaoBaseline] ?? 0}`)
+      .join('  |  ');
   }
 
   protected alterarPapelMembro(membro: Membro, papel: string): void {
@@ -883,7 +935,8 @@ export class App {
     this.relacoes.set([]);
     this.epicos.set([]);
     this.epicosRemotos.set([]);
-    this.epicosAbertos.set([]);
+    this.epicosRecolhidos.set([]);
+    this.semEpicoRecolhido.set(false);
     this.menuEpico.set(null);
     this.membrosProjeto.set([]);
     this.etagMembros.set(null);
@@ -1309,6 +1362,11 @@ export class App {
       });
   }
 
+  protected atualizarEstadoRequisito(): void {
+    const requisito = this.requisitoDetalhe();
+    if (requisito && !this.editorAlterado() && !this.editorSalvando()) this.abrir(requisito);
+  }
+
   protected prepararDecisao(decisao: 'APROVAR' | 'REJEITAR'): void {
     const acao = this.detalhe()?._actions?.['decidir'];
     if (!acao || !this.editorVersao()) return;
@@ -1317,43 +1375,88 @@ export class App {
     this.justificativaDecisao.set('');
   }
 
-  protected prepararAcao(nome: string, recurso: AcaoRecurso): void {
+  protected readonly acoesSituacao = ['reativar', 'cancelar'] as const;
+  protected readonly confirmacaoRequisito = computed(() => {
+    const acao = this.acaoSelecionada()?.nome;
+    const decisao = this.decisaoEditor();
+    if (acao === 'decidir') return CONFIRMACOES_REQUISITO[decisao === 'REJEITAR' ? 'rejeitar' : 'aprovar'];
+    return acao ? CONFIRMACOES_REQUISITO[acao] : null;
+  });
+
+  protected prepararAcao(nome: AcaoRequisito, recurso: AcaoRecurso): void {
     this.editorMenu.set(false);
     this.decisaoEditor.set(null);
     this.erroAcao.set('');
-    const versaoId = this.editorVersao()?.versaoId;
-    this.corpoAcao.set(JSON.stringify(nome === 'cancelar' ? { confirmacao: true } : nome === 'submeter' && versaoId ? { versaoId } : {}));
     this.acaoSelecionada.set({ nome, recurso });
   }
 
   protected carregarHistoricoRequisito(): void {
     const requisito = this.requisitoDetalhe();
     if (!requisito) return;
+    this.historicoRequisito.set([]);
+    this.erroComplemento.set('');
+    this.carregandoComplemento.set(true);
     this.complementoRequisito.set('historico');
-    this.api.listarHistoricoRequisito(this.projetoId(), requisito.requisitoId).subscribe({
-      next: pagina => this.historicoRequisito.set(pagina.items),
-      error: falha => this.erroLogin.set(this.detalheErro(falha, 'Não foi possível carregar o histórico.')),
-    });
+    this.api.listarHistoricoRequisito(this.projetoId(), requisito.requisitoId)
+      .pipe(finalize(() => this.carregandoComplemento.set(false))).subscribe({
+        next: pagina => this.historicoRequisito.set(pagina.items),
+        error: falha => this.erroComplemento.set(this.detalheErro(falha, 'Não foi possível carregar o histórico.')),
+      });
   }
 
   protected carregarVersoesRequisito(): void {
     const requisito = this.requisitoDetalhe();
     if (!requisito) return;
+    this.versoesRequisito.set([]);
+    this.comparacaoVersao.set(null);
+    this.erroComplemento.set('');
+    this.carregandoComplemento.set(true);
     this.complementoRequisito.set('versoes');
-    this.comparacaoVersao.set('');
-    this.api.listarVersoesRequisito(this.projetoId(), requisito.requisitoId).subscribe({
-      next: pagina => this.versoesRequisito.set(pagina.items),
-      error: falha => this.erroLogin.set(this.detalheErro(falha, 'Não foi possível carregar as versões.')),
-    });
+    this.api.listarVersoesRequisito(this.projetoId(), requisito.requisitoId)
+      .pipe(finalize(() => this.carregandoComplemento.set(false))).subscribe({
+        next: pagina => this.versoesRequisito.set(pagina.items),
+        error: falha => this.erroComplemento.set(this.detalheErro(falha, 'Não foi possível carregar as versões.')),
+      });
   }
 
   protected compararVersao(versao: VersaoRequisito): void {
     const requisito = this.requisitoDetalhe();
-    if (!requisito) return;
-    this.api.compararVersoesRequisito(this.projetoId(), requisito.requisitoId, versao.versaoId).subscribe({
-      next: resultado => this.comparacaoVersao.set(JSON.stringify(resultado, null, 2)),
-      error: falha => this.erroLogin.set(this.detalheErro(falha, 'Não foi possível comparar as versões.')),
-    });
+    if (!requisito || this.comparandoVersao() || versao.numero <= 1) return;
+    this.comparacaoVersao.set(null);
+    this.erroComplemento.set('');
+    this.comparandoVersao.set(true);
+    this.api.compararVersoesRequisito(this.projetoId(), requisito.requisitoId, versao.versaoId)
+      .pipe(finalize(() => this.comparandoVersao.set(false))).subscribe({
+        next: resultado => {
+          const trecho = document.createElement('template');
+          this.comparacaoVersao.set({
+            ...resultado,
+            conteudo: resultado.conteudo.filter(linha => linha.tipo !== 'IGUAL').map(linha => {
+              trecho.innerHTML = this.htmlDoRequisito(linha.texto);
+              return { ...linha, texto: trecho.content.textContent?.trim() || 'Linha vazia ou formatação' };
+            }),
+          });
+        },
+        error: falha => this.erroComplemento.set(this.detalheErro(falha, 'Não foi possível comparar as versões.')),
+      });
+  }
+
+  protected rotuloEventoRequisito(acao: string): string {
+    const rotulos: Record<string, string> = {
+      REQUISITO_CRIADO: 'Requisito criado',
+      METADADOS_ALTERADOS: 'Dados do requisito atualizados',
+      SUBMETIDA: 'Versão enviada para revisão',
+      SAGA_CONCLUIDA: 'Revisão aberta',
+      SAGA_COMPENSADA: 'Envio para revisão interrompido',
+      APROVADA: 'Versão aprovada',
+      REJEITADA: 'Versão rejeitada',
+      CORRECOES_SOLICITADAS: 'Correções solicitadas',
+      PUBLICADA: 'Versão publicada no Livro',
+      CANCELADO: 'Requisito cancelado',
+      REATIVADO: 'Requisito reativado',
+      COMENTARIO_CRIADO: 'Comentário adicionado',
+    };
+    return rotulos[acao] ?? 'Requisito atualizado';
   }
 
   protected fecharModalAcao(): void {
@@ -1365,24 +1468,10 @@ export class App {
     if (!selecionada || this.executandoAcao()) return;
     const decisao = this.decisaoEditor();
     if (decisao === 'REJEITAR' && !this.justificativaDecisao().trim()) return;
-    let body: Record<string, unknown>;
-    try {
-      body = JSON.parse(this.corpoAcao()) as Record<string, unknown>;
-      if (!body || Array.isArray(body) || typeof body !== 'object') throw new Error();
-    } catch {
-      this.erroAcao.set('Informe os dados da ação como um objeto JSON válido.');
-      return;
-    }
+    let body: Record<string, unknown> = selecionada.nome === 'cancelar' ? { confirmacao: true } : {};
     this.executandoAcao.set(true);
     this.erroAcao.set('');
     const links = this.detalhe()?._links ?? {};
-    const usaRevisao = selecionada.nome === 'decidir';
-    const usaCandidata = ['editar-candidata', 'submeter', 'publicar'].includes(selecionada.nome);
-    const linkVersao = usaRevisao
-      ? links['revisao']?.href
-      : usaCandidata
-        ? links['candidata']?.href ?? `/api/v1/gestao/projetos/${this.projetoId()}/requisitos/${this.requisitoDetalhe()?.requisitoId}/candidata`
-        : undefined;
     const executar = (etag?: string) => this.api.executarAcao(selecionada.recurso, body, etag ?? this.etagRequisito() ?? undefined).subscribe({
       next: () => {
         this.acaoSelecionada.set(null);
@@ -1393,32 +1482,69 @@ export class App {
       },
       error: (falha: HttpErrorResponse) => { this.erroAcao.set(this.descrever(falha)); this.executandoAcao.set(false); },
     });
-    if (usaRevisao || usaCandidata) {
+    if (selecionada.nome === 'submeter' || selecionada.nome === 'publicar') {
+      const versao = this.editorVersao();
+      const etag = this.etagEditor();
+      const publicando = selecionada.nome === 'publicar';
+      const submissaoLink = links['submissao']?.href;
+      if (!versao || !etag) {
+        this.erroAcao.set('Reabra o requisito para carregar a versão e a revisão antes de continuar.');
+        this.executandoAcao.set(false);
+        return;
+      }
+      body = { versaoId: versao.versaoId };
+      if (!publicando) {
+        executar(etag);
+        return;
+      }
+      if (!submissaoLink) {
+        this.erroAcao.set('A revisão concluída desta versão não foi encontrada. Feche a janela e atualize o requisito.');
+        this.executandoAcao.set(false);
+        return;
+      }
+      this.api.carregarRecurso<{ submissaoId: string; versaoId: string; estadoSaga: string }>(submissaoLink).subscribe({
+        next: resposta => {
+          const submissao = resposta.body;
+          if (!submissao?.submissaoId || submissao.versaoId !== versao.versaoId || submissao.estadoSaga !== 'CONCLUIDA') {
+            this.erroAcao.set('A revisão concluída desta versão não foi encontrada. Feche a janela e atualize o requisito.');
+            this.executandoAcao.set(false);
+            return;
+          }
+          body['submissaoId'] = submissao.submissaoId;
+          executar(etag);
+        },
+        error: (falha: HttpErrorResponse) => {
+          this.erroAcao.set(this.descrever(falha));
+          this.executandoAcao.set(false);
+        },
+      });
+      return;
+    }
+    if (selecionada.nome === 'decidir' && decisao) {
+      const linkVersao = links['revisao']?.href;
       if (!linkVersao) {
-        this.erroAcao.set('A API não informou o link da revisão necessária para esta ação.');
+        this.erroAcao.set('A revisão está indisponível. Feche a janela e atualize o estado do requisito.');
         this.executandoAcao.set(false);
         return;
       }
       this.api.carregarRecurso<LoteRevisao>(linkVersao).subscribe({
         next: response => {
           const etag = response.headers.get('ETag');
-          if (!etag) { this.erroAcao.set('A API não retornou o ETag da versão que será alterada.'); this.executandoAcao.set(false); return; }
-          if (usaRevisao && decisao) {
-            const lote = response.body;
-            if (!lote) {
-              this.erroAcao.set('A API não retornou o lote de revisão.');
-              this.executandoAcao.set(false);
-              return;
-            }
-            const { submissaoId, versaoId, hashConteudo } = lote;
-            const versao = this.editorVersao();
-            if (versao?.versaoId !== versaoId || versao.hashConteudo !== hashConteudo) {
-              this.erroAcao.set('O lote mudou. Reabra o requisito e confira a versão antes de decidir.');
-              this.executandoAcao.set(false);
-              return;
-            }
-            body = { decisao, submissaoId, versaoId, hashConteudo, ...(decisao === 'REJEITAR' ? { justificativa: this.justificativaDecisao().trim() } : {}) };
+          if (!etag) { this.erroAcao.set('Não foi possível confirmar a revisão atual. Atualize o estado do requisito.'); this.executandoAcao.set(false); return; }
+          const lote = response.body;
+          if (!lote) {
+            this.erroAcao.set('A revisão não pôde ser carregada. Atualize o estado do requisito.');
+            this.executandoAcao.set(false);
+            return;
           }
+          const { submissaoId, versaoId, hashConteudo } = lote;
+          const versao = this.editorVersao();
+          if (versao?.versaoId !== versaoId || versao.hashConteudo !== hashConteudo) {
+            this.erroAcao.set('A versão em revisão mudou. Reabra o requisito e confira a versão antes de decidir.');
+            this.executandoAcao.set(false);
+            return;
+          }
+          body = { decisao, submissaoId, versaoId, hashConteudo, ...(decisao === 'REJEITAR' ? { justificativa: this.justificativaDecisao().trim() } : {}) };
           executar(etag);
         },
         error: (falha: HttpErrorResponse) => { this.erroAcao.set(this.descrever(falha)); this.executandoAcao.set(false); },
@@ -1504,10 +1630,7 @@ export class App {
   protected estadoNoMapa(requisito: Requisito): string {
     if (requisito.situacao === 'CANCELADO') return 'Cancelada';
     const estado = requisito.candidata?.estadoVersao;
-    return ({
-      RASCUNHO: 'Rascunho', EM_SUBMISSAO: 'Em submissão', AGUARDANDO_REVISAO: 'Em revisão',
-      APROVADA: 'Aprovada', PUBLICADA: 'Publicada',
-    } as Record<string, string>)[estado ?? ''] ?? (requisito.versaoPublicadaId ? 'Publicada' : 'Sem candidata');
+    return this.rotuloEstadoVersao(estado ?? (requisito.versaoPublicadaId ? 'PUBLICADA' : undefined));
   }
 
   protected zoomPercent(): number { return Math.round(this.zoomMapa() * 100); }
@@ -1623,13 +1746,39 @@ export class App {
     });
   }
 
+  protected readonly criandoEpico = signal(false);
+  protected readonly erroCriarEpico = signal('');
+
+  protected abrirCriacaoEpico(): void {
+    this.nomeEpico.set('');
+    this.erroCriarEpico.set('');
+    this.modalNovoEpico.set(true);
+  }
+
+  protected fecharCriacaoEpico(): void {
+    if (!this.criandoEpico()) this.modalNovoEpico.set(false);
+  }
+
   protected adicionarEpico(): void {
     const nome = this.nomeEpico().trim();
-    if (!nome || this.epicos().includes(nome)) return;
-    this.api.criarEpico(this.projetoId(), nome).subscribe({
-      next: epico => { this.epicosRemotos.update(rows => [...rows, epico]); this.epicos.update(rows => [...rows, epico.titulo]); this.nomeEpico.set(''); this.modalNovoEpico.set(false); },
-      error: falha => this.erro.set(this.descrever(falha)),
-    });
+    if (!nome || this.criandoEpico()) return;
+    if (this.epicos().includes(nome)) {
+      this.erroCriarEpico.set('Já existe um épico com esse nome.');
+      return;
+    }
+    const projetoId = this.projetoId();
+    this.erroCriarEpico.set('');
+    this.criandoEpico.set(true);
+    this.api.criarEpico(projetoId, nome)
+      .pipe(finalize(() => this.criandoEpico.set(false))).subscribe({
+        next: epico => {
+          if (this.projetoId() !== projetoId) return;
+          this.epicosRemotos.update(rows => [...rows, epico]);
+          this.epicos.update(rows => [...rows, epico.titulo]);
+          this.modalNovoEpico.set(false);
+        },
+        error: falha => this.erroCriarEpico.set(this.detalheErro(falha, 'Não foi possível criar o épico.')),
+      });
   }
 
   protected readonly epicoEmRenomeacao = signal<{ epicoId: string; titulo: string } | null>(null);
@@ -1669,7 +1818,7 @@ export class App {
       next: atualizado => {
         this.epicosRemotos.update(lista => lista.map(item => item.epicoId === atualizado.epicoId ? atualizado : item));
         this.epicos.update(lista => lista.map(nome => nome === epico.titulo ? atualizado.titulo : nome));
-        this.epicosAbertos.update(lista => lista.map(nome => nome === epico.titulo ? atualizado.titulo : nome));
+        this.epicosRecolhidos.update(lista => lista.map(nome => nome === epico.titulo ? atualizado.titulo : nome));
         this.epicoEmRenomeacao.set(null);
       },
       error: falha => this.erroRenomearEpico.set(falha instanceof HttpErrorResponse
@@ -1701,7 +1850,7 @@ export class App {
         if (this.projetoId() !== projetoId) return;
         this.epicosRemotos.update(lista => lista.filter(item => item.epicoId !== epico.epicoId));
         this.epicos.update(lista => lista.filter(item => item !== nome));
-        this.epicosAbertos.update(lista => lista.filter(item => item !== nome));
+        this.epicosRecolhidos.update(lista => lista.filter(item => item !== nome));
         if (this.filtroEpico() === epico.epicoId) this.filtroEpico.set('Todos');
         this.carregar();
       },
@@ -1713,9 +1862,9 @@ export class App {
   }
 
   protected toggleEpico(nome: string): void {
-    this.epicosAbertos.update((abertos) => abertos.includes(nome)
-      ? abertos.filter((epico) => epico !== nome)
-      : [...abertos, nome]);
+    this.epicosRecolhidos.update((recolhidos) => recolhidos.includes(nome)
+      ? recolhidos.filter((epico) => epico !== nome)
+      : [...recolhidos, nome]);
   }
 
   protected requisitosDoEpico(nome: string): Requisito[] {
@@ -1729,7 +1878,18 @@ export class App {
   }
 
   protected status(requisito: Requisito): string {
-    return requisito.candidata?.estadoVersao?.replaceAll('_', ' ') ?? 'Sem candidata';
+    return this.rotuloEstadoVersao(requisito.candidata?.estadoVersao);
+  }
+
+  protected rotuloEstadoVersao(estado?: string): string {
+    const rotulos: Record<string, string> = {
+      RASCUNHO: 'Rascunho',
+      EM_SUBMISSAO: 'Preparando revisão',
+      AGUARDANDO_REVISAO: 'Aguardando revisão',
+      APROVADA: 'Aprovada',
+      PUBLICADA: 'Publicada',
+    };
+    return estado ? rotulos[estado] ?? estado : 'Sem candidata';
   }
 
   protected publicado(requisito: Requisito): string {

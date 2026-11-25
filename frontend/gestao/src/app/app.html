@@ -573,10 +573,6 @@
                 <button type="button" class="button primary" [disabled]="!editorAlterado() || !editorTitulo().trim() || !criteriosEditorValidos() || editorSalvando()"
                   (click)="salvarEditor(documentoEditor)">{{ editorSalvando() ? 'Salvando…' : 'Salvar' }}</button>
               }
-              @if (requisito._actions?.['decidir'] && editorVersao()) {
-                <button type="button" class="button primary" (click)="prepararDecisao('APROVAR')">Aprovar</button>
-                <button type="button" class="button outline" (click)="prepararDecisao('REJEITAR')">Rejeitar</button>
-              }
               <div class="epic-options editor-options">
                 <button type="button" class="icon-button" aria-label="Opções do requisito" [attr.aria-expanded]="editorMenu()"
                   (click)="editorMenu.set(!editorMenu())" (keydown.escape)="editorMenu.set(false)">⋮</button>
@@ -585,15 +581,58 @@
                     <button type="button" (click)="editorDetalhes.set(!editorDetalhes()); editorMenu.set(false)">Detalhes</button>
                     <button type="button" (click)="carregarHistoricoRequisito(); editorMenu.set(false)">Histórico</button>
                     <button type="button" (click)="carregarVersoesRequisito(); editorMenu.set(false)">Versões e comparação</button>
-                    @for (nome of ['submeter', 'publicar', 'reativar', 'cancelar']; track nome) {
+                    @for (nome of acoesSituacao; track nome) {
                       @if (requisito._actions?.[nome]; as acao) {
                         <button type="button" [class.danger]="nome === 'cancelar'" [disabled]="editorAlterado() || editorSalvando()"
-                          (click)="prepararAcao(nome, acao)">{{ nome === 'cancelar' ? 'Cancelar requisito' : nome === 'submeter' ? 'Enviar para revisão' : nome === 'publicar' ? 'Publicar candidata' : 'Reativar requisito' }}</button>
+                          (click)="prepararAcao(nome, acao)">{{ nome === 'cancelar' ? 'Cancelar requisito' : 'Reativar requisito' }}</button>
                       }
                     }
                   </div>
                 }
               </div>
+              @if (editorVersao(); as versao) {
+                <section class="editor-workflow" aria-label="Estado da versão">
+                  <div role="status">
+                    <strong>
+                      v{{ versao.numero }} ·
+                      @if (requisito.situacao === 'CANCELADO') { Requisito cancelado }
+                      @else { {{ rotuloEstadoVersao(versao.estadoVersao) }} }
+                    </strong>
+                    @if (requisito.situacao === 'ATIVO') {
+                      <p>
+                        @switch (versao.estadoVersao) {
+                          @case ('RASCUNHO') {
+                            {{ editorAlterado() ? 'Salve suas alterações antes de enviar.' : 'A versão precisa passar por revisão antes de ser publicada.' }}
+                          }
+                          @case ('EM_SUBMISSAO') { A revisão está sendo preparada. Atualize o estado em instantes. }
+                          @case ('AGUARDANDO_REVISAO') { Um Aprovador do projeto pode decidir sobre esta versão quando a revisão estiver ativa. }
+                          @case ('APROVADA') {
+                            {{ editorAlterado() ? 'Se você salvar as alterações, a versão voltará a Rascunho.' : 'Um Aprovador do projeto pode publicar esta versão no Livro.' }}
+                          }
+                          @case ('PUBLICADA') { Esta é a versão publicada no Livro. }
+                        }
+                      </p>
+                    }
+                  </div>
+                  <div class="editor-workflow-actions">
+                    @if (requisito._actions?.['submeter']; as acao) {
+                      <button type="button" class="button primary" [disabled]="editorAlterado() || editorSalvando()"
+                        (click)="prepararAcao('submeter', acao)">Enviar para revisão</button>
+                    }
+                    @if (requisito._actions?.['decidir']) {
+                      <button type="button" class="button outline" (click)="prepararDecisao('REJEITAR')">Rejeitar</button>
+                      <button type="button" class="button primary" (click)="prepararDecisao('APROVAR')">Aprovar</button>
+                    }
+                    @if (requisito._actions?.['publicar']; as acao) {
+                      <button type="button" class="button primary" [disabled]="editorAlterado() || editorSalvando()"
+                        (click)="prepararAcao('publicar', acao)">Publicar versão</button>
+                    }
+                    @if (requisito.situacao === 'ATIVO' && (versao.estadoVersao === 'EM_SUBMISSAO' || versao.estadoVersao === 'AGUARDANDO_REVISAO')) {
+                      <button type="button" class="button quiet" (click)="atualizarEstadoRequisito()">Atualizar estado</button>
+                    }
+                  </div>
+                </section>
+              }
               <div class="editor-toolbar" role="group" aria-label="Formatação do requisito">
                 @for (grupo of gruposFormatacao; track $index) {
                   <div class="editor-tool-group">
@@ -698,7 +737,7 @@
               <div><dt>Responsável</dt><dd>{{ nomeResponsavelEditor(requisito.responsavelId) }}</dd></div></dl>
             @if (requisito._actions?.['cancelar']; as acao) {
               <h2>Ciclo de vida</h2>
-              <button type="button" class="button outline editor-danger" [disabled]="editorAlterado() || editorSalvando()" (click)="prepararAcao('cancelar', acao)">Cancelar US</button>
+              <button type="button" class="button outline editor-danger" [disabled]="editorAlterado() || editorSalvando()" (click)="prepararAcao('cancelar', acao)">Cancelar requisito</button>
             }
           </aside>
         }
@@ -721,7 +760,7 @@
             @if (pagina() === 'visao') {
               <button class="button quiet" (click)="configuracoesAbertas.set(true)">
                 ☷ &nbsp; Configurações</button
-              ><button class="button outline" (click)="modalNovoEpico.set(true)">
+              ><button class="button outline" (click)="abrirCriacaoEpico()">
                 ＋ Novo Épico
               </button>
             }
@@ -740,8 +779,9 @@
           @for (epico of epicos(); track epico) {
             <article class="epic-management-card">
               <header>
-                <button class="epic-expand" (click)="toggleEpico(epico)">
-                  {{ epicosAbertos().includes(epico) ? '⌄' : '›' }}</button
+                <button type="button" class="epic-expand" [attr.aria-expanded]="!epicosRecolhidos().includes(epico)"
+                  [attr.aria-label]="'Requisitos de ' + epico" (click)="toggleEpico(epico)">
+                  {{ epicosRecolhidos().includes(epico) ? '›' : '⌄' }}</button
                 ><span>▱</span><strong>{{ epico }}</strong
                 ><i>{{ requisitosDoEpico(epico).length }} US</i
                 >
@@ -757,7 +797,7 @@
                   }
                 </div>
               </header>
-              @if (epicosAbertos().includes(epico)) {
+              @if (!epicosRecolhidos().includes(epico)) {
                 <div class="epic-items">
                   @for (requisito of requisitosDoEpico(epico); track requisito.requisitoId) {
                     <button class="epic-requirement" (click)="abrir(requisito)">
@@ -770,7 +810,7 @@
                   }
                   @if (requisitosDoEpico(epico).length === 0) {
                     <p class="epic-empty">
-                      Sem requisitos associados. Este épico ainda não tem requisitos associados.
+                      Nenhum requisito ativo neste épico.
                     </p>
                   }
                 </div>
@@ -779,11 +819,13 @@
           }
           <article class="epic-management-card">
             <header>
-              <button class="epic-expand" disabled>›</button><span>▱</span><strong>Sem épico</strong
+              <button type="button" class="epic-expand" [attr.aria-expanded]="!semEpicoRecolhido()"
+                aria-label="Requisitos sem épico" (click)="semEpicoRecolhido.set(!semEpicoRecolhido())">
+                {{ semEpicoRecolhido() ? '›' : '⌄' }}</button><span>▱</span><strong>Sem épico</strong
               ><i>{{ requisitosDoEpico('Sem épico').length }} US</i
               ><button type="button" class="epic-action" aria-label="Novo requisito sem épico" title="Novo requisito sem épico" (click)="abrirNovoRequisito()">＋</button>
             </header>
-            @if (requisitosDoEpico('Sem épico').length) {
+            @if (!semEpicoRecolhido()) {
               <div class="epic-items">
                 @for (requisito of requisitosDoEpico('Sem épico'); track requisito.requisitoId) {
                   <button class="epic-requirement" (click)="abrir(requisito)">
@@ -791,6 +833,8 @@
                     ><span>{{ requisito.titulo }}</span
                     ><i>{{ status(requisito) }}</i>
                   </button>
+                } @empty {
+                  <p class="epic-empty">Nenhum requisito ativo sem épico.</p>
                 }
               </div>
             }
@@ -828,7 +872,7 @@
           >
             <option>Todos</option>
             <option value="RASCUNHO">Rascunho</option>
-            <option value="EM_SUBMISSAO">Em submissão</option>
+            <option value="EM_SUBMISSAO">Preparando revisão</option>
             <option value="AGUARDANDO_REVISAO">Aguardando revisão</option>
             <option value="APROVADA">Aprovada</option>
             <option value="PUBLICADA">Publicada</option></select
@@ -1032,29 +1076,37 @@
         </section>
       }
       @if (detalhe(); as visao) {
-        <aside class="requirement-drawer">
+        <aside class="requirement-drawer" aria-labelledby="requirement-drawer-title" (keydown.escape)="fecharDetalhes()">
           <header>
             <div>
               <span class="req-code">{{ visao.codigo }}</span
-              ><span class="state" [class.published]="visao.estadoVersao === 'PUBLICADA'">{{
-                visao.estadoVersao ?? 'Rascunho'
-              }}</span
-              ><small class="drawer-published">{{
-                visao.estadoVersao === 'PUBLICADA' ? 'v' + visao.versaoEmEdicao + ' publicada' : ''
-              }}</small>
+              ><span class="state" [class.published]="!visao.estadoVersao && !!visao.versaoPublicadaId">{{
+                rotuloEstadoVersao(visao.estadoVersao ?? (visao.versaoPublicadaId ? 'PUBLICADA' : undefined))
+              }}</span>
             </div>
             <button class="icon-button" aria-label="Fechar detalhe" (click)="fecharDetalhes()">
               ×
             </button>
           </header>
-          <h2>{{ visao.titulo }}</h2>
+          <h2 id="requirement-drawer-title">{{ visao.titulo }}</h2>
           <p class="drawer-meta">
-            História de usuário · Atualizada {{ visao.atualizadoEm | date: 'dd/MM/yyyy'
-            }}<br />Situação: {{ visao.situacao }}
+            {{ visao.situacao === 'CANCELADO' ? 'Cancelado' : 'Ativo' }} · Atualizado em {{ visao.atualizadoEm | date: 'dd/MM/yyyy' }}
           </p>
+          <div class="drawer-actions" role="group" aria-label="Ações do requisito">
+            <button type="button" class="button primary" (click)="abrirEditor()">
+              {{ visao._actions?.['decidir'] ? 'Revisar versão' : 'Abrir requisito' }}
+            </button>
+            <div class="drawer-links">
+              <button type="button" class="button quiet" (click)="carregarHistoricoRequisito()">Histórico</button>
+              <button type="button" class="button quiet" (click)="carregarVersoesRequisito()">Versões</button>
+              <button type="button" class="button quiet" (click)="centralizarRequisitoNoMapa(visao.requisitoId)">
+                {{ pagina() === 'mapa' ? 'Centralizar no mapa' : 'Ver no mapa' }}
+              </button>
+            </div>
+          </div>
           <section class="drawer-section">
             <div class="drawer-section-title">
-              <h3>‹ &nbsp; Relações ({{ relacoesDo(visao.requisitoId).length }})</h3>
+              <h3>Relações ({{ relacoesDo(visao.requisitoId).length }})</h3>
               @if (visao._actions?.['editar-metadados']) {
                 <button class="text-action" (click)="conectarAberto.set(!conectarAberto())">＋ Conectar relação</button>
               }
@@ -1122,24 +1174,13 @@
             }
           </section>
           <section class="drawer-section">
-            <h3>‹ &nbsp; Critérios de aceite ({{ criteriosDetalhe().length }})</h3>
+            <h3>Critérios de aceite ({{ criteriosDetalhe().length }})</h3>
             @for (criterio of criteriosDetalhe(); track criterio; let index = $index) {
               <p>{{ index + 1 }}. {{ criterio }}</p>
             } @empty {
               <p>Não há critérios informados na versão candidata.</p>
             }
           </section>
-          <section class="drawer-section">
-            <h3>‹ &nbsp; Origem</h3>
-            <p>Documento de requisitos · ATHENA</p>
-          </section>
-          <footer>
-            <button class="button quiet" (click)="centralizarRequisitoNoMapa(visao.requisitoId)">
-              ◎ &nbsp; Centralizar no mapa</button
-            ><button class="button primary" (click)="abrirEditor()">
-              ↗ &nbsp; Abrir requisito
-            </button>
-          </footer>
         </aside>
       }
     </main>
@@ -1317,110 +1358,74 @@
       </section>
     </div>
   }
-  @if (epicoEmRenomeacao(); as epico) {
-    <div class="modal-backdrop" (click)="fecharRenomearEpico()">
-      <section class="modal compact-modal" role="dialog" aria-modal="true" aria-labelledby="rename-epic-title"
-        (click)="$event.stopPropagation()" (keydown.escape)="fecharRenomearEpico()">
-        <header>
-          <h2 id="rename-epic-title">Renomear épico</h2>
-          <button type="button" class="icon-button" aria-label="Fechar" [disabled]="renomeandoEpico()" (click)="fecharRenomearEpico()">×</button>
-        </header>
-        <form (ngSubmit)="salvarNomeEpico()" [attr.aria-busy]="renomeandoEpico()">
-          <label>Nome do épico
-            <input name="novoNomeEpico" [ngModel]="novoNomeEpico()" (ngModelChange)="novoNomeEpico.set($event)"
-              maxlength="120" required autofocus [readOnly]="renomeandoEpico()" />
-          </label>
-          @if (erroRenomearEpico()) { <p class="auth-error" role="alert">{{ erroRenomearEpico() }}</p> }
-          <footer>
-            <button type="button" class="button quiet" [disabled]="renomeandoEpico()" (click)="fecharRenomearEpico()">Cancelar</button>
-            <button type="submit" class="button primary" [disabled]="!novoNomeEpico().trim() || novoNomeEpico().trim() === epico.titulo || renomeandoEpico()">
-              {{ renomeandoEpico() ? 'Salvando…' : 'Salvar' }}
-            </button>
-          </footer>
-        </form>
-      </section>
-    </div>
-  }
-  @if (modalNovoEpico()) {
-    <div class="modal-backdrop" (click)="modalNovoEpico.set(false)">
-      <section
-        class="modal compact-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="epic-title"
-        (click)="$event.stopPropagation()"
-      >
-        <header>
-          <div>
-            <h2 id="epic-title">Novo Épico</h2>
-            <p>Crie um agrupamento para as histórias de usuário.</p>
-          </div>
-          <button class="icon-button" (click)="modalNovoEpico.set(false)">×</button>
-        </header>
-        <form (ngSubmit)="adicionarEpico()">
-          <label
-            >Nome do épico<input
-              name="nomeEpico"
-              [ngModel]="nomeEpico()"
-              (ngModelChange)="nomeEpico.set($event)"
-              placeholder="Ex.: Pagamentos e Cash-out"
-              required
-          /></label>
-          <footer>
-            <button type="button" class="button quiet" (click)="modalNovoEpico.set(false)">
-              Cancelar</button
-            ><button type="submit" class="button primary" [disabled]="!nomeEpico().trim()">
-              Criar
-            </button>
-          </footer>
-        </form>
-      </section>
-    </div>
-  }
   @if (baselinesAbertas()) {
     <div class="modal-backdrop" (click)="baselinesAbertas.set(false)">
       <section
-        class="modal settings-modal"
+        class="modal baselines-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="baselines-title"
         (click)="$event.stopPropagation()"
+        (keydown.escape)="baselinesAbertas.set(false)"
       >
         <header>
           <div>
             <h2 id="baselines-title">Baselines de {{ projetoNome() }}</h2>
-            <p>Uma baseline captura as versões publicadas atuais e permanece imutável.</p>
+            <p>Salve as versões que estão no Livro hoje para comparar depois. Por exemplo, guarde o que foi publicado na Entrega 1 e veja quais requisitos mudaram, entraram ou saíram desde então.</p>
           </div>
           <button class="icon-button" aria-label="Fechar" (click)="baselinesAbertas.set(false)">
             ×
           </button>
         </header>
         <form class="baseline-create" (ngSubmit)="criarBaseline()">
-          <label
-            >Nome da baseline<input
-              name="baselineName"
-              [ngModel]="nomeBaseline()"
-              (ngModelChange)="nomeBaseline.set($event)"
-              required
-              placeholder="Ex.: Entrega 1" /></label
-          ><button class="button primary" type="submit" [disabled]="!nomeBaseline().trim()">
-            Criar baseline
+          <label>Nome da baseline
+            <input name="baselineName" [ngModel]="nomeBaseline()" (ngModelChange)="nomeBaseline.set($event)"
+              required maxlength="120" [readOnly]="criandoBaseline()" placeholder="Ex.: Entrega 1" />
+          </label>
+          <button class="button primary" type="submit" [disabled]="!nomeBaseline().trim() || criandoBaseline() || carregandoBaselines()">
+            {{ criandoBaseline() ? 'Salvando…' : 'Criar baseline' }}
           </button>
         </form>
-        <section class="settings-body">
-          @for (baseline of baselines(); track baseline.baselineId) {
-            <article class="baseline-row">
-              <strong>{{ baseline.nome }}</strong
-              ><button class="button outline" (click)="compararBaseline(baseline)">
-                Comparar com o Livro atual
-              </button>
-            </article>
-          } @empty {
-            <p>Nenhuma baseline criada.</p>
+        @if (erroCriarBaseline()) { <p class="auth-error" role="alert">{{ erroCriarBaseline() }}</p> }
+        <section class="baseline-list" aria-labelledby="baseline-list-title">
+          <h3 id="baseline-list-title">Baselines salvas</h3>
+          @if (carregandoBaselines()) {
+            <p role="status">Carregando baselines…</p>
+          } @else if (erroListaBaselines()) {
+            <p class="auth-error" role="alert">{{ erroListaBaselines() }}</p>
+          } @else {
+            @for (baseline of baselines(); track baseline.baselineId) {
+              <article class="baseline-row">
+                <div>
+                  <strong>{{ baseline.nome }}</strong>
+                  <small>{{ baseline.quantidade }} {{ baseline.quantidade === 1 ? 'requisito' : 'requisitos' }} · {{ baseline.data | date: 'dd/MM/yyyy' }}</small>
+                </div>
+                <button type="button" class="button outline" [disabled]="comparandoBaseline()" (click)="compararBaseline(baseline)">
+                  Comparar com o Livro atual
+                </button>
+              </article>
+            } @empty {
+              <p>Nenhuma baseline salva. Crie a primeira quando houver requisitos publicados no Livro.</p>
+            }
           }
         </section>
-        @if (comparacaoBaseline()) {
-          <pre class="baseline-comparison">{{ comparacaoBaseline() }}</pre>
+        @if (comparandoBaseline()) { <p class="comparison-feedback" role="status">Comparando com o Livro atual…</p> }
+        @if (erroComparacaoBaseline(); as erro) { <p class="auth-error comparison-feedback" role="alert">{{ erro }}</p> }
+        @if (comparacaoBaseline(); as comparacao) {
+          <section class="version-comparison comparison-result" aria-label="Comparação com o Livro atual">
+            <h3>{{ baselineComparada() }} × Livro atual</h3>
+            <p>{{ resumoComparacaoBaseline(comparacao) }}</p>
+            @for (item of comparacao.itens; track item.requisitoId) {
+              <article class="baseline-row">
+                <div><strong>{{ item.codigo }} · {{ item.titulo }}</strong>
+                  @if (item.situacao === 'ALTERADO') {
+                    <small>Na baseline v{{ item.numeroBaseline }} · No Livro v{{ item.numeroAtual }}</small>
+                  }
+                </div>
+                <span>{{ rotulosComparacaoBaseline[item.situacao] }}</span>
+              </article>
+            } @empty { <p>Nenhum requisito nesta comparação.</p> }
+          </section>
         }
       </section>
     </div>
@@ -1432,6 +1437,7 @@
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-title"
+        [class.epic-settings-modal]="abaConfiguracoes() === 'pastas'"
         (click)="$event.stopPropagation()"
       >
         <header>
@@ -1448,7 +1454,7 @@
             [class.active]="abaConfiguracoes() === 'pastas'"
             (click)="abaConfiguracoes.set('pastas')"
           >
-            Pastas</button
+            Épicos</button
           ><button
             [class.active]="abaConfiguracoes() === 'membros'"
             (click)="abaConfiguracoes.set('membros')"
@@ -1465,16 +1471,24 @@
             </p>
           </div>
         } @else if (abaConfiguracoes() === 'pastas') {
-          <div class="settings-body">
-            <p class="form-note">Épicos agrupam histórias. Épicos persistidos neste projeto.</p>
+          <section class="epic-settings">
+            <div class="epic-settings-heading">
+              <p>Agrupe requisitos que fazem parte da mesma entrega ou objetivo.</p>
+              <button type="button" class="button primary" (click)="abrirCriacaoEpico()">Novo épico</button>
+            </div>
             @for (epico of epicos(); track epico) {
-              <div class="settings-epic">
-                ▱ <strong>{{ epico }}</strong><small>{{ requisitosDoEpico(epico).length }} US</small
-                ><button (click)="editarEpico(epico)">✎</button>
-              </div>
+              @let quantidade = requisitosDoEpico(epico).length;
+              <article class="settings-epic">
+                <div>
+                  <strong>{{ epico }}</strong>
+                  <small>{{ quantidade }} {{ quantidade === 1 ? 'requisito ativo' : 'requisitos ativos' }}</small>
+                </div>
+                <button type="button" class="button quiet" [attr.aria-label]="'Renomear ' + epico" (click)="editarEpico(epico)">Renomear</button>
+              </article>
+            } @empty {
+              <p>Este projeto ainda não tem épicos.</p>
             }
-            <button class="button outline wide" disabled>＋ Novo Épico</button>
-          </div>
+          </section>
         } @else {
           <div class="settings-body">
             <p class="form-note">
@@ -1511,6 +1525,68 @@
         <footer>
           <button class="button quiet" (click)="configuracoesAbertas.set(false)">Concluir</button>
         </footer>
+      </section>
+    </div>
+  }
+  @if (epicoEmRenomeacao(); as epico) {
+    <div class="modal-backdrop" (click)="fecharRenomearEpico()">
+      <section class="modal compact-modal" role="dialog" aria-modal="true" aria-labelledby="rename-epic-title"
+        (click)="$event.stopPropagation()" (keydown.escape)="fecharRenomearEpico()">
+        <header>
+          <h2 id="rename-epic-title">Renomear épico</h2>
+          <button type="button" class="icon-button" aria-label="Fechar" [disabled]="renomeandoEpico()" (click)="fecharRenomearEpico()">×</button>
+        </header>
+        <form (ngSubmit)="salvarNomeEpico()" [attr.aria-busy]="renomeandoEpico()">
+          <label>Nome do épico
+            <input name="novoNomeEpico" [ngModel]="novoNomeEpico()" (ngModelChange)="novoNomeEpico.set($event)"
+              maxlength="120" required autofocus [readOnly]="renomeandoEpico()" />
+          </label>
+          @if (erroRenomearEpico()) { <p class="auth-error" role="alert">{{ erroRenomearEpico() }}</p> }
+          <footer>
+            <button type="button" class="button quiet" [disabled]="renomeandoEpico()" (click)="fecharRenomearEpico()">Cancelar</button>
+            <button type="submit" class="button primary" [disabled]="!novoNomeEpico().trim() || novoNomeEpico().trim() === epico.titulo || renomeandoEpico()">
+              {{ renomeandoEpico() ? 'Salvando…' : 'Salvar' }}
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  }
+  @if (modalNovoEpico()) {
+    <div class="modal-backdrop" (click)="fecharCriacaoEpico()">
+      <section
+        class="modal compact-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="epic-title"
+        (keydown.escape)="fecharCriacaoEpico()"
+        (click)="$event.stopPropagation()"
+      >
+        <header>
+          <div>
+            <h2 id="epic-title">Novo Épico</h2>
+            <p>Use um épico para reunir requisitos que fazem parte da mesma entrega ou objetivo.</p>
+          </div>
+          <button type="button" class="icon-button" aria-label="Fechar" [disabled]="criandoEpico()" (click)="fecharCriacaoEpico()">×</button>
+        </header>
+        <form (ngSubmit)="adicionarEpico()">
+          <label
+            >Nome do épico<input
+              name="nomeEpico"
+              [ngModel]="nomeEpico()"
+              (ngModelChange)="nomeEpico.set($event)"
+              placeholder="Ex.: Gestão de pagamentos" maxlength="120" [readOnly]="criandoEpico()"
+              required
+          /></label>
+          @if (erroCriarEpico()) { <p class="auth-error" role="alert">{{ erroCriarEpico() }}</p> }
+          <footer>
+            <button type="button" class="button quiet" [disabled]="criandoEpico()" (click)="fecharCriacaoEpico()">
+              Cancelar</button
+            ><button type="submit" class="button primary" [disabled]="!nomeEpico().trim() || criandoEpico()">
+              {{ criandoEpico() ? 'Criando…' : 'Criar épico' }}
+            </button>
+          </footer>
+        </form>
       </section>
     </div>
   }
@@ -1724,27 +1800,16 @@
     </section>
   </div>
 }
-@if (pagina() !== 'editor' && pagina() !== 'mapa' && detalhe(); as visao) {
-  <nav class="requirement-actions" aria-label="Ações disponíveis para este requisito">
-    <button class="button outline" (click)="carregarHistoricoRequisito()">Histórico</button>
-    <button class="button outline" (click)="carregarVersoesRequisito()">
-      Versões e comparação
-    </button>
-    @for (entrada of visao._actions ?? {} | keyvalue; track entrada.key) {
-      <button class="button outline" (click)="prepararAcao(entrada.key, entrada.value)">
-        {{ entrada.key.replaceAll('-', ' ') }}
-      </button>
-    }
-  </nav>
-}
 @if (complementoRequisito(); as complemento) {
   <div class="modal-backdrop" (click)="complementoRequisito.set(null)">
     <section
       class="modal settings-modal"
+      [class.versions-modal]="complemento === 'versoes'"
       role="dialog"
       aria-modal="true"
       aria-labelledby="requirement-history-title"
       (click)="$event.stopPropagation()"
+      (keydown.escape)="complementoRequisito.set(null)"
     >
       <header>
         <h2 id="requirement-history-title">
@@ -1754,100 +1819,135 @@
           ×
         </button>
       </header>
-      @if (complemento === 'historico') {
+      @if (erroComplemento(); as erro) { <p class="auth-error" role="alert">{{ erro }}</p> }
+      @if (carregandoComplemento()) {
+        <p role="status">Carregando {{ complemento === 'historico' ? 'histórico' : 'versões' }}…</p>
+      } @else if (complemento === 'historico') {
         <div class="settings-body">
-          @for (evento of historicoRequisito(); track $index) {
+          @for (evento of historicoRequisito(); track evento.eventoId) {
             <article class="baseline-row">
-              <pre>{{ evento | json }}</pre>
+              <strong>{{ rotuloEventoRequisito(evento.acao) }}</strong>
+              <time [attr.datetime]="evento.data">{{ evento.data | date: 'dd/MM/yyyy HH:mm' }}</time>
             </article>
           } @empty {
-            <p>Nenhum evento de histórico.</p>
+            @if (!erroComplemento()) { <p>Nenhuma atividade registrada para este requisito.</p> }
           }
         </div>
       } @else {
-        <div class="settings-body">
+        <div class="version-list">
           @for (versao of versoesRequisito(); track versao.versaoId) {
-            <article class="baseline-row">
-              <span
-                ><strong>v{{ versao.numero }} · {{ versao.titulo }}</strong
-                ><small
-                  >{{ versao.estadoVersao }} ·
-                  {{ versao.atualizadoEm | date: 'dd/MM/yyyy HH:mm' }}</small
-                ></span
-              ><button class="button outline" (click)="compararVersao(versao)">
-                Comparar com a anterior
-              </button>
+            <article class="version-entry">
+              <div class="version-summary">
+                <span class="req-code">v{{ versao.numero }}</span>
+                <div class="version-info">
+                  <strong>{{ versao.titulo }}</strong>
+                  <div class="version-meta">
+                    <span class="state" [class.published]="versao.estadoVersao === 'PUBLICADA'">{{ rotuloEstadoVersao(versao.estadoVersao) }}</span>
+                    <time [attr.datetime]="versao.atualizadoEm">{{ versao.atualizadoEm | date: 'dd/MM/yyyy HH:mm' }}</time>
+                  </div>
+                </div>
+              </div>
+              @if (versao.numero > 1) {
+                <button type="button" class="button outline" [disabled]="comparandoVersao()" (click)="compararVersao(versao)">
+                  Comparar com v{{ versao.numero - 1 }}
+                </button>
+              }
             </article>
           } @empty {
-            <p>Nenhuma versão registrada.</p>
+            @if (!erroComplemento()) { <p>Nenhuma versão registrada.</p> }
           }
         </div>
-        @if (comparacaoVersao()) {
-          <pre class="baseline-comparison">{{ comparacaoVersao() }}</pre>
+        @if (comparandoVersao()) { <p role="status">Comparando versões…</p> }
+        @if (comparacaoVersao(); as comparacao) {
+          <section class="version-comparison comparison-result" aria-label="Alterações entre versões">
+            <h3>Alterações da v{{ comparacao.de.numero }} para a v{{ comparacao.para.numero }}</h3>
+            @if (comparacao.titulo.alterado) {
+              <h4>Título</h4>
+              <p>Anterior · {{ comparacao.titulo.anterior }}</p>
+              <p>Atual · {{ comparacao.titulo.atual }}</p>
+            }
+            @if (comparacao.conteudo.length) {
+              <h4>Conteúdo</h4>
+              <ul>
+                @for (linha of comparacao.conteudo; track $index) {
+                  <li><strong>{{ linha.tipo === 'ADICIONADA' ? 'Adicionado' : 'Removido' }}</strong> · {{ linha.texto }}</li>
+                }
+              </ul>
+            }
+            @if (comparacao.criterios.adicionados.length || comparacao.criterios.removidos.length) {
+              <h4>Critérios de aceite</h4>
+              <ul>
+                @for (criterio of comparacao.criterios.adicionados; track $index) {
+                  <li><strong>Adicionado</strong> · {{ criterio }}</li>
+                }
+                @for (criterio of comparacao.criterios.removidos; track $index) {
+                  <li><strong>Removido</strong> · {{ criterio }}</li>
+                }
+              </ul>
+            }
+            @if (!comparacao.titulo.alterado && !comparacao.conteudo.length && !comparacao.criterios.adicionados.length && !comparacao.criterios.removidos.length) {
+              <p>O título, o conteúdo e os critérios de aceite são iguais nas duas versões.</p>
+            }
+          </section>
         }
       }
     </section>
   </div>
 }
 @if (acaoSelecionada(); as acao) {
-  <div class="modal-backdrop" (click)="fecharModalAcao()">
-    <section
-      class="modal compact-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="action-title"
-      (click)="$event.stopPropagation()"
-    >
-      <header>
-        <div>
-          <h2 id="action-title">
-            {{ decisaoEditor() === 'REJEITAR' ? 'Rejeitar candidata' : decisaoEditor() === 'APROVAR' ? 'Aprovar candidata' : acao.nome === 'cancelar' ? 'Cancelar US' : acao.nome.replaceAll('-', ' ') }}
-          </h2>
-          @if (acao.nome === 'cancelar') {
-            <p>
-              A US sairá das listagens ativas e do Livro corrente. Ela continuará na aba Requisitos como Cancelada, com histórico, versões e relações preservados.
+  @if (confirmacaoRequisito(); as confirmacao) {
+    <div class="modal-backdrop" (click)="fecharModalAcao()">
+      <section class="modal compact-modal requirement-confirmation" role="dialog" aria-modal="true"
+        aria-labelledby="action-title" aria-describedby="action-description"
+        (click)="$event.stopPropagation()" (keydown.escape)="fecharModalAcao()">
+        <header>
+          <div>
+            <h2 id="action-title">{{ confirmacao.titulo }}</h2>
+            <p class="confirmation-target">
+              {{ detalhe()?.codigo }} · {{ editorVersao()?.titulo ?? detalhe()?.titulo }}
+              @if (editorVersao(); as versao) { · v{{ versao.numero }} }
             </p>
+          </div>
+          <button type="button" class="icon-button" aria-label="Fechar" [disabled]="executandoAcao()" (click)="fecharModalAcao()">×</button>
+        </header>
+        <form (ngSubmit)="confirmarAcao()">
+          <p id="action-description">
+            @switch (acao.nome) {
+              @case ('submeter') { Um Aprovador poderá revisar esta versão. A edição ficará bloqueada até a decisão. }
+              @case ('decidir') {
+                @if (decisaoEditor() === 'APROVAR') {
+                  A revisão será concluída e a versão ficará aprovada. Depois disso, use Publicar versão para disponibilizá-la no Livro do projeto.
+                } @else {
+                  A versão voltará para Rascunho com o conteúdo preservado. Ela poderá ser corrigida e enviada para uma nova revisão.
+                }
+              }
+              @case ('publicar') { Esta versão passa a ser a versão corrente do requisito no Livro do projeto. }
+              @case ('cancelar') {
+                O requisito sairá das listagens ativas e do Livro atual. Ele continuará disponível como Cancelado, com histórico, versões e relações preservados.
+              }
+              @case ('reativar') {
+                O requisito voltará à lista de ativos como Rascunho. Para voltar ao Livro, a versão deverá passar por revisão, aprovação e publicação.
+              }
+            }
+          </p>
+          @if (decisaoEditor() === 'REJEITAR') {
+            <label for="review-reason">Motivo da rejeição</label>
+            <textarea id="review-reason" name="reviewReason" rows="3" maxlength="2000" required
+              placeholder="Explique o que precisa ser corrigido." [readOnly]="executandoAcao()"
+              [ngModel]="justificativaDecisao()" (ngModelChange)="justificativaDecisao.set($event)"></textarea>
           }
-        </div>
-        <button class="icon-button" aria-label="Fechar" (click)="fecharModalAcao()">
-          ×
-        </button>
-      </header>
-      @if (
-        !decisaoEditor() && acao.nome !== 'cancelar' && acao.recurso.method !== 'GET' && acao.recurso.campos.length
-      ) {
-        <label
-          >Dados da ação (JSON)<textarea
-            rows="6"
-            [ngModel]="corpoAcao()"
-            (ngModelChange)="corpoAcao.set($event)"
-          ></textarea>
-        </label>
-      }
-      @if (decisaoEditor() === 'REJEITAR') {
-        <p>A candidata volta para Rascunho, com o conteúdo preservado para correção.</p>
-        <label>Justificativa<textarea rows="3" maxlength="2000" [readOnly]="executandoAcao()" [ngModel]="justificativaDecisao()" (ngModelChange)="justificativaDecisao.set($event)" required></textarea></label>
-      }
-      @if (!decisaoEditor() && acao.nome !== 'cancelar' && acao.recurso.precondicoes.length) {
-        <p class="form-note">
-          Será enviado {{ acao.recurso.precondicoes.join(' e ') }} a partir da revisão carregada.
-        </p>
-      }
-      @if (erroAcao()) {
-        <p class="auth-error" role="alert">{{ erroAcao() }}</p>
-      }
-      <footer>
-        <button class="button quiet" (click)="fecharModalAcao()">Cancelar</button
-        ><button class="button primary" [class.editor-danger-fill]="acao.nome === 'cancelar' || decisaoEditor() === 'REJEITAR'" [disabled]="executandoAcao() || (decisaoEditor() === 'REJEITAR' && !justificativaDecisao().trim())" (click)="confirmarAcao()">
-          {{
-            executandoAcao()
-              ? 'Enviando…'
-              : decisaoEditor() === 'REJEITAR' ? 'Rejeitar' : decisaoEditor() === 'APROVAR' ? 'Aprovar' : acao.nome === 'cancelar' ? 'Cancelar US' : 'Executar ação'
-          }}
-        </button>
-      </footer>
-    </section>
-  </div>
+          @if (erroAcao()) { <p class="auth-error" role="alert">{{ erroAcao() }}</p> }
+          <footer>
+            <button type="button" class="button quiet" [disabled]="executandoAcao()" (click)="fecharModalAcao()">Voltar</button>
+            <button type="submit" class="button primary" [class.editor-danger-fill]="acao.nome === 'cancelar' || decisaoEditor() === 'REJEITAR'"
+              [disabled]="executandoAcao() || (decisaoEditor() === 'REJEITAR' && !justificativaDecisao().trim())">
+              {{ executandoAcao() ? 'Confirmando…' : confirmacao.botao }}
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  }
 }
 <ng-template #camposNovaSenha>
   <label

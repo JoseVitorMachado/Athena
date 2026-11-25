@@ -1,27 +1,25 @@
+import { DatePipe, Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CABECALHO_INSTANCIA, LivroApi, Referencia, RequisitoLivro } from './livro-api';
+import { EpicoLivro, LivroApi, ProjetoLivro, Referencia, RequisitoLivro } from './livro-api';
+import { htmlPublicado, normalizarBusca, textoPublicado } from './conteudo-livro';
 import { HttpClient } from '@angular/common/http';
 import { Sessao, SessaoService } from './sessao';
 
-const PROJETO_DEMO = '22222222-2222-4222-8222-222222222222';
-
-/** Leitura da relação a partir do requisito exibido (livro §5.4). */
-const ROTULOS: Record<string, string> = {
-  DEPENDE_DE: 'Depende de / é pré-requisito de',
-  BLOQUEIA: 'Bloqueia / é bloqueado por',
-  RELACIONADO_A: 'Relacionado a',
-};
+const SEM_EPICO = 'sem-epico';
 
 @Component({
-  imports: [FormsModule],
+  imports: [DatePipe, FormsModule],
   selector: 'app-root',
-  host: { '[class.dark-theme]': 'modoEscuro()' },
+  host: { '[class.dark-theme]': 'modoEscuro()', '(document:keydown)': 'atalhoBusca($event)' },
   templateUrl: './app.html',
 })
 export class App {
   private readonly api = inject(LivroApi);
+  private readonly location = inject(Location);
+  private leitura = 0;
+  private catalogo = 0;
   private readonly http = inject(HttpClient);
   private readonly sessaoService = inject(SessaoService);
 
@@ -38,36 +36,71 @@ export class App {
   protected readonly mensagemRecuperacao = signal('');
 
   protected readonly requisitos = signal<RequisitoLivro[]>([]);
+  protected readonly projetos = signal<ProjetoLivro[]>([]);
+  protected readonly projetoId = signal('');
+  protected readonly projetoAtual = computed(() => this.projetos().find(projeto => projeto.projetoId === this.projetoId()));
+  protected readonly epicos = signal<EpicoLivro[]>([]);
+  protected readonly carregandoProjetos = signal(false);
   protected readonly carregando = signal(false);
+  protected readonly carregandoLeitura = signal(false);
   protected readonly erro = signal<string | null>(null);
-  protected readonly instancia = signal<string | null>(null);
-  protected readonly pagina = signal<'inicio' | 'busca' | 'requisito'>('inicio');
+  protected readonly erroLeitura = signal('');
+  protected readonly avisoEpicos = signal('');
+  protected readonly pagina = signal<'inicio' | 'busca' | 'catalogo' | 'requisito'>('inicio');
   protected readonly consulta = signal('');
   protected readonly termoAplicado = signal('');
-  protected readonly epico = signal('Todos');
-  protected readonly ordenacao = signal('Relevância');
+  protected readonly epico = signal('');
+  protected readonly campoBusca = signal<'todos' | 'titulo' | 'conteudo'>('todos');
+  protected readonly ordenacao = signal<'relevancia' | 'titulo' | 'recente'>('relevancia');
   protected readonly selecionado = signal<RequisitoLivro | null>(null);
-  protected readonly copiado = signal(false);
+  protected readonly requisitoId = signal('');
+  protected readonly feedbackLink = signal('');
+  protected readonly conteudoSelecionado = computed(() => htmlPublicado(this.selecionado()?.conteudo ?? ''));
+  protected readonly grupos = computed(() => {
+    const grupos = new Map<string, { id: string; titulo: string; quantidade: number }>();
+    for (const requisito of this.requisitos()) {
+      const id = requisito.epicoId ?? SEM_EPICO;
+      const existente = grupos.get(id);
+      if (existente) existente.quantidade++;
+      else grupos.set(id, { id, titulo: this.epicoFor(requisito), quantidade: 1 });
+    }
+    return Array.from(grupos.values()).sort((a, b) => a.titulo.localeCompare(b.titulo, 'pt-BR'));
+  });
+  protected readonly recentes = computed(() => this.requisitos().filter(item => item.publicadoEm)
+    .sort((a, b) => this.dataPublicacao(b) - this.dataPublicacao(a)).slice(0, 3));
+  protected readonly vizinhos = computed(() => {
+    const itens = this.requisitos();
+    const indice = itens.findIndex(item => item.requisitoId === this.requisitoId());
+    return { anterior: indice > 0 ? itens[indice - 1] : undefined, proximo: indice >= 0 ? itens[indice + 1] : undefined };
+  });
+  private readonly indiceBusca = computed(() => this.requisitos().map(item => {
+    const resumo = textoPublicado(htmlPublicado(item.conteudo));
+    return {
+      item, resumo,
+      titulo: normalizarBusca(`${item.codigo} ${item.titulo}`),
+      corpo: normalizarBusca(`${resumo} ${item.criteriosAceite.join(' ')}`),
+    };
+  }));
   protected readonly resultados = computed(() => {
-    const termo = this.termoAplicado().trim().toLocaleLowerCase('pt-BR');
-    let items = this.requisitos().filter((item) => {
-      const byTerm =
-        !termo ||
-        `${item.codigo} ${item.titulo} ${item.conteudo} ${item.criteriosAceite.join(' ')}`
-          .toLocaleLowerCase('pt-BR')
-          .includes(termo);
-      const byEpic = this.epico() === 'Todos' || this.epicoFor(item) === this.epico();
-      return byTerm && byEpic;
-    });
-    if (this.ordenacao() === 'Título')
-      items = [...items].sort((a, b) => a.titulo.localeCompare(b.titulo, 'pt-BR'));
-    return items;
+    const termo = normalizarBusca(this.termoAplicado());
+    const campo = this.campoBusca();
+    const itens = this.indiceBusca().filter(({ item, titulo, corpo }) =>
+      (!this.epico() || (item.epicoId ?? SEM_EPICO) === this.epico()) &&
+      (!termo || (campo !== 'conteudo' && titulo.includes(termo)) || (campo !== 'titulo' && corpo.includes(termo))),
+    );
+    if (this.ordenacao() === 'titulo') return itens.sort((a, b) => a.item.titulo.localeCompare(b.item.titulo, 'pt-BR'));
+    if (this.ordenacao() === 'recente') return itens.sort((a, b) => this.dataPublicacao(b.item) - this.dataPublicacao(a.item));
+    return termo && campo === 'todos'
+      ? itens.sort((a, b) => Number(b.titulo.includes(termo)) - Number(a.titulo.includes(termo))) : itens;
   });
 
   constructor() {
     effect(() => localStorage.setItem('athena.tema', this.modoEscuro() ? 'escuro' : 'claro'));
-    window.addEventListener('athena:session-expired', () => this.autenticado.set(false));
-    if (this.autenticado()) this.carregar();
+    window.addEventListener('athena:session-expired', () => this.limparSessao());
+    this.location.subscribe(() => {
+      if (this.autenticado()) this.restaurarRota();
+    });
+    if (this.autenticado()) this.carregarProjetos();
   }
 
   protected entrar(): void {
@@ -80,7 +113,8 @@ export class App {
         this.sessaoService.salvar(sessao);
         this.autenticado.set(true);
         this.entrando.set(false);
-        this.carregar();
+        this.senha.set('');
+        this.carregarProjetos();
       },
       error: (falha: HttpErrorResponse) => {
         const problema = falha.error as { detail?: string } | null;
@@ -91,10 +125,7 @@ export class App {
   }
 
   protected sair(): void {
-    this.sessaoService.encerrar().subscribe(() => {
-      this.autenticado.set(false);
-      this.requisitos.set([]);
-    });
+    this.sessaoService.encerrar().subscribe(() => this.limparSessao());
   }
 
   protected solicitarRecuperacao(): void {
@@ -115,56 +146,234 @@ export class App {
     });
   }
 
-  protected carregar(): void {
-    this.carregando.set(true);
+  private limparSessao(): void {
+    this.catalogo++;
+    this.leitura++;
+    this.autenticado.set(false);
+    this.carregandoProjetos.set(false);
+    this.projetos.set([]);
+    this.projetoId.set('');
+    this.requisitos.set([]);
+    this.epicos.set([]);
+    this.selecionado.set(null);
     this.erro.set(null);
-    this.api.listar(PROJETO_DEMO).subscribe({
-      next: (resposta) => {
-        this.requisitos.set(resposta.body?.items ?? []);
-        this.instancia.set(resposta.headers.get(CABECALHO_INSTANCIA));
-        this.carregando.set(false);
+  }
+
+  protected carregarProjetos(): void {
+    this.carregandoProjetos.set(true);
+    this.erro.set(null);
+    this.api.projetos().subscribe({
+      next: projetos => {
+        if (!this.autenticado()) return;
+        this.projetos.set(projetos.sort((a, b) =>
+          a.workspaceNome.localeCompare(b.workspaceNome, 'pt-BR') || a.nome.localeCompare(b.nome, 'pt-BR')));
+        this.carregandoProjetos.set(false);
+        this.restaurarRota();
       },
-      error: (falha: HttpErrorResponse) => {
-        const problema = falha.error as { detail?: string; title?: string } | null;
-        this.erro.set(problema?.detail ?? problema?.title ?? 'Livro indisponível.');
-        if (falha.status === 401) this.autenticado.set(false);
-        this.carregando.set(false);
+      error: falha => {
+        if (!this.autenticado()) return;
+        this.erro.set(this.mensagemErro(falha, 'Não foi possível carregar os projetos.'));
+        this.carregandoProjetos.set(false);
       },
     });
   }
 
-  protected rotulo(referencia: Referencia): string {
-    return referencia.disponivel ? (ROTULOS[referencia.tipo] ?? referencia.tipo) : '';
+  private restaurarRota(): void {
+    const [caminho, query] = this.location.path().split('?');
+    const partes = caminho.split('/').filter(Boolean);
+    const [prefixo, projetoId, secao, requisitoId] = partes;
+    if (!projetoId) {
+      const primeiro = this.projetos()[0];
+      if (primeiro) this.selecionarProjeto(primeiro.projetoId, true);
+      return;
+    }
+    const rotaValida = prefixo === 'projetos' && (
+      partes.length === 2 || ((secao === 'busca' || secao === 'requisitos') && partes.length === 3) ||
+      (secao === 'requisitos' && partes.length === 4 && /^[a-f0-9-]{36}$/i.test(requisitoId))
+    );
+    if (!rotaValida || !this.projetos().some(projeto => projeto.projetoId === projetoId)) {
+      this.catalogo++;
+      this.leitura++;
+      this.projetoId.set('');
+      this.requisitos.set([]);
+      this.epicos.set([]);
+      this.selecionado.set(null);
+      this.erro.set('Este Livro não está disponível para sua conta. Selecione um projeto para continuar.');
+      return;
+    }
+    if (this.projetoId() !== projetoId) this.ativarProjeto(projetoId);
+    else if (this.pagina() === 'requisito' && !requisitoId) this.carregarCatalogo();
+    if (secao === 'requisitos' && requisitoId) {
+      this.carregarLeitura(requisitoId);
+    } else if (secao === 'busca') {
+      this.leitura++;
+      const filtros = new URLSearchParams(query);
+      const campo = filtros.get('em');
+      const ordem = filtros.get('ordem');
+      const termo = filtros.get('q') ?? '';
+      this.consulta.set(termo);
+      this.termoAplicado.set(termo);
+      this.epico.set(filtros.get('epico') ?? '');
+      this.campoBusca.set(campo === 'titulo' || campo === 'conteudo' ? campo : 'todos');
+      this.ordenacao.set(ordem === 'titulo' || ordem === 'recente' ? ordem : 'relevancia');
+      this.pagina.set('busca');
+    } else {
+      this.leitura++;
+      this.pagina.set(secao === 'requisitos' ? 'catalogo' : 'inicio');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  protected selecionarProjeto(projetoId: string, substituir = false): void {
+    if (!this.projetos().some(projeto => projeto.projetoId === projetoId)) return;
+    this.navegar(`/projetos/${projetoId}`, substituir);
+  }
+
+  private ativarProjeto(projetoId: string): void {
+    this.leitura++;
+    this.projetoId.set(projetoId);
+    this.requisitos.set([]);
+    this.epicos.set([]);
+    this.avisoEpicos.set('');
+    this.consulta.set('');
+    this.termoAplicado.set('');
+    this.epico.set('');
+    this.carregarCatalogo();
+  }
+
+  protected carregarCatalogo(): void {
+    const projeto = this.projetoId();
+    if (!projeto) return;
+    const numero = ++this.catalogo;
+    this.carregando.set(true);
+    this.erro.set(null);
+    this.avisoEpicos.set('');
+    this.api.listar(projeto).subscribe({
+      next: requisitos => {
+        if (numero !== this.catalogo) return;
+        this.requisitos.set(requisitos);
+        this.carregando.set(false);
+      },
+      error: falha => {
+        if (numero !== this.catalogo) return;
+        this.requisitos.set([]);
+        this.erro.set(this.mensagemErro(falha, 'Não foi possível carregar as publicações.'));
+        this.carregando.set(false);
+      },
+    });
+    this.api.epicos(projeto).subscribe({
+      next: epicos => { if (numero === this.catalogo) this.epicos.set(epicos); },
+      error: () => { if (numero === this.catalogo) this.avisoEpicos.set('Os nomes dos épicos estão indisponíveis.'); },
+    });
+  }
+
+  protected inicio(): void {
+    if (this.projetoId()) this.navegar(`/projetos/${this.projetoId()}`);
+  }
+
+  protected abrirCatalogo(): void {
+    if (this.projetoId()) this.navegar(`/projetos/${this.projetoId()}/requisitos`);
   }
 
   protected buscar(): void {
-    this.termoAplicado.set(this.consulta());
-    this.pagina.set('busca');
-    this.selecionado.set(null);
+    this.termoAplicado.set(this.consulta().trim());
+    this.atualizarBusca();
   }
 
-  protected abrir(requisito: RequisitoLivro): void {
-    this.selecionado.set(requisito);
+  protected buscarPorEpico(epico: string): void {
+    this.consulta.set('');
+    this.termoAplicado.set('');
+    this.epico.set(epico);
+    this.campoBusca.set('todos');
+    this.ordenacao.set('relevancia');
+    this.atualizarBusca();
+  }
+
+  protected atualizarBusca(): void {
+    if (!this.projetoId()) return;
+    const params = new URLSearchParams();
+    if (this.termoAplicado()) params.set('q', this.termoAplicado());
+    if (this.epico()) params.set('epico', this.epico());
+    if (this.campoBusca() !== 'todos') params.set('em', this.campoBusca());
+    if (this.ordenacao() !== 'relevancia') params.set('ordem', this.ordenacao());
+    this.navegar(`/projetos/${this.projetoId()}/busca${params.size ? '?' + params.toString() : ''}`);
+  }
+
+  protected abrir(requisitoId: string): void {
+    this.navegar(`/projetos/${this.projetoId()}/requisitos/${requisitoId}`);
+  }
+
+  private navegar(url: string, substituir = false): void {
+    const [caminho, query] = url.split('?');
+    if (url !== this.location.path()) {
+      if (substituir) this.location.replaceState(caminho, query);
+      else this.location.go(caminho, query);
+    }
+    this.restaurarRota();
+  }
+
+  protected carregarLeitura(requisitoId = this.requisitoId()): void {
+    const numero = ++this.leitura;
+    this.requisitoId.set(requisitoId);
     this.pagina.set('requisito');
+    this.carregandoLeitura.set(true);
+    this.selecionado.set(null);
+    this.erroLeitura.set('');
+    this.feedbackLink.set('');
+    this.api.obter(this.projetoId(), requisitoId).subscribe({
+      next: requisito => {
+        if (numero !== this.leitura) return;
+        this.selecionado.set(requisito);
+        this.carregandoLeitura.set(false);
+      },
+      error: falha => {
+        if (numero !== this.leitura) return;
+        this.carregandoLeitura.set(false);
+        if (falha.status === 404) this.requisitos.update(itens => itens.filter(item => item.requisitoId !== requisitoId));
+        this.erroLeitura.set(falha.status === 404
+          ? 'Este requisito não está disponível no Livro corrente.'
+          : this.mensagemErro(falha, 'Não foi possível carregar a publicação.'));
+      },
+    });
+  }
+
+  protected rotulo(ref: Referencia): string {
+    if (!ref.disponivel || ref.cancelado) return 'Referência indisponível';
+    if (ref.tipo === 'DEPENDE_DE') return ref.direcao === 'ENTRADA' ? 'É pré-requisito de' : 'Depende de';
+    if (ref.tipo === 'BLOQUEIA') return ref.direcao === 'ENTRADA' ? 'É bloqueado por' : 'Bloqueia';
+    return 'Relacionado a';
   }
 
   protected async copiarLink(): Promise<void> {
     try {
       await navigator.clipboard.writeText(window.location.href);
+      this.feedbackLink.set('Link copiado');
     } catch {
-      /* clipboard may be unavailable in non-secure contexts */
+      this.feedbackLink.set('Copie o endereço na barra do navegador.');
     }
-    this.copiado.set(true);
-    window.setTimeout(() => this.copiado.set(false), 1800);
   }
 
   protected epicoFor(item: RequisitoLivro): string {
-    if (/US-00[123]/.test(item.codigo)) return 'Autenticação e Conta';
-    if (/US-00[45]/.test(item.codigo)) return 'Organização de projetos';
-    if (/US-00[89]|US-010/.test(item.codigo)) return 'Editor de Requisitos';
-    if (/US-016|US-017/.test(item.codigo)) return 'Rastreabilidade';
-    if (/US-028|US-030/.test(item.codigo)) return 'Revisão e Publicação';
-    if (/US-019|US-022/.test(item.codigo)) return 'Integrações';
-    return 'Plataforma Athena';
+    if (!item.epicoId) return 'Sem épico';
+    return this.epicos().find(epico => epico.epicoId === item.epicoId)?.titulo ?? 'Épico indisponível';
+  }
+
+  protected irParaSecao(evento: MouseEvent, id: string): void {
+    evento.preventDefault();
+    document.getElementById(id)?.scrollIntoView();
+  }
+
+  protected atalhoBusca(evento: KeyboardEvent): void {
+    if (!this.projetoId() || !(evento.ctrlKey || evento.metaKey) || evento.key.toLowerCase() !== 'k') return;
+    const busca = document.querySelector<HTMLInputElement>('.global-search input');
+    if (busca) { evento.preventDefault(); busca.focus(); }
+  }
+
+  private dataPublicacao(requisito: RequisitoLivro): number {
+    return Date.parse(requisito.publicadoEm ?? '') || 0;
+  }
+
+  private mensagemErro(falha: HttpErrorResponse, fallback: string): string {
+    return (falha.error as { detail?: string } | null)?.detail ?? fallback;
   }
 }

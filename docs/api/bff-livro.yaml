@@ -257,6 +257,10 @@ components:
         cancelado:
           type: boolean
           example: false
+        direcao:
+          type: string
+          enum: [ENTRADA, SAIDA]
+          description: Direção da relação em relação ao requisito lido.
         tipo:
           $ref: ./_shared/components.yaml#/components/schemas/TipoRelacao
       additionalProperties: false
@@ -298,6 +302,14 @@ components:
         titulo:
           type: string
           example: Exportar documento de requisitos.
+        epicoId:
+          type: string
+          format: uuid
+          description: Épico atual do requisito, quando atribuído.
+        publicadoEm:
+          type: string
+          format: date-time
+          description: Data da publicação da versão exibida.
         versaoPublicada:
           type: integer
           example: 3

@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import { Sessao, SessaoService } from './sessao';
 
 /**
@@ -58,8 +58,28 @@ export interface Workspace { workspaceId: string; nome: string; ownerId: string;
 export interface Notificacao { notificacaoId: string; mensagem: string; lida: boolean; atualizadoEm: string; tipo: string; projetoId?: string; link?: string; }
 export interface Membro { membroId: string; usuarioId: string; papel: string; atualizadoEm: string; nome: string; email: string; }
 export interface Convite { conviteId: string; projetoId: string; email: string; papel: string; aceito: boolean; atualizadoEm: string; projetoNome?: string; }
-export interface Baseline { baselineId: string; nome: string; atualizadoEm?: string; quantidade?: number; }
+export interface Baseline { baselineId: string; nome: string; data: string; quantidade: number; }
 export interface VersaoRequisito { versaoId: string; numero: number; estadoVersao: string; titulo: string; atualizadoEm: string; }
+export interface EventoRequisito { eventoId: string; acao: string; data: string; }
+export interface ComparacaoVersao {
+  de: { numero: number };
+  para: { numero: number };
+  titulo: { anterior: string; atual: string; alterado: boolean };
+  conteudo: { tipo: 'IGUAL' | 'ADICIONADA' | 'REMOVIDA'; texto: string }[];
+  criterios: { adicionados: string[]; removidos: string[] };
+}
+export type SituacaoComparacaoBaseline = 'INALTERADO' | 'ALTERADO' | 'FORA_DO_LIVRO' | 'NOVO';
+export interface ComparacaoBaseline {
+  contagens: Record<SituacaoComparacaoBaseline, number>;
+  itens: {
+    requisitoId: string;
+    codigo: string;
+    titulo: string;
+    situacao: SituacaoComparacaoBaseline;
+    numeroBaseline?: number;
+    numeroAtual?: number;
+  }[];
+}
 export interface Usuario { usuarioId: string; nome: string; email: string; }
 
 export interface NovoProjeto {
@@ -286,23 +306,25 @@ export class GestaoApi {
   }
 
   criarBaseline(projetoId: string, nome: string): Observable<Baseline> {
-    return this.http.post<Baseline>(`${BASE}/projetos/${projetoId}/baselines`, { nome, versoes: [] }, this.opcoesAutenticadas());
+    return this.http.post<Omit<Baseline, 'quantidade'> & { versoes: unknown[] }>(
+      `${BASE}/projetos/${projetoId}/baselines`, { nome, versoes: [] }, this.opcoesAutenticadas(),
+    ).pipe(map(({ versoes, ...baseline }) => ({ ...baseline, quantidade: versoes.length })));
   }
 
-  compararBaseline(projetoId: string, baselineId: string): Observable<unknown> {
-    return this.http.get(`${BASE}/projetos/${projetoId}/baselines/${baselineId}/comparacao`, this.opcoesAutenticadas());
+  compararBaseline(projetoId: string, baselineId: string): Observable<ComparacaoBaseline> {
+    return this.http.get<ComparacaoBaseline>(`${BASE}/projetos/${projetoId}/baselines/${baselineId}/comparacao`, this.opcoesAutenticadas());
   }
 
-  listarHistoricoRequisito(projetoId: string, requisitoId: string): Observable<Pagina<Record<string, unknown>>> {
-    return this.http.get<Pagina<Record<string, unknown>>>(`${BASE}/projetos/${projetoId}/requisitos/${requisitoId}/historico`, { params: { size: 100 }, ...this.opcoesAutenticadas() });
+  listarHistoricoRequisito(projetoId: string, requisitoId: string): Observable<Pagina<EventoRequisito>> {
+    return this.http.get<Pagina<EventoRequisito>>(`${BASE}/projetos/${projetoId}/requisitos/${requisitoId}/historico`, { params: { size: 100 }, ...this.opcoesAutenticadas() });
   }
 
   listarVersoesRequisito(projetoId: string, requisitoId: string): Observable<Pagina<VersaoRequisito>> {
     return this.http.get<Pagina<VersaoRequisito>>(`${BASE}/projetos/${projetoId}/requisitos/${requisitoId}/versoes`, { params: { size: 100 }, ...this.opcoesAutenticadas() });
   }
 
-  compararVersoesRequisito(projetoId: string, requisitoId: string, versaoId: string): Observable<unknown> {
-    return this.http.get(`${BASE}/projetos/${projetoId}/requisitos/${requisitoId}/versoes/${versaoId}/diferencas`, this.opcoesAutenticadas());
+  compararVersoesRequisito(projetoId: string, requisitoId: string, versaoId: string): Observable<ComparacaoVersao> {
+    return this.http.get<ComparacaoVersao>(`${BASE}/projetos/${projetoId}/requisitos/${requisitoId}/versoes/${versaoId}/diferencas`, this.opcoesAutenticadas());
   }
 
   listarConvitesRecebidos(): Observable<Pagina<Convite>> {

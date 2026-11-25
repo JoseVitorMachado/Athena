@@ -448,6 +448,18 @@ body {
 .publication-row:last-child {
   border-bottom: 0;
 }
+.catalog-publications .publication-row:hover .pub-title strong,
+.catalog-publications .publication-row:focus-visible .pub-title strong {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.catalog-publications .pub-title,
+.catalog-publications .pub-code {
+  overflow-wrap: anywhere;
+}
+.catalog-mobile-version {
+  display: none;
+}
 .pub-code {
   color: var(--gold);
   font:
@@ -1015,6 +1027,9 @@ body {
   .published-label {
     display: none;
   }
+  .catalog-mobile-version {
+    display: block;
+  }
   .book-footer {
     gap: 9px;
     font-size: 9px;
@@ -1102,3 +1117,58 @@ body {
 input::placeholder { color: var(--muted); }
 input[type="checkbox"] { accent-color: var(--gold); }
  .book-login-card .book-remember{display:flex;align-items:center;gap:8px}.book-login-card .book-remember input{width:auto}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.book-project-select { min-width: 0; }
+.book-project-select select {
+  max-width: min(26vw, 300px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  color: var(--ink);
+  background: var(--paper);
+  font: inherit;
+  font-size: 13px;
+}
+.epic-nav button.current { background: var(--gold-soft); color: var(--gold-dark); }
+.epic-card { min-height: 106px; gap: 14px; }
+.results-list .result-card > p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.published-content { overflow-wrap: anywhere; line-height: 1.65; }
+.published-content table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+.published-content :is(td, th) { padding: 8px 12px; border: 1px solid var(--line); }
+.published-content th { background: var(--surface-subtle); }
+.published-content a, .book-reference, .relation-warning button { color: var(--gold-dark); }
+.book-reference, .relation-warning button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.criterion p { white-space: pre-wrap; }
+.requirement-doc section { scroll-margin-top: 105px; }
+.doc-navigation { flex-wrap: wrap; gap: 10px; }
+@media (max-width: 800px) {
+  .book-project-select select { max-width: min(30vw, 190px); }
+}
+@media (max-width: 580px) {
+  .book-topbar { flex-wrap: wrap; height: 96px; align-content: center; gap: 8px; }
+  .book-project-select { flex: 1; }
+  .book-project-select select { width: 100%; max-width: none; }
+  .global-search { order: 1; flex-basis: 100%; }
+  .book-sidebar { margin-top: 96px; }
+}

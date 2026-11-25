@@ -23,17 +23,27 @@
 } @else {
 <div class="book-app">
   <header class="book-topbar">
-    <a class="book-brand" href="#" (click)="$event.preventDefault(); pagina.set('inicio')"
+    <a class="book-brand" href="#" (click)="$event.preventDefault(); inicio()"
       ><img class="brand-shield" src="athena-escudo.svg" alt="" width="26" height="26" /><span>ATH<span class="gold">E</span>NA</span></a
     >
     <span class="book-label">LIVRO DE REQUISITOS</span
-    ><button class="platform">Plataforma Athena <span>⌄</span></button>
+    >
+    <label class="book-project-select">
+      <span class="sr-only">Projeto do Livro</span>
+      <select [ngModel]="projetoId()" (ngModelChange)="selecionarProjeto($event)" [disabled]="carregandoProjetos() || !projetos().length">
+        <option value="" disabled>{{ carregandoProjetos() ? 'Carregando projetos…' : 'Selecione um projeto' }}</option>
+        @for (projeto of projetos(); track projeto.projetoId) {
+          <option [value]="projeto.projetoId">{{ projeto.nome }} · {{ projeto.workspaceNome }}</option>
+        }
+      </select>
+    </label>
     <label class="global-search"
       ><span>⌕</span
       ><input
         aria-label="Buscar na documentação"
         placeholder="Buscar na documentação"
         (keydown.enter)="buscar()"
+        [disabled]="!projetoId()"
         [ngModel]="consulta()"
         (ngModelChange)="consulta.set($event)"
       /><kbd>Ctrl K</kbd></label
@@ -43,45 +53,26 @@
   </header>
   <aside class="book-sidebar">
     <div class="sidebar-intro">
-      <small>UFLA / SISTEMAS DISTRIBUÍDOS</small><strong>Plataforma Athena</strong
-      ><span>Documentação oficial</span>
+      <strong>{{ projetoAtual()?.nome || 'Livro de Requisitos' }}</strong>
+      @if (projetoAtual(); as projeto) { <span>{{ projeto.workspaceNome }}</span> }
     </div>
-    <nav>
-      <button [class.current]="pagina() === 'inicio'" (click)="pagina.set('inicio')">
-        Início do Livro</button
-      ><button [class.current]="pagina() === 'busca'" (click)="pagina.set('busca')">
-        Buscar requisitos
-      </button>
-    </nav>
-    <div class="epic-nav">
-      <small>REQUISITOS POR ÉPICO</small>
-      <button
-        (click)="epico.set('Autenticação e Conta'); pagina.set('busca'); termoAplicado.set('')"
-      >
-        › <span>Autenticação e Conta</span><i>3</i>
-      </button>
-      <button
-        (click)="epico.set('Organização de projetos'); pagina.set('busca'); termoAplicado.set('')"
-      >
-        › <span>Organização de projetos</span><i>2</i>
-      </button>
-      <button
-        (click)="epico.set('Editor de Requisitos'); pagina.set('busca'); termoAplicado.set('')"
-      >
-        › <span>Editor de Requisitos</span><i>1</i>
-      </button>
-      <button (click)="epico.set('Rastreabilidade'); pagina.set('busca'); termoAplicado.set('')">
-        › <span>Rastreabilidade</span><i>1</i>
-      </button>
-      <button
-        (click)="epico.set('Revisão e Publicação'); pagina.set('busca'); termoAplicado.set('')"
-      >
-        › <span>Revisão e Publicação</span><i>1</i>
-      </button>
-      <button (click)="epico.set('Integrações'); pagina.set('busca'); termoAplicado.set('')">
-        › <span>Integrações</span><i>1</i>
-      </button>
-    </div>
+    @if (projetoId()) {
+      <nav aria-label="Navegação do Livro">
+        <button [class.current]="pagina() === 'inicio'" (click)="inicio()">Início do Livro</button>
+        <button [class.current]="pagina() === 'busca'" (click)="buscar()">Buscar requisitos</button>
+        <button [class.current]="pagina() === 'catalogo'" [attr.aria-current]="pagina() === 'catalogo' ? 'page' : null" (click)="abrirCatalogo()">Todos os requisitos</button>
+      </nav>
+      @if (grupos().length) {
+        <div class="epic-nav">
+          <small>REQUISITOS POR ÉPICO</small>
+          @for (grupo of grupos(); track grupo.id) {
+            <button [class.current]="pagina() === 'busca' && epico() === grupo.id" (click)="buscarPorEpico(grupo.id)">
+              › <span>{{ grupo.titulo }}</span><i>{{ grupo.quantidade }}</i>
+            </button>
+          }
+        </div>
+      }
+    }
     <div class="readonly-note">
       <strong>Somente leitura</strong
       ><span>Acesso exclusivo aos membros autorizados deste projeto.</span>
@@ -89,36 +80,43 @@
   </aside>
 
   <main class="book-content">
-    <div class="breadcrumb">
-      <button (click)="pagina.set('inicio')">Livro de Requisitos</button><span>/</span>
-      @if (pagina() === 'inicio') {
-        <span>Início</span>
-      } @else if (pagina() === 'busca') {
-        <span>Buscar requisitos</span>
-      } @else {
-        <button (click)="pagina.set('busca')">{{ selecionado()?.codigo ?? 'Requisito' }}</button>
-      }
-    </div>
-    @if (erro(); as mensagem) {
-      <div class="book-error" role="alert">{{ mensagem }}</div>
+    @if (carregandoProjetos()) {
+      <p class="loading" role="status">Carregando projetos…</p>
+    } @else if (!projetoId()) {
+      <section class="no-results" aria-live="polite">
+        @if (erro(); as mensagem) { <strong role="alert">{{ mensagem }}</strong> }
+        @else { <strong>Nenhum projeto disponível</strong> }
+        <span>{{ projetos().length ? 'Escolha um projeto no seletor acima.' : 'O Livro fica disponível quando você tem acesso a um projeto ativo.' }}</span>
+        @if (erro()) { <button class="search-button" (click)="carregarProjetos()">Tentar novamente</button> }
+      </section>
+    } @else {
+    <nav class="breadcrumb" aria-label="Caminho da página">
+      <button (click)="inicio()">Livro de Requisitos</button><span>/</span>
+      @if (pagina() === 'inicio') { <span>Início</span> }
+      @else if (pagina() === 'busca') { <span>Buscar requisitos</span> }
+      @else if (pagina() === 'catalogo') { <span aria-current="page">Todos os requisitos</span> }
+      @else { <span>{{ selecionado()?.codigo ?? 'Requisito' }}</span> }
+    </nav>
+    @if (erro() && pagina() !== 'requisito') {
+      <div class="book-error" role="alert">{{ erro() }} <button type="button" (click)="carregarCatalogo()">Tentar novamente</button></div>
     }
-
-    @if (carregando()) {
-      <p class="loading">Carregando conteúdo publicado…</p>
+    @if (avisoEpicos()) { <p class="doc-muted" role="status">{{ avisoEpicos() }}</p> }
+    @if (carregando() && pagina() !== 'requisito') {
+      <p class="loading" role="status">Carregando conteúdo publicado…</p>
     }
 
     @if (pagina() === 'inicio') {
       <section class="hero-book">
         <div class="hero-meta">
           <span>DOCUMENTAÇÃO OFICIAL</span
-          ><small>{{ requisitos().length }} requisitos publicados · 6 épicos</small>
+          ><small>{{ requisitos().length }} requisitos publicados · {{ grupos().length }} grupos</small>
         </div>
         <h1>Conhecimento que conecta<br />todo o projeto.</h1>
         <p>
           Consulte as versões publicadas, entenda as regras e acompanhe as relações<br
             class="desktop-break"
           />
-          entre os requisitos da Plataforma Athena.
+          entre os requisitos de {{ projetoAtual()?.nome }}.
         </p>
         <form class="hero-search" (ngSubmit)="buscar()">
           <span>⌕</span
@@ -133,66 +131,29 @@
       <section class="epic-section">
         <div class="section-head">
           <h2>Explore por épico</h2>
-          <button
-            (click)="
-              epico.set('Todos'); termoAplicado.set(''); consulta.set(''); pagina.set('busca')
-            "
-          >
-            Ver todos os requisitos →
-          </button>
+          <button (click)="abrirCatalogo()">Ver todos os requisitos →</button>
         </div>
-        <div class="epic-grid">
-          <button
-            class="epic-card"
-            (click)="epico.set('Autenticação e Conta'); pagina.set('busca')"
-          >
-            <span>01 <b>↗</b></span
-            ><strong>Autenticação e Conta</strong
-            ><small>Cadastro, acesso seguro e recuperação de credenciais.</small><i>3 requisitos</i>
-          </button>
-          <button
-            class="epic-card"
-            (click)="epico.set('Organização de projetos'); pagina.set('busca')"
-          >
-            <span>02 <b>↗</b></span
-            ><strong>Organização de projetos</strong
-            ><small>Workspaces e projetos em um só lugar.</small><i>2 requisitos</i>
-          </button>
-          <button
-            class="epic-card"
-            (click)="epico.set('Editor de Requisitos'); pagina.set('busca')"
-          >
-            <span>03 <b>↗</b></span
-            ><strong>Editor de Requisitos</strong
-            ><small>Estrutura e conteúdo das histórias de usuário.</small><i>1 requisito</i>
-          </button>
-          <button class="epic-card" (click)="epico.set('Rastreabilidade'); pagina.set('busca')">
-            <span>04 <b>↗</b></span
-            ><strong>Rastreabilidade</strong
-            ><small>Vínculos oficiais entre os requisitos do projeto.</small><i>1 requisito</i>
-          </button>
-          <button
-            class="epic-card"
-            (click)="epico.set('Revisão e Publicação'); pagina.set('busca')"
-          >
-            <span>05 <b>↗</b></span
-            ><strong>Revisão e Publicação</strong
-            ><small>Decisões de revisão e conteúdo aprovado.</small><i>1 requisito</i>
-          </button>
-          <button class="epic-card" (click)="epico.set('Integrações'); pagina.set('busca')">
-            <span>06 <b>↗</b></span
-            ><strong>Integrações</strong><small>Conexão com ferramentas da sua equipe.</small
-            ><i>1 requisito</i>
-          </button>
-        </div>
+        @if (grupos().length) {
+          <div class="epic-grid">
+            @for (grupo of grupos(); track grupo.id) {
+              <button class="epic-card" (click)="buscarPorEpico(grupo.id)">
+                <strong>{{ grupo.titulo }}</strong>
+                <i>{{ grupo.quantidade }} {{ grupo.quantidade === 1 ? 'requisito publicado' : 'requisitos publicados' }}</i>
+              </button>
+            }
+          </div>
+        } @else if (!carregando() && !erro()) {
+          <p class="no-results">Nenhum requisito publicado neste projeto.</p>
+        }
       </section>
+      @if (recentes().length) {
       <section class="recent-publications">
         <header>
           <h2>Publicações recentes</h2>
           <small>Últimas versões disponíveis para leitura</small>
         </header>
-        @for (requisito of requisitos().slice(0, 3); track requisito.requisitoId) {
-          <button class="publication-row" (click)="abrir(requisito)">
+        @for (requisito of recentes(); track requisito.requisitoId) {
+          <button class="publication-row" (click)="abrir(requisito.requisitoId)">
             <span class="pub-code">{{ requisito.codigo ?? 'US' }}</span
             ><span class="pub-title"
               ><strong>{{ requisito.titulo }}</strong
@@ -202,10 +163,41 @@
           </button>
         }
       </section>
+      }
       <footer class="book-footer">
         <span>Somente requisitos ativos com versão publicada são exibidos neste Livro.</span
         ><span>ATHENA / Livro de Requisitos</span>
       </footer>
+    } @else if (pagina() === 'catalogo') {
+      <header class="search-heading">
+        <h1>Todos os requisitos</h1>
+        <p>Versões publicadas em {{ projetoAtual()?.nome }}.</p>
+      </header>
+      @if (!carregando() && !erro()) {
+        @if (requisitos().length) {
+          <section class="recent-publications catalog-publications" aria-labelledby="catalogo-publicacoes">
+            <header>
+              <h2 id="catalogo-publicacoes">
+                {{ requisitos().length }} {{ requisitos().length === 1 ? 'requisito publicado' : 'requisitos publicados' }}
+              </h2>
+            </header>
+            @for (requisito of requisitos(); track requisito.requisitoId) {
+              <button type="button" class="publication-row" (click)="abrir(requisito.requisitoId)">
+                <span class="pub-code">{{ requisito.codigo }}</span>
+                <span class="pub-title">
+                  <strong>{{ requisito.titulo }}</strong>
+                  <small>{{ epicoFor(requisito) }}</small>
+                  <small class="catalog-mobile-version">Publicada · v{{ requisito.versaoPublicada }}</small>
+                </span>
+                <span class="published-label">Publicada · v{{ requisito.versaoPublicada }}</span>
+                <span class="read-link">Ler requisito <span aria-hidden="true">→</span></span>
+              </button>
+            }
+          </section>
+        } @else {
+          <p class="no-results">Nenhum requisito publicado neste projeto.</p>
+        }
+      }
     } @else if (pagina() === 'busca') {
       <header class="search-heading">
         <h1>Buscar requisitos</h1>
@@ -222,36 +214,31 @@
           /><button
             type="button"
             class="clear-search"
-            (click)="consulta.set(''); termoAplicado.set('')"
+            (click)="consulta.set(''); buscar()"
           >
             Limpar</button
           ><button class="search-button" type="submit">Pesquisar →</button>
         </form>
         <div class="search-filters">
-          <label
-            >Épico<select [ngModel]="epico()" (ngModelChange)="epico.set($event)">
-              <option>Todos</option>
-              <option>Autenticação e Conta</option>
-              <option>Organização de projetos</option>
-              <option>Editor de Requisitos</option>
-              <option>Rastreabilidade</option>
-              <option>Revisão e Publicação</option>
-              <option>Integrações</option>
-            </select></label
-          ><label
-            >Pesquisar em<select>
-              <option>Título e conteúdo</option>
-              <option>Título</option>
-              <option>Conteúdo</option>
-            </select></label
-          ><label
-            >Ordenar por<select [ngModel]="ordenacao()" (ngModelChange)="ordenacao.set($event)">
-              <option>Relevância</option>
-              <option>Título</option>
-            </select></label
-          >
+          <label>Épico
+            <select [ngModel]="epico()" (ngModelChange)="epico.set($event); atualizarBusca()">
+              <option value="">Todos</option>
+              @for (grupo of grupos(); track grupo.id) { <option [value]="grupo.id">{{ grupo.titulo }}</option> }
+            </select>
+          </label>
+          <label>Pesquisar em
+            <select [ngModel]="campoBusca()" (ngModelChange)="campoBusca.set($event); atualizarBusca()">
+              <option value="todos">Título e conteúdo</option><option value="titulo">Título e código</option><option value="conteudo">Conteúdo e critérios</option>
+            </select>
+          </label>
+          <label>Ordenar por
+            <select [ngModel]="ordenacao()" (ngModelChange)="ordenacao.set($event); atualizarBusca()">
+              <option value="relevancia">Relevância</option><option value="titulo">Título</option><option value="recente">Mais recentes</option>
+            </select>
+          </label>
         </div>
       </section>
+      @if (!carregando() && !erro()) {
       <div class="results-heading">
         <h2>
           {{ resultados().length }} {{ resultados().length === 1 ? 'resultado' : 'resultados' }}
@@ -262,19 +249,20 @@
         <small>Busca em {{ requisitos().length }} requisitos publicados</small>
       </div>
       <section class="results-list">
-        @for (requisito of resultados(); track requisito.requisitoId) {
+        @for (resultado of resultados(); track resultado.item.requisitoId) {
+          @let requisito = resultado.item;
           <article class="result-card">
             <div class="result-meta">
               <span>{{ requisito.codigo ?? 'REQUISITO' }} / {{ epicoFor(requisito) }}</span
               ><i>Publicada · v{{ requisito.versaoPublicada }}</i>
             </div>
-            <button class="result-title" (click)="abrir(requisito)">{{ requisito.titulo }}</button>
-            <p>{{ requisito.conteudo }}</p>
+            <button class="result-title" (click)="abrir(requisito.requisitoId)">{{ requisito.titulo }}</button>
+            <p>{{ resultado.resumo }}</p>
             <div class="result-bottom">
               <span
                 >{{ requisito.criteriosAceite.length ? 'Critérios de aceite · ' : ''
                 }}{{ epicoFor(requisito) }}</span
-              ><button (click)="abrir(requisito)">Ler requisito →</button>
+              ><button (click)="abrir(requisito.requisitoId)">Ler requisito →</button>
             </div>
           </article>
         } @empty {
@@ -285,8 +273,8 @@
         }
       </section>
       <div class="result-count">
-        Exibindo {{ resultados().length }} de {{ resultados().length }} resultados
-        <button (click)="epico.set('Todos'); consulta.set(''); termoAplicado.set('')">
+        Exibindo {{ resultados().length }} de {{ requisitos().length }} requisitos publicados
+        <button (click)="buscarPorEpico('')">
           Limpar filtros
         </button>
       </div>
@@ -297,6 +285,15 @@
           nova revisão não substitui a versão publicada até sua publicação.</span
         >
       </div>
+      }
+    } @else if (carregandoLeitura()) {
+      <p class="loading" role="status">Carregando publicação…</p>
+    } @else if (erroLeitura()) {
+      <section class="no-results" aria-live="polite">
+        <strong role="alert">{{ erroLeitura() }}</strong>
+        <button class="search-button" (click)="carregarLeitura()">Tentar novamente</button>
+        <button class="book-theme-toggle" (click)="inicio()">Voltar ao início</button>
+      </section>
     } @else if (selecionado(); as requisito) {
       <div class="requirement-layout">
         <article class="requirement-doc">
@@ -308,16 +305,13 @@
           <div class="immutable-bar">
             <span>Versão publicada v{{ requisito.versaoPublicada }} · Conteúdo imutável</span
             ><button (click)="copiarLink()">
-              {{ copiado() ? 'Link copiado ✓' : 'Copiar link ↗' }}
+              Copiar link ↗
             </button>
           </div>
-          <section id="historia">
-            <h2>História de usuário</h2>
-            <blockquote>{{ requisito.conteudo }}</blockquote>
-          </section>
-          <section id="contexto">
-            <h2>Contexto e descrição funcional</h2>
-            <p>{{ requisito.conteudo }}</p>
+          @if (feedbackLink()) { <p class="doc-muted" role="status">{{ feedbackLink() }}</p> }
+          <section id="conteudo">
+            <h2>Conteúdo publicado</h2>
+            <div class="published-content" [innerHTML]="conteudoSelecionado()"></div>
           </section>
           <section id="criterios">
             <h2>Critérios de aceitação</h2>
@@ -332,54 +326,53 @@
               </p>
             }
           </section>
-          <section id="regras">
-            <h2>Regras de negócio</h2>
-            <p class="doc-muted">
-              As regras aplicáveis estão descritas na versão oficial deste requisito.
-            </p>
-          </section>
         </article>
         <aside class="doc-aside">
           <section>
-            <small>NESTA PÁGINA</small><a href="#historia">História de usuário</a
-            ><a href="#contexto">Contexto e descrição</a
-            ><a href="#criterios">Critérios de aceitação</a><a href="#regras">Regras de negócio</a>
+            <small>NESTA PÁGINA</small><a href="#conteudo" (click)="irParaSecao($event, 'conteudo')">Conteúdo publicado</a>
+            <a href="#criterios" (click)="irParaSecao($event, 'criterios')">Critérios de aceitação</a>
           </section>
           <section>
             <h3>Sobre esta publicação</h3>
             <small>Versão oficial</small
             ><strong class="green">v{{ requisito.versaoPublicada }} · Publicada</strong
             ><small>Épico</small><span>{{ epicoFor(requisito) }}</span>
+            @if (requisito.publicadoEm) { <small>Publicado em</small><span>{{ requisito.publicadoEm | date:'dd/MM/yyyy' }}</span> }
             <p>Somente leitura. Alterações são realizadas no ambiente de Gestão.</p>
           </section>
           <section>
             <h3>Retrato das relações</h3>
             <small>Vinculado à publicação v{{ requisito.versaoPublicada }}</small>
-            @if (requisito.referencias.length) {
-              @for (ref of requisito.referencias; track $index) {
-                <p>
-                  {{
-                    ref.disponivel
-                      ? rotulo(ref) + ' · ' + ref.codigo + ' ' + ref.titulo
-                      : 'Referência indisponível'
-                  }}
-                </p>
-              }
-            } @else {
+            @if (requisito.avisos.length) {
               <div class="relation-warning">
                 <strong>Relações indisponíveis</strong>
-                <p>
-                  Não foi possível carregar o retrato. O conteúdo publicado continua disponível.
-                </p>
+                @for (aviso of requisito.avisos; track $index) { <p>{{ aviso }}</p> }
+                <p>O conteúdo publicado continua disponível.</p>
+                <button type="button" (click)="carregarLeitura()">Tentar novamente</button>
               </div>
+            } @else {
+              @for (ref of requisito.referencias; track $index) {
+                @if (ref.disponivel && !ref.cancelado) {
+                  <p>{{ rotulo(ref) }} <button type="button" class="book-reference" (click)="abrir(ref.requisitoId)">{{ ref.codigo }} · {{ ref.titulo }}</button></p>
+                } @else {
+                  <p>Referência indisponível</p>
+                }
+              } @empty { <p>Esta publicação não possui relações no retrato.</p> }
             }
+
           </section>
         </aside>
       </div>
       <div class="doc-navigation">
-        <button (click)="pagina.set('busca')">← Voltar à busca</button
-        ><span>ATHENA / Livro de Requisitos</span>
+        @if (vizinhos().anterior; as anterior) {
+          <button (click)="abrir(anterior.requisitoId)">← {{ anterior.codigo }} · {{ anterior.titulo }}</button>
+        }
+        <button (click)="buscar()">Voltar à busca</button>
+        @if (vizinhos().proximo; as proximo) {
+          <button (click)="abrir(proximo.requisitoId)">{{ proximo.codigo }} · {{ proximo.titulo }} →</button>
+        }
       </div>
+    }
     }
   </main>
 </div>

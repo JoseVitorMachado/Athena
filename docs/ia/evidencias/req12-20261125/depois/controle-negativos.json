@@ -1,0 +1,229 @@
+{
+  "cenario_id": "controle-negativos",
+  "modo": "alvos_fixos_api",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "resultado": {
+    "resposta": "1 sugestões de revisão em 2 alvos analisados; decisão humana pendente.",
+    "justificativa": "Cada análise liga o diff ao conteúdo de um alvo e propõe uma verificação. Ausência de sugestão não certifica ausência de impacto.",
+    "fontes_ids": [
+      "E1",
+      "E2",
+      "E3",
+      "E4"
+    ],
+    "sugestoes": [
+      {
+        "requisito": "REQ-9",
+        "trecho_alvo": "A recuperação de senha utiliza um token de uso único válido por 15 minutos.",
+        "mudanca": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados.",
+        "efeito": "A obrigação de recuperação de senha pode exigir revisão de testes para garantir que o limite de 15 minutos para o token de uso único não seja violado.",
+        "verificacao": "Testar a validade do token após 15 minutos para garantir que a recuperação de senha funcione conforme esperado.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E3"
+        ],
+        "triagem": {
+          "trecho_alvo": "O token expira em 15 minutos.",
+          "justificativa": "O trecho altera a validade do token de uso único, que é uma parte do fluxo de recuperação de senha.",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E2",
+            "E1"
+          ],
+          "fontes_ids": [
+            "E3"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "A obrigação de recuperação de senha pode exigir revisão de testes para garantir que o limite de 15 minutos para o token de uso único não seja violado."
+      }
+    ],
+    "analises": [
+      {
+        "requisito": "REQ-9",
+        "trecho_alvo": "A recuperação de senha utiliza um token de uso único válido por 15 minutos.",
+        "mudanca": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados.",
+        "efeito": "A obrigação de recuperação de senha pode exigir revisão de testes para garantir que o limite de 15 minutos para o token de uso único não seja violado.",
+        "verificacao": "Testar a validade do token após 15 minutos para garantir que a recuperação de senha funcione conforme esperado.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E3"
+        ],
+        "triagem": {
+          "trecho_alvo": "O token expira em 15 minutos.",
+          "justificativa": "O trecho altera a validade do token de uso único, que é uma parte do fluxo de recuperação de senha.",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E2",
+            "E1"
+          ],
+          "fontes_ids": [
+            "E3"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-10",
+        "classificacao": "SEM_IMPACTO_IDENTIFICADO",
+        "mudanca": "Alteração em: conteudo, criteriosAceite",
+        "trecho_alvo": "O usuário pode escolher tema claro ou escuro para a interface.",
+        "efeito": "O trecho do alvo não menciona exportações de documentos ou requisitos selecionados, então não há vínculo direto com as mudanças no PRINCIPAL.",
+        "verificacao": "Confirmar manualmente o vínculo com a parte alterada, usando as versões e a evidência do alvo.",
+        "fontes_ids": [
+          "E4"
+        ],
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "triagem": {
+          "trecho_alvo": "O usuário pode escolher tema claro ou escuro para a interface.",
+          "justificativa": "O trecho do alvo não menciona exportações de documentos ou requisitos selecionados, então não há vínculo direto com as mudanças no PRINCIPAL.",
+          "vinculo": "INDEPENDENTE",
+          "fontes_mudanca_ids": [
+            "E1",
+            "E2"
+          ],
+          "fontes_ids": [
+            "E4"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      }
+    ],
+    "escopo": "Vizinhos do mapa (até 10) e resultados do MCP; não é uma varredura de todo o projeto."
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-12",
+      "requisito_id": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "versao_id": "62a088ba-8fa8-45b9-a3a6-a083d168727e",
+      "texto": "{\"titulo\": \"Limitar quantidade de requisitos por exportação\", \"conteudo\": \"O sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.\", \"criteriosAceite\": [\"Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos.\", \"Bloquear a exportação quando houver 101 ou mais requisitos selecionados.\", \"Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação.\", \"Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/versoes/62a088ba-8fa8-45b9-a3a6-a083d168727e",
+      "origem": "API_PUBLICADA",
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-12",
+      "requisito_id": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "versao_id": "e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+      "texto": "{\"titulo\": \"Limitar quantidade de requisitos por exportação\", \"conteudo\": \"O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e informar sucesso ao usuário sem avisar sobre as omissões. A contagem de relações do arquivo pode ser menor que a contagem de relações da seleção original.\", \"criteriosAceite\": [\"Até 100 requisitos selecionados, incluir todos no arquivo.\", \"Com 101 ou mais requisitos selecionados, incluir somente os primeiros 100 e descartar os demais.\", \"Excluir do arquivo as relações associadas aos requisitos descartados.\", \"Informar sucesso sem avisar sobre omissões e sem bloquear a exportação.\", \"Permitir que a contagem de relações exportadas seja menor que a contagem na seleção original.\"], \"estadoVersao\": \"RASCUNHO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/versoes/e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+      "origem": "API_CANDIDATA",
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-9",
+      "requisito_id": "292cc70b-8eaf-4137-9997-3c405f494255",
+      "versao_id": "7ac08e51-abec-45db-991f-53975e93fcc4",
+      "texto": "{\"titulo\": \"[IA-V2-RECUPERACAO] Recuperar senha da conta\", \"conteudo\": \"A recuperação de senha utiliza um token de uso único válido por 15 minutos. Depois de consumido ou expirado, o token deve ser rejeitado. Esse fluxo não lê documentos nem participa da exportação de requisitos.\", \"criteriosAceite\": [\"O token expira em 15 minutos.\", \"Um token consumido não pode ser reutilizado.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/292cc70b-8eaf-4137-9997-3c405f494255/versoes/7ac08e51-abec-45db-991f-53975e93fcc4",
+      "origem": "API_CONTROLE",
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-10",
+      "requisito_id": "cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "versao_id": "fa467316-ad48-444a-9c95-ae54fd140f14",
+      "texto": "{\"titulo\": \"[IA-V2-TEMA] Escolher tema da interface\", \"conteudo\": \"O usuário pode escolher tema claro ou escuro para a interface. A preferência é individual e não altera o conteúdo dos requisitos nem a aparência dos arquivos exportados.\", \"criteriosAceite\": [\"A preferência do usuário não altera a preferência de outros membros.\", \"Trocar o tema não modifica arquivos exportados.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/cbcca34c-4088-42f1-9c0b-04f7a42e60ba/versoes/fa467316-ad48-444a-9c95-ae54fd140f14",
+      "origem": "API_CONTROLE",
+      "id": "E4"
+    }
+  ],
+  "contexto_impacto": {
+    "requisito_analisado": "REQ-12",
+    "relacoes": [],
+    "mudancas": [
+      {
+        "campo": "conteudo",
+        "antes": "O sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.",
+        "depois": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e informar sucesso ao usuário sem avisar sobre as omissões. A contagem de relações do arquivo pode ser menor que a contagem de relações da seleção original."
+      },
+      {
+        "campo": "criteriosAceite",
+        "antes": [
+          "Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos.",
+          "Bloquear a exportação quando houver 101 ou mais requisitos selecionados.",
+          "Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação.",
+          "Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas."
+        ],
+        "depois": [
+          "Até 100 requisitos selecionados, incluir todos no arquivo.",
+          "Com 101 ou mais requisitos selecionados, incluir somente os primeiros 100 e descartar os demais.",
+          "Excluir do arquivo as relações associadas aos requisitos descartados.",
+          "Informar sucesso sem avisar sobre omissões e sem bloquear a exportação.",
+          "Permitir que a contagem de relações exportadas seja menor que a contagem na seleção original."
+        ]
+      }
+    ],
+    "situacao_mapa": "ATUALIZADO",
+    "mapa_atualizado_em": "2026-11-25T11:26:55.018415Z",
+    "cobertura_limitada": false
+  },
+  "metricas": {
+    "operacao_id": "866f9d9e-6290-4f55-8b97-4300853e2db4",
+    "iniciado_em": "2026-11-25T12:11:09.648898+00:00",
+    "api_ms": 188.56,
+    "mcp_ms": 0,
+    "llm_ms": 26787.75,
+    "total_ms": 26990.39,
+    "tokens_entrada": 3931,
+    "tokens_saida": 374,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "etapa": "REQ-9:escopo",
+        "tokens_entrada": 1159,
+        "tokens_saida": 93,
+        "carga_modelo_ms": 0.7,
+        "estado": "ok",
+        "duracao_ms": 7364.42
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-9:risco",
+        "tokens_entrada": 1622,
+        "tokens_saida": 173,
+        "carga_modelo_ms": 0.81,
+        "estado": "ok",
+        "duracao_ms": 12026.08
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-10:escopo",
+        "tokens_entrada": 1150,
+        "tokens_saida": 108,
+        "carga_modelo_ms": 3.42,
+        "estado": "ok",
+        "duracao_ms": 7306.71
+      }
+    ],
+    "custo_referencia_usd": 0.0021708,
+    "custo_tokens_observados_usd": 0.0021708,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "avaliacao_humana": "PENDENTE",
+  "nota_metodologica": "Teste isolado da classificação com LLM real: alvos negativos escolhidos previamente e consultados pela API; mudança do REQ-12 reutilizada do snapshot do cenário de descarte. Não mede a recuperação MCP nem a cobertura da análise normal.",
+  "esperado": "REQ-9 e REQ-10 independentes da mudança; não devem virar sugestões de revisão."
+}

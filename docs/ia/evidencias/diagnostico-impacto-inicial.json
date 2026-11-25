@@ -1,0 +1,145 @@
+{
+  "pergunta": "Quais outros requisitos podem precisar de revisão por causa desta alteração? Justifique com evidências.",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "REQ-2 e REQ-3",
+    "justificativa": "REQ-2 e REQ-3 estão relacionados aos requisitos de exportação de documento de requisitos (REQ-1) através de relações DEPENDE_DE e RELACIONADO_A, respectivamente. A alteração afetará a funcionalidade desses requisitos.",
+    "fontes_ids": [
+      "E3",
+      "E6"
+    ],
+    "sugestoes": []
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "{\"titulo\": \"Exportar documento de requisitos\", \"conteudo\": \"O sistema deve permitir exportar o documento de requisitos.\", \"criteriosAceite\": [\"Exportação preserva requisitos.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes/33333333-3333-4333-8333-333333333331",
+      "origem": "API_PUBLICADA",
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333334",
+      "texto": "{\"titulo\": \"Exportar documento de requisitos\", \"conteudo\": \"O sistema deve permitir exportar o documento de requisitos em PDF e Markdown.\", \"criteriosAceite\": [\"Exportação preserva requisitos.\", \"Formatos PDF e Markdown disponíveis.\"], \"estadoVersao\": \"RASCUNHO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes/33333333-3333-4333-8333-333333333334",
+      "origem": "API_CANDIDATA",
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-2",
+      "requisito_id": "11111111-1111-4111-8111-111111111112",
+      "versao_id": "33333333-3333-4333-8333-333333333332",
+      "texto": "{\"titulo\": \"Registrar relação entre requisitos\", \"conteudo\": \"O editor deve conseguir relacionar dois requisitos do mesmo projeto.\", \"criteriosAceite\": [\"Relação fica visível no mapa.\", \"Autorrelação é recusada.\"], \"estadoVersao\": \"AGUARDANDO_REVISAO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111112/versoes/33333333-3333-4333-8333-333333333332",
+      "origem": "API_RELACIONADO",
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "{\"titulo\": \"Consultas comuns respondem em até 1 segundo\", \"conteudo\": \"O p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência.\", \"criteriosAceite\": [\"Medição registrada com 20 usuários simultâneos.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113/versoes/33333333-3333-4333-8333-333333333333",
+      "origem": "API_RELACIONADO",
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.9143,
+      "id": "E5"
+    },
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "REQ-3 Consultas comuns respondem em até 1 segundo\nO p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Critérios de aceite: Medição registrada com 20 usuários simultâneos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8491,
+      "id": "E6"
+    }
+  ],
+  "contexto_impacto": {
+    "requisito_analisado": "REQ-1",
+    "relacoes": [
+      {
+        "relacaoId": "77777777-7777-4777-8777-777777777771",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "11111111-1111-4111-8111-111111111112",
+        "tipo": "DEPENDE_DE",
+        "justificativa": "A exportação precisa das relações registradas.",
+        "atualizadoEm": "2026-11-25T02:46:52.844182Z"
+      },
+      {
+        "relacaoId": "77777777-7777-4777-8777-777777777772",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "11111111-1111-4111-8111-111111111113",
+        "tipo": "RELACIONADO_A",
+        "justificativa": "A exportação é uma das consultas com meta de tempo.",
+        "atualizadoEm": "2026-11-25T02:46:52.844182Z"
+      }
+    ],
+    "situacao_mapa": "ATUALIZADO",
+    "mapa_atualizado_em": "2026-11-25T02:46:52.844182Z",
+    "cobertura_limitada": false
+  },
+  "metricas": {
+    "operacao_id": "1cabe927-53f7-4d32-ba11-570586e1d133",
+    "iniciado_em": "2026-11-25T03:06:21.180095+00:00",
+    "api_ms": 375.42,
+    "mcp_ms": 64.9,
+    "llm_ms": 36158.25,
+    "total_ms": 36606.86,
+    "tokens_entrada": 2966,
+    "tokens_saida": 105,
+    "consumo_completo": false,
+    "tentativas": [
+      {
+        "numero": 1,
+        "estado": "falha",
+        "erro": "TimeoutError",
+        "backoff_s": 2.0,
+        "duracao_ms": 22022.82
+      },
+      {
+        "numero": 2,
+        "tokens_entrada": 2966,
+        "tokens_saida": 105,
+        "carga_modelo_ms": 1.28,
+        "estado": "ok",
+        "duracao_ms": 14108.34
+      }
+    ],
+    "custo_referencia_usd": null,
+    "custo_tokens_observados_usd": 0.0013544,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "pergunta": "Qual é a validade do token de recuperação de senha e ele pode ser reutilizado?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não há informação suficiente nas evidências fornecidas para responder a essa pergunta.",
+    "justificativa": "As evidências contidas não fornecem informações sobre tokens de recuperação de senha ou suas validades.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "bc4b5c2d-6296-46fb-a220-0e50c0ee4fe0",
+    "iniciado_em": "2026-11-25T04:07:50.750049+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 3435.11,
+    "total_ms": 3439.3,
+    "tokens_entrada": 442,
+    "tokens_saida": 64,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 442,
+        "tokens_saida": 64,
+        "carga_modelo_ms": 0.74,
+        "estado": "ok",
+        "duracao_ms": 3409.21
+      }
+    ],
+    "custo_referencia_usd": 0.0002792,
+    "custo_tokens_observados_usd": 0.0002792,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P9",
+  "esperado": "15 minutos, uso único; rejeitar tokens consumidos ou expirados.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-9"
+    ],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": 0.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

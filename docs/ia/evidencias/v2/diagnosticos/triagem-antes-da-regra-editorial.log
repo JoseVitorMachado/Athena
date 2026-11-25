@@ -1,0 +1,32 @@
+{"evento": "cenario_impacto_iniciado", "cenario": "I1"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-2"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-2", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-3"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-3", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-4"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-4", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-5"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-5", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-6"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-6", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-7"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-7", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-8"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-8", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f629fb55-3270-4e53-8434-f6b7c9dd7cc0", "requisito": "REQ-9"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-9", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "cenario_impacto_iniciado", "cenario": "I2"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f37dfa36-73fc-4970-b444-427876d5da3c", "requisito": "REQ-1"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-1", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f37dfa36-73fc-4970-b444-427876d5da3c", "requisito": "REQ-4"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-4", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f37dfa36-73fc-4970-b444-427876d5da3c", "requisito": "REQ-5"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-5", "estado": "ok", "classificacao": "SEM_IMPACTO_IDENTIFICADO"}
+{"evento": "impacto_alvo_iniciado", "operacao_id": "f37dfa36-73fc-4970-b444-427876d5da3c", "requisito": "REQ-6"}
+{"evento": "impacto_alvo_concluido", "requisito": "REQ-6", "estado": "ok", "classificacao": "REVISAR"}
+{"evento": "cenario_impacto_iniciado", "cenario": "I3"}
+{
+  "pasta": "/resultados/v2-triagem/impactos-20261125-010933-522133",
+  "operacoes": 3,
+  "degradadas": 0
+}

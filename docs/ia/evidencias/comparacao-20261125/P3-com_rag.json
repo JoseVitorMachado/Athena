@@ -1,0 +1,78 @@
+{
+  "pergunta": "Qual limite de tempo e qual percentil o REQ-3 estabelece para consultas comuns?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "REQ-3 estabelece um limite de tempo de até 1 segundo para consultas comuns e um percentil p95 de até 1 segundo.",
+    "justificativa": "REQ-3 define os limites de tempo para consultas comuns, incluindo o percentil p95.",
+    "fontes_ids": [
+      "E1"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "REQ-3 Consultas comuns respondem em até 1 segundo\nO p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência. Critérios de aceite: Medição registrada com 20 usuários simultâneos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8848,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "REQ-1 Exportar documento de requisitos\nO sistema deve permitir exportar o documento de requisitos. Critérios de aceite: Exportação preserva requisitos.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8139,
+      "id": "E2"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "11b8508d-9205-4b2d-ac5c-079b357225ce",
+    "iniciado_em": "2026-11-25T03:14:33.388138+00:00",
+    "api_ms": 18.25,
+    "mcp_ms": 26.02,
+    "llm_ms": 6191.06,
+    "total_ms": 6240.02,
+    "tokens_entrada": 746,
+    "tokens_saida": 85,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 746,
+        "tokens_saida": 85,
+        "carga_modelo_ms": 0.71,
+        "estado": "ok",
+        "duracao_ms": 6157.05
+      }
+    ],
+    "custo_referencia_usd": 0.0004344,
+    "custo_tokens_observados_usd": 0.0004344,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P3",
+  "esperado": "p95 de até 1 segundo. Citar REQ-3; é meta, não resultado medido.",
+  "avaliacao_humana": "PENDENTE"
+}

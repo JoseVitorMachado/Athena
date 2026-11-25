@@ -1,0 +1,7 @@
+[
+  {"id":"P1","pergunta":"Qual funcionalidade de exportação está descrita na versão publicada do REQ-1?","esperado":"Permitir exportar o documento de requisitos preservando os requisitos. Citar REQ-1. Não atribuir formatos da candidata à versão publicada."},
+  {"id":"P2","pergunta":"Quais formatos de arquivo são garantidos pela versão publicada do REQ-1?","esperado":"Os trechos publicados não especificam formatos. Não afirmar PDF ou Markdown com base na candidata, que não é recuperada pelo RAG."},
+  {"id":"P3","pergunta":"Qual limite de tempo e qual percentil o REQ-3 estabelece para consultas comuns?","esperado":"p95 de até 1 segundo. Citar REQ-3; é meta, não resultado medido."},
+  {"id":"P4","pergunta":"Quantos usuários simultâneos o REQ-3 exige no cenário de medição?","esperado":"20 usuários simultâneos. Citar REQ-3."},
+  {"id":"P5","pergunta":"O conteúdo publicado informa o tempo máximo para gerar um PDF de 500 páginas?","esperado":"Não há informação suficiente. A meta geral do REQ-3 não comprova prazo para esse cenário específico; não inventar tempo ou suporte publicado a PDF."}
+]

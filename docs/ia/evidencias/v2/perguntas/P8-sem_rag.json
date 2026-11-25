@@ -1,0 +1,64 @@
+{
+  "pergunta": "Quando deve ser enviada a notificação de sucesso de uma exportação?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não há informação suficiente nas evidências fornecidas para responder a essa pergunta.",
+    "justificativa": "As evidências contidas não fornecem nenhuma informação sobre a notificação de sucesso de uma exportação ou seus requisitos.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "3643bdc9-d58d-4769-873e-badb88fcb01f",
+    "iniciado_em": "2026-11-25T04:07:47.007540+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 3737.87,
+    "total_ms": 3741.92,
+    "tokens_entrada": 436,
+    "tokens_saida": 69,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 436,
+        "tokens_saida": 69,
+        "carga_modelo_ms": 0.72,
+        "estado": "ok",
+        "duracao_ms": 3709.41
+      }
+    ],
+    "custo_referencia_usd": 0.0002848,
+    "custo_tokens_observados_usd": 0.0002848,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P8",
+  "esperado": "Somente após a geração completa do arquivo. Falha deve gerar notificação de falha.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-8"
+    ],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": 0.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

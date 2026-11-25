@@ -1,0 +1,514 @@
+{
+  "pergunta": "Quais requisitos podem precisar de revisão por esta alteração?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "1 sugestões de revisão em 8 alvos analisados; decisão humana pendente.",
+    "justificativa": "Cada análise liga o diff ao conteúdo de um alvo e propõe uma verificação. Ausência de sugestão não certifica ausência de impacto.",
+    "fontes_ids": [
+      "E1",
+      "E2",
+      "E3",
+      "E4",
+      "E5",
+      "E6",
+      "E7",
+      "E8",
+      "E9",
+      "E10"
+    ],
+    "sugestoes": [
+      {
+        "requisito": "REQ-5",
+        "trecho_alvo": "Somente membros ativos do projeto podem solicitar a exportação de seus requisitos.",
+        "mudanca": "Solicitação sem vínculo ativo é negada.",
+        "efeito": "A mudança permite que solicitações de exportação sejam negadas para membros ativos do projeto, sem vínculo ativo.",
+        "verificacao": "Testar solicitações de exportação com membros ativos e sem vínculo ativo.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E5"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "A mudança permite que solicitações de exportação sejam negadas para membros ativos do projeto, sem vínculo ativo."
+      }
+    ],
+    "analises": [
+      {
+        "requisito": "REQ-2",
+        "trecho_alvo": "O editor deve conseguir relacionar dois requisitos do mesmo projeto.",
+        "mudanca": "Exportação permite PDF e Markdown, mantendo a relação entre requisitos.",
+        "efeito": "A mudança não afeta a obrigação de registrar a relação entre requisitos.",
+        "verificacao": "Testar se a funcionalidade de exportação PDF e Markdown mantém a visibilidade da relação entre requisitos.",
+        "classificacao": "SEM_IMPACTO_IDENTIFICADO",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E3"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-3",
+        "trecho_alvo": "O p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência.",
+        "mudanca": "O sistema deve permitir exportar o documento de requisitos em PDF e Markdown.",
+        "efeito": "A mudança não afeta a obrigação de REQ-3, que se refere a performance de consultas comuns.",
+        "verificacao": "Testar se o p95 das consultas comuns permanece em até 1 segundo após a alteração.",
+        "classificacao": "SEM_IMPACTO_IDENTIFICADO",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E4"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-4",
+        "trecho_alvo": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+        "mudanca": "A exportação deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. Formatos PDF e Markdown disponíveis.",
+        "efeito": "A mudança adiciona a disponibilidade de formatos PDF e Markdown, mas não afeta a obrigação específica de preservar as relações de requisitos.",
+        "verificacao": "Testar a preservação de relações de requisitos em PDF e Markdown.",
+        "classificacao": "SEM_IMPACTO_IDENTIFICADO",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E10"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-5",
+        "trecho_alvo": "Somente membros ativos do projeto podem solicitar a exportação de seus requisitos.",
+        "mudanca": "Solicitação sem vínculo ativo é negada.",
+        "efeito": "A mudança permite que solicitações de exportação sejam negadas para membros ativos do projeto, sem vínculo ativo.",
+        "verificacao": "Testar solicitações de exportação com membros ativos e sem vínculo ativo.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E5"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-6",
+        "trecho_alvo": "Cada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas.",
+        "mudanca": "Adicionou o formato do arquivo e versões às informações registradas",
+        "efeito": "A mudança não afeta a obrigação específica de REQ-6, pois o registro de versões já incluiu o formato do arquivo.",
+        "verificacao": "Testar se o formato do arquivo e versões são registrados corretamente em cada exportação concluída",
+        "classificacao": "SEM_IMPACTO_IDENTIFICADO",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E8"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-7",
+        "trecho_alvo": "Antes da exportação, apresentar uma prévia textual dos requisitos selecionados para conferência.",
+        "mudanca": "Formatos PDF e Markdown disponíveis.",
+        "efeito": "A mudança não afeta a obrigação de apresentar a prévia textual dos requisitos selecionados.",
+        "verificacao": "Conferir se a prévia textual permanece independente do formato escolhido.",
+        "classificacao": "SEM_IMPACTO_IDENTIFICADO",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E7"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-8",
+        "trecho_alvo": "O solicitante deve receber uma notificação interna quando a exportação terminar com sucesso ou falha.",
+        "mudanca": "Exportação preserva requisitos. Formatos PDF e Markdown disponíveis.",
+        "efeito": "A mudança adiciona suporte para PDF e Markdown, mas não afeta a obrigação de notificar o sucesso ou falha da exportação.",
+        "verificacao": "Testar se a notificação de sucesso só é emitida após a geração completa do arquivo em PDF e Markdown.",
+        "classificacao": "SEM_IMPACTO_IDENTIFICADO",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E9"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-9",
+        "trecho_alvo": "A recuperação de senha utiliza um token de uso único válido por 15 minutos.",
+        "mudanca": "Exportação preserva requisitos. Formatos PDF e Markdown disponíveis.",
+        "efeito": "Nenhuma mudança no requisito específico de REQ-9 relacionado à exportação de documentos.",
+        "verificacao": "Testar se a recuperação de senha ainda funciona sem exportar documentos.",
+        "classificacao": "SEM_IMPACTO_IDENTIFICADO",
+        "fontes_mudanca_ids": [
+          "E1",
+          "E2"
+        ],
+        "fontes_ids": [
+          "E6"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      }
+    ],
+    "escopo": "Vizinhos do mapa (até 10) e resultados do MCP; não é uma varredura de todo o projeto."
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "{\"titulo\": \"Exportar documento de requisitos\", \"conteudo\": \"O sistema deve permitir exportar o documento de requisitos.\", \"criteriosAceite\": [\"Exportação preserva requisitos.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes/33333333-3333-4333-8333-333333333331",
+      "origem": "API_PUBLICADA",
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333334",
+      "texto": "{\"titulo\": \"Exportar documento de requisitos\", \"conteudo\": \"O sistema deve permitir exportar o documento de requisitos em PDF e Markdown.\", \"criteriosAceite\": [\"Exportação preserva requisitos.\", \"Formatos PDF e Markdown disponíveis.\"], \"estadoVersao\": \"RASCUNHO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes/33333333-3333-4333-8333-333333333334",
+      "origem": "API_CANDIDATA",
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-2",
+      "requisito_id": "11111111-1111-4111-8111-111111111112",
+      "versao_id": "33333333-3333-4333-8333-333333333332",
+      "texto": "{\"titulo\": \"Registrar relação entre requisitos\", \"conteudo\": \"O editor deve conseguir relacionar dois requisitos do mesmo projeto.\", \"criteriosAceite\": [\"Relação fica visível no mapa.\", \"Autorrelação é recusada.\"], \"estadoVersao\": \"AGUARDANDO_REVISAO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111112/versoes/33333333-3333-4333-8333-333333333332",
+      "origem": "API_RELACIONADO",
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-3",
+      "requisito_id": "11111111-1111-4111-8111-111111111113",
+      "versao_id": "33333333-3333-4333-8333-333333333333",
+      "texto": "{\"titulo\": \"Consultas comuns respondem em até 1 segundo\", \"conteudo\": \"O p95 das consultas comuns deve ficar em até 1 segundo no cenário de referência.\", \"criteriosAceite\": [\"Medição registrada com 20 usuários simultâneos.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111113/versoes/33333333-3333-4333-8333-333333333333",
+      "origem": "API_RELACIONADO",
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "{\"titulo\": \"[IA-V2-ACESSO] Autorizar exportação por projeto\", \"conteudo\": \"Somente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado.\", \"criteriosAceite\": [\"Solicitação sem vínculo ativo é negada.\", \"Download após remoção do membro é negado.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884/versoes/7790336a-648c-4f7b-82e3-6e388eef011c",
+      "origem": "API_RELACIONADO",
+      "id": "E5"
+    },
+    {
+      "codigo": "REQ-9",
+      "requisito_id": "292cc70b-8eaf-4137-9997-3c405f494255",
+      "versao_id": "7ac08e51-abec-45db-991f-53975e93fcc4",
+      "texto": "{\"titulo\": \"[IA-V2-RECUPERACAO] Recuperar senha da conta\", \"conteudo\": \"A recuperação de senha utiliza um token de uso único válido por 15 minutos. Depois de consumido ou expirado, o token deve ser rejeitado. Esse fluxo não lê documentos nem participa da exportação de requisitos.\", \"criteriosAceite\": [\"O token expira em 15 minutos.\", \"Um token consumido não pode ser reutilizado.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/292cc70b-8eaf-4137-9997-3c405f494255/versoes/7ac08e51-abec-45db-991f-53975e93fcc4",
+      "origem": "API_RELACIONADO",
+      "id": "E6"
+    },
+    {
+      "codigo": "REQ-7",
+      "requisito_id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "versao_id": "62e3bf5a-0ec8-4127-8178-b6428e4d5c33",
+      "texto": "{\"titulo\": \"[IA-V2-PREVIA] Prévia textual da exportação\", \"conteudo\": \"Antes da exportação, apresentar uma prévia textual dos requisitos selecionados para conferência. A prévia utiliza o conteúdo das versões e é independente da geração do arquivo e do formato escolhido.\", \"criteriosAceite\": [\"A prévia exibe o texto das versões selecionadas.\", \"Trocar o formato do arquivo não modifica a prévia textual.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/2b66cb6a-0949-4bca-ba8a-bc5564a53081/versoes/62e3bf5a-0ec8-4127-8178-b6428e4d5c33",
+      "origem": "API_RELACIONADO",
+      "id": "E7"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "{\"titulo\": \"[IA-V2-AUDITORIA] Auditar exportações de documentos\", \"conteudo\": \"Cada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens.\", \"criteriosAceite\": [\"O registro identifica usuário, projeto, horário UTC, formato e versões.\", \"Falhas são diferenciadas de exportações concluídas.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15/versoes/e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "origem": "API_RELACIONADO",
+      "id": "E8"
+    },
+    {
+      "codigo": "REQ-8",
+      "requisito_id": "84e4bced-d1e1-44e7-bbc2-8b49a8babe26",
+      "versao_id": "7b2ca348-b0a7-4ec3-b456-4776fb7abb7a",
+      "texto": "{\"titulo\": \"[IA-V2-NOTIFICACAO] Notificar conclusão da exportação\", \"conteudo\": \"O solicitante deve receber uma notificação interna quando a exportação terminar com sucesso ou falha. A mensagem deve identificar o documento e o resultado. A notificação de sucesso só é emitida depois da geração completa do arquivo.\", \"criteriosAceite\": [\"Não emitir sucesso enquanto o arquivo estiver incompleto.\", \"Uma falha gera notificação de falha, sem link para arquivo inexistente.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/84e4bced-d1e1-44e7-bbc2-8b49a8babe26/versoes/7b2ca348-b0a7-4ec3-b456-4776fb7abb7a",
+      "origem": "API_RELACIONADO",
+      "id": "E9"
+    },
+    {
+      "codigo": "REQ-4",
+      "requisito_id": "e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "versao_id": "019025bb-5166-4d0d-beae-196f51aea07c",
+      "texto": "{\"titulo\": \"[IA-V2-TRACO] Preservar rastreabilidade na exportação\", \"conteudo\": \"A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. A regra vale para qualquer formato de arquivo disponível.\", \"criteriosAceite\": [\"Os códigos de origem e destino e o tipo de cada relação são preservados.\", \"A contagem de relações exportadas deve coincidir com a seleção de origem.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/e59ebe44-9506-4527-9ba0-601a9b28d146/versoes/019025bb-5166-4d0d-beae-196f51aea07c",
+      "origem": "API_RELACIONADO",
+      "id": "E10"
+    }
+  ],
+  "contexto_impacto": {
+    "requisito_analisado": "REQ-1",
+    "relacoes": [
+      {
+        "relacaoId": "08542ed3-2c9a-44fe-aa14-860684062fda",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+        "destinoId": "11111111-1111-4111-8111-111111111111",
+        "tipo": "DEPENDE_DE",
+        "justificativa": "A auditoria consome o resultado, o formato e as versões de cada exportação.",
+        "atualizadoEm": "2026-11-25T03:43:40.443954Z"
+      },
+      {
+        "relacaoId": "24cf86e0-453c-40bc-9106-90b96616406d",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "e59ebe44-9506-4527-9ba0-601a9b28d146",
+        "tipo": "DEPENDE_DE",
+        "justificativa": "A exportação deve preservar as relações oficiais em todos os formatos.",
+        "atualizadoEm": "2026-11-25T03:43:40.433362Z"
+      },
+      {
+        "relacaoId": "77777777-7777-4777-8777-777777777771",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "11111111-1111-4111-8111-111111111112",
+        "tipo": "DEPENDE_DE",
+        "justificativa": "A exportação precisa das relações registradas.",
+        "atualizadoEm": "2026-11-25T02:46:52.844182Z"
+      },
+      {
+        "relacaoId": "77777777-7777-4777-8777-777777777772",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "11111111-1111-4111-8111-111111111113",
+        "tipo": "RELACIONADO_A",
+        "justificativa": "A exportação é uma das consultas com meta de tempo.",
+        "atualizadoEm": "2026-11-25T02:46:52.844182Z"
+      },
+      {
+        "relacaoId": "d18eaa4e-ec29-45ed-bc22-b6b15f1a31c4",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+        "tipo": "DEPENDE_DE",
+        "justificativa": "Os caminhos de solicitação e download devem respeitar o acesso ao projeto.",
+        "atualizadoEm": "2026-11-25T03:43:40.440332Z"
+      },
+      {
+        "relacaoId": "d4f0a2c9-fd65-4501-8eb7-080528e0a725",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+        "tipo": "RELACIONADO_A",
+        "justificativa": "A prévia auxilia a conferência, mas seu texto é independente do formato exportado.",
+        "atualizadoEm": "2026-11-25T03:43:40.447538Z"
+      },
+      {
+        "relacaoId": "e2be66a5-2d29-46ca-8b66-a4663a578e5e",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "84e4bced-d1e1-44e7-bbc2-8b49a8babe26",
+        "destinoId": "11111111-1111-4111-8111-111111111111",
+        "tipo": "DEPENDE_DE",
+        "justificativa": "A notificação depende da conclusão efetiva ou falha da geração do arquivo.",
+        "atualizadoEm": "2026-11-25T03:43:40.451402Z"
+      },
+      {
+        "relacaoId": "ee58b998-ba61-415a-a324-9b6fad7c19ef",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "292cc70b-8eaf-4137-9997-3c405f494255",
+        "tipo": "RELACIONADO_A",
+        "justificativa": "Vínculo organizacional de demonstração; recuperação de senha não participa da exportação.",
+        "atualizadoEm": "2026-11-25T03:43:40.471015Z"
+      }
+    ],
+    "mudancas": [
+      {
+        "campo": "conteudo",
+        "antes": "O sistema deve permitir exportar o documento de requisitos.",
+        "depois": "O sistema deve permitir exportar o documento de requisitos em PDF e Markdown."
+      },
+      {
+        "campo": "criteriosAceite",
+        "antes": [
+          "Exportação preserva requisitos."
+        ],
+        "depois": [
+          "Exportação preserva requisitos.",
+          "Formatos PDF e Markdown disponíveis."
+        ]
+      }
+    ],
+    "situacao_mapa": "ATUALIZADO",
+    "mapa_atualizado_em": "2026-11-25T03:45:39.207686Z",
+    "cobertura_limitada": false
+  },
+  "metricas": {
+    "operacao_id": "14554a81-ec62-455c-a059-1b9c00bd7bbb",
+    "iniciado_em": "2026-11-25T03:55:56.878865+00:00",
+    "api_ms": 344.72,
+    "mcp_ms": 27.22,
+    "llm_ms": 100990.44,
+    "total_ms": 101389.39,
+    "tokens_entrada": 10758,
+    "tokens_saida": 1283,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "etapa": "REQ-2",
+        "tokens_entrada": 1288,
+        "tokens_saida": 141,
+        "carga_modelo_ms": 0.93,
+        "estado": "ok",
+        "duracao_ms": 18727.55
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-3",
+        "tokens_entrada": 1305,
+        "tokens_saida": 162,
+        "carga_modelo_ms": 0.72,
+        "estado": "ok",
+        "duracao_ms": 10732.89
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-4",
+        "tokens_entrada": 1372,
+        "tokens_saida": 205,
+        "carga_modelo_ms": 0.75,
+        "estado": "ok",
+        "duracao_ms": 14329.98
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-5",
+        "tokens_entrada": 1359,
+        "tokens_saida": 153,
+        "carga_modelo_ms": 2.08,
+        "estado": "ok",
+        "duracao_ms": 11069.27
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-6",
+        "tokens_entrada": 1363,
+        "tokens_saida": 174,
+        "carga_modelo_ms": 1.41,
+        "estado": "ok",
+        "duracao_ms": 12540.32
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-7",
+        "tokens_entrada": 1350,
+        "tokens_saida": 141,
+        "carga_modelo_ms": 0.8,
+        "estado": "ok",
+        "duracao_ms": 10107.87
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-8",
+        "tokens_entrada": 1363,
+        "tokens_saida": 164,
+        "carga_modelo_ms": 0.8,
+        "estado": "ok",
+        "duracao_ms": 12317.09
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-9",
+        "tokens_entrada": 1358,
+        "tokens_saida": 143,
+        "carga_modelo_ms": 0.81,
+        "estado": "ok",
+        "duracao_ms": 10910.42
+      }
+    ],
+    "custo_referencia_usd": 0.006356,
+    "custo_tokens_observados_usd": 0.006356,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "cenario_id": "I1",
+  "esperado": {
+    "id": "I1",
+    "requisito": "REQ-1",
+    "descricao": "Adicionar PDF e Markdown na candidata",
+    "positivos": [
+      "REQ-4",
+      "REQ-6"
+    ],
+    "plausiveis": [
+      "REQ-2",
+      "REQ-3",
+      "REQ-5",
+      "REQ-8"
+    ],
+    "negativos": [
+      "REQ-7",
+      "REQ-9",
+      "REQ-10",
+      "REQ-11"
+    ],
+    "requisito_id": "11111111-1111-4111-8111-111111111111"
+  },
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "positivos_sugeridos": [],
+    "positivos_nao_sugeridos": [
+      "REQ-4",
+      "REQ-6"
+    ],
+    "negativos_sugeridos": [],
+    "negativos_analisados": [
+      "REQ-7",
+      "REQ-9"
+    ],
+    "negativos_nao_avaliados": [
+      "REQ-10",
+      "REQ-11"
+    ],
+    "nota": "Confronto com cenários autorados; conclusões semânticas exigem revisão humana. Não contar alvos ausentes como rejeições corretas."
+  }
+}

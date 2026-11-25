@@ -1,0 +1,4 @@
+operacao_id,caso,modo,arquivo,correcao,fundamentacao,ausencia,observacoes,revisor,data
+f629fb55-3270-4e53-8434-f6b7c9dd7cc0,I1,com_rag,I1-com_rag.json,,,,,,
+18038a25-ebed-4703-a88b-f15abd36836a,I2,com_rag,I2-com_rag.json,,,,,,
+afddcba0-45b0-4d6f-9248-8b4d6b5d92a9,I3,com_rag,I3-com_rag.json,,,,,,

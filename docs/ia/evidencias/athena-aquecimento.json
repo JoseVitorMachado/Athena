@@ -1,0 +1,6 @@
+{
+  "estado": "aquecido",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "total_ms": 74.499392,
+  "carga_ms": 0.621251
+}

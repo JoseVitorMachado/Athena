@@ -1,0 +1,463 @@
+{
+  "pergunta": "Quais outros requisitos podem precisar de revisão por causa desta alteração? Justifique com evidências.",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "4 sugestões de revisão em 4 alvos analisados; decisão humana pendente.",
+    "justificativa": "Cada análise liga o diff ao conteúdo de um alvo e propõe uma verificação. Ausência de sugestão não certifica ausência de impacto.",
+    "fontes_ids": [
+      "E1",
+      "E2",
+      "E3",
+      "E4",
+      "E5",
+      "E6"
+    ],
+    "sugestoes": [
+      {
+        "requisito": "REQ-1",
+        "trecho_alvo": "Exportação preserva requisitos.",
+        "mudanca": "Exportação preserva requisitos, mas descarta requisitos e relações associadas quando mais de 100 requisitos são selecionados.",
+        "efeito": "O sistema pode descartar requisitos e relações associadas, o que pode violar a obrigação de exportar o documento completo.",
+        "verificacao": "Testar se o sistema exporta todos os requisitos selecionados mesmo quando mais de 100 são selecionados.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E3"
+        ],
+        "triagem": {
+          "trecho_alvo": "O sistema deve permitir exportar o documento de requisitos.",
+          "justificativa": "O trecho do PRINCIPAL permite exportar documentos com até 100 requisitos selecionados, enquanto o DEPOIS permite exportar até 100 requisitos e descarta os demais. O comportamento do alvo participa da parte modificada.",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E1",
+            "E2"
+          ],
+          "fontes_ids": [
+            "E3"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "O sistema pode descartar requisitos e relações associadas, o que pode violar a obrigação de exportar o documento completo."
+      },
+      {
+        "requisito": "REQ-4",
+        "trecho_alvo": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+        "mudanca": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. A regra vale para qualquer formato de arquivo disponível. Com 101 ou mais requisitos selecionados, incluir somente os pô",
+        "efeito": "A obrigação de REQ-4 pode exigir revisão de testes para garantir que a contagem de relações exportadas coincida com a seleção de origem mesmo quando houver mais de 100 requisitos selecionados.",
+        "verificacao": "Testar a contagem de relações exportadas para garantir que coincida com a seleção de origem quando mais de 100 requisitos forem selecionados.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E4"
+        ],
+        "triagem": {
+          "trecho_alvo": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+          "justificativa": "O trecho altera a obrigação do alvo, permitindo exportar documentos com qualquer quantidade de requisitos selecionados, incluindo a descartação de requisitos e relações associadas quando a seleção excede 100. Isso contradiz a obrigação do alvo que exige preservar o código de orig",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E2",
+            "E1"
+          ],
+          "fontes_ids": [
+            "E4"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "A obrigação de REQ-4 pode exigir revisão de testes para garantir que a contagem de relações exportadas coincida com a seleção de origem mesmo quando houver mais de 100 requisitos selecionados."
+      },
+      {
+        "requisito": "REQ-5",
+        "trecho_alvo": "Somente membros ativos do projeto podem solicitar a exportação de seus requisitos.",
+        "mudanca": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e as",
+        "efeito": "A obrigação de REQ-5 pode exigir revisão de testes para garantir que a verificação de membros ativos continue funcionando corretamente.",
+        "verificacao": "Testar se a verificação de membros ativos continua funcionando corretamente após a implementação da mudança.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E5"
+        ],
+        "triagem": {
+          "trecho_alvo": "Somente membros ativos do projeto podem solicitar a exportação de seus requisitos.",
+          "justificativa": "O trecho do PRINCIPAL permite exportações limitadas a 100 requisitos, enquanto o DEPOIS permite exportações ilimitadas com descarte de requisitos extras. Isso afeta a obrigatoriedade de verificação de membros ativos.",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E1",
+            "E2"
+          ],
+          "fontes_ids": [
+            "E5"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "A obrigação de REQ-5 pode exigir revisão de testes para garantir que a verificação de membros ativos continue funcionando corretamente."
+      },
+      {
+        "requisito": "REQ-6",
+        "trecho_alvo": "Cada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas.",
+        "mudanca": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e...",
+        "efeito": "A obrigação de REQ-6 pode exigir revisão de testes, pois a nova versão permite exportações com mais de 100 requisitos sem armazenar as relações descartadas.",
+        "verificacao": "Testar se a versão publicada continua registrando todas as informações solicitadas em REQ-6 mesmo quando mais de 100 requisitos são exportados.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E6"
+        ],
+        "triagem": {
+          "trecho_alvo": "Cada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas.",
+          "justificativa": "O trecho altera a obrigação do alvo, que agora deve registrar versões exportadas, o que não estava previsto no conteúdo original.",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E2",
+            "E1"
+          ],
+          "fontes_ids": [
+            "E6"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "A obrigação de REQ-6 pode exigir revisão de testes, pois a nova versão permite exportações com mais de 100 requisitos sem armazenar as relações descartadas."
+      }
+    ],
+    "analises": [
+      {
+        "requisito": "REQ-1",
+        "trecho_alvo": "Exportação preserva requisitos.",
+        "mudanca": "Exportação preserva requisitos, mas descarta requisitos e relações associadas quando mais de 100 requisitos são selecionados.",
+        "efeito": "O sistema pode descartar requisitos e relações associadas, o que pode violar a obrigação de exportar o documento completo.",
+        "verificacao": "Testar se o sistema exporta todos os requisitos selecionados mesmo quando mais de 100 são selecionados.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E3"
+        ],
+        "triagem": {
+          "trecho_alvo": "O sistema deve permitir exportar o documento de requisitos.",
+          "justificativa": "O trecho do PRINCIPAL permite exportar documentos com até 100 requisitos selecionados, enquanto o DEPOIS permite exportar até 100 requisitos e descarta os demais. O comportamento do alvo participa da parte modificada.",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E1",
+            "E2"
+          ],
+          "fontes_ids": [
+            "E3"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-4",
+        "trecho_alvo": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+        "mudanca": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. A regra vale para qualquer formato de arquivo disponível. Com 101 ou mais requisitos selecionados, incluir somente os pô",
+        "efeito": "A obrigação de REQ-4 pode exigir revisão de testes para garantir que a contagem de relações exportadas coincida com a seleção de origem mesmo quando houver mais de 100 requisitos selecionados.",
+        "verificacao": "Testar a contagem de relações exportadas para garantir que coincida com a seleção de origem quando mais de 100 requisitos forem selecionados.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E4"
+        ],
+        "triagem": {
+          "trecho_alvo": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+          "justificativa": "O trecho altera a obrigação do alvo, permitindo exportar documentos com qualquer quantidade de requisitos selecionados, incluindo a descartação de requisitos e relações associadas quando a seleção excede 100. Isso contradiz a obrigação do alvo que exige preservar o código de orig",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E2",
+            "E1"
+          ],
+          "fontes_ids": [
+            "E4"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-5",
+        "trecho_alvo": "Somente membros ativos do projeto podem solicitar a exportação de seus requisitos.",
+        "mudanca": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e as",
+        "efeito": "A obrigação de REQ-5 pode exigir revisão de testes para garantir que a verificação de membros ativos continue funcionando corretamente.",
+        "verificacao": "Testar se a verificação de membros ativos continua funcionando corretamente após a implementação da mudança.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E5"
+        ],
+        "triagem": {
+          "trecho_alvo": "Somente membros ativos do projeto podem solicitar a exportação de seus requisitos.",
+          "justificativa": "O trecho do PRINCIPAL permite exportações limitadas a 100 requisitos, enquanto o DEPOIS permite exportações ilimitadas com descarte de requisitos extras. Isso afeta a obrigatoriedade de verificação de membros ativos.",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E1",
+            "E2"
+          ],
+          "fontes_ids": [
+            "E5"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-6",
+        "trecho_alvo": "Cada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas.",
+        "mudanca": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e...",
+        "efeito": "A obrigação de REQ-6 pode exigir revisão de testes, pois a nova versão permite exportações com mais de 100 requisitos sem armazenar as relações descartadas.",
+        "verificacao": "Testar se a versão publicada continua registrando todas as informações solicitadas em REQ-6 mesmo quando mais de 100 requisitos são exportados.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E6"
+        ],
+        "triagem": {
+          "trecho_alvo": "Cada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas.",
+          "justificativa": "O trecho altera a obrigação do alvo, que agora deve registrar versões exportadas, o que não estava previsto no conteúdo original.",
+          "vinculo": "DIRETO",
+          "fontes_mudanca_ids": [
+            "E2",
+            "E1"
+          ],
+          "fontes_ids": [
+            "E6"
+          ]
+        },
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      }
+    ],
+    "escopo": "Vizinhos do mapa (até 10) e resultados do MCP; não é uma varredura de todo o projeto."
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-12",
+      "requisito_id": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "versao_id": "62a088ba-8fa8-45b9-a3a6-a083d168727e",
+      "texto": "{\"titulo\": \"Limitar quantidade de requisitos por exportação\", \"conteudo\": \"O sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.\", \"criteriosAceite\": [\"Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos.\", \"Bloquear a exportação quando houver 101 ou mais requisitos selecionados.\", \"Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação.\", \"Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/versoes/62a088ba-8fa8-45b9-a3a6-a083d168727e",
+      "origem": "API_PUBLICADA",
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-12",
+      "requisito_id": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+      "versao_id": "e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+      "texto": "{\"titulo\": \"Limitar quantidade de requisitos por exportação\", \"conteudo\": \"O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e informar sucesso ao usuário sem avisar sobre as omissões. A contagem de relações do arquivo pode ser menor que a contagem de relações da seleção original.\", \"criteriosAceite\": [\"Até 100 requisitos selecionados, incluir todos no arquivo.\", \"Com 101 ou mais requisitos selecionados, incluir somente os primeiros 100 e descartar os demais.\", \"Excluir do arquivo as relações associadas aos requisitos descartados.\", \"Informar sucesso sem avisar sobre omissões e sem bloquear a exportação.\", \"Permitir que a contagem de relações exportadas seja menor que a contagem na seleção original.\"], \"estadoVersao\": \"RASCUNHO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/5d59d1b9-5346-4c0d-9a18-8a01c998afb4/versoes/e1457a25-0c11-4fd4-9ed5-55ecea0fdf8b",
+      "origem": "API_CANDIDATA",
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "{\"titulo\": \"Exportar documento de requisitos\", \"conteudo\": \"O sistema deve permitir exportar o documento de requisitos.\", \"criteriosAceite\": [\"Exportação preserva requisitos.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes/33333333-3333-4333-8333-333333333331",
+      "origem": "API_RELACIONADO",
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-4",
+      "requisito_id": "e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "versao_id": "019025bb-5166-4d0d-beae-196f51aea07c",
+      "texto": "REQ-4 [IA-V2-TRACO] Preservar rastreabilidade na exportação\nA exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. A regra vale para qualquer formato de arquivo disponível. Critérios de aceite: Os códigos de origem e destino e o tipo de cada relação são preservados. A contagem de relações exportadas deve coincidir com a seleção de origem.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8865,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8862,
+      "id": "E5"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8791,
+      "id": "E6"
+    }
+  ],
+  "contexto_impacto": {
+    "requisito_analisado": "REQ-12",
+    "relacoes": [
+      {
+        "relacaoId": "aa301179-56ce-4bdb-bb61-091d309ffd7a",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "5d59d1b9-5346-4c0d-9a18-8a01c998afb4",
+        "tipo": "RELACIONADO_A",
+        "justificativa": "O REQ-12 define o limite de 1 a 100 requisitos por exportação, condicionando a geração do documento prevista no REQ-1. Alterações nesse limite podem exigir revisão das validações e dos testes da exportação.",
+        "atualizadoEm": "2026-11-25T11:26:55.018415Z"
+      }
+    ],
+    "mudancas": [
+      {
+        "campo": "conteudo",
+        "antes": "O sistema deve permitir exportar documentos contendo de 1 a 100 requisitos selecionados. Quando a seleção ultrapassar esse limite, deve bloquear a geração do arquivo e informar ao usuário a quantidade máxima permitida. Nas exportações permitidas, todos os requisitos selecionados devem ser incluídos, sem cortes automáticos.",
+        "depois": "O sistema deve permitir exportar documentos com qualquer quantidade de requisitos selecionados. Quando houver mais de 100 requisitos selecionados, deve gerar o arquivo somente com os primeiros 100, descartar os demais requisitos e as relações associadas aos itens descartados e informar sucesso ao usuário sem avisar sobre as omissões. A contagem de relações do arquivo pode ser menor que a contagem de relações da seleção original."
+      },
+      {
+        "campo": "criteriosAceite",
+        "antes": [
+          "Permitir a exportação de uma seleção contendo entre 1 e 100 requisitos.",
+          "Bloquear a exportação quando houver 101 ou mais requisitos selecionados.",
+          "Ao bloquear por excesso de requisitos, informar que o limite é de 100 requisitos por exportação.",
+          "Incluir todos os requisitos selecionados nas exportações permitidas, sem omissões automáticas."
+        ],
+        "depois": [
+          "Até 100 requisitos selecionados, incluir todos no arquivo.",
+          "Com 101 ou mais requisitos selecionados, incluir somente os primeiros 100 e descartar os demais.",
+          "Excluir do arquivo as relações associadas aos requisitos descartados.",
+          "Informar sucesso sem avisar sobre omissões e sem bloquear a exportação.",
+          "Permitir que a contagem de relações exportadas seja menor que a contagem na seleção original."
+        ]
+      }
+    ],
+    "situacao_mapa": "ATUALIZADO",
+    "mapa_atualizado_em": "2026-11-25T11:26:55.018415Z",
+    "cobertura_limitada": false
+  },
+  "metricas": {
+    "operacao_id": "7cfcf380-d13a-44c0-8fe6-2405b8f10edc",
+    "iniciado_em": "2026-11-25T12:08:15.172263+00:00",
+    "api_ms": 127.1,
+    "mcp_ms": 64.27,
+    "llm_ms": 104903.07,
+    "total_ms": 105112.63,
+    "tokens_entrada": 11282,
+    "tokens_saida": 1440,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "etapa": "REQ-1:escopo",
+        "tokens_entrada": 1194,
+        "tokens_saida": 127,
+        "carga_modelo_ms": 0.69,
+        "estado": "ok",
+        "duracao_ms": 11069.92
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-1:risco",
+        "tokens_entrada": 1657,
+        "tokens_saida": 160,
+        "carga_modelo_ms": 0.78,
+        "estado": "ok",
+        "duracao_ms": 15006.42
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-4:escopo",
+        "tokens_entrada": 1178,
+        "tokens_saida": 168,
+        "carga_modelo_ms": 3.43,
+        "estado": "ok",
+        "duracao_ms": 12152.69
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-4:risco",
+        "tokens_entrada": 1641,
+        "tokens_saida": 270,
+        "carga_modelo_ms": 0.73,
+        "estado": "ok",
+        "duracao_ms": 18613.37
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-5:escopo",
+        "tokens_entrada": 1169,
+        "tokens_saida": 132,
+        "carga_modelo_ms": 1.19,
+        "estado": "ok",
+        "duracao_ms": 8781.96
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-5:risco",
+        "tokens_entrada": 1632,
+        "tokens_saida": 216,
+        "carga_modelo_ms": 0.85,
+        "estado": "ok",
+        "duracao_ms": 14483.64
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-6:escopo",
+        "tokens_entrada": 1174,
+        "tokens_saida": 119,
+        "carga_modelo_ms": 0.76,
+        "estado": "ok",
+        "duracao_ms": 8199.77
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-6:risco",
+        "tokens_entrada": 1637,
+        "tokens_saida": 248,
+        "carga_modelo_ms": 0.79,
+        "estado": "ok",
+        "duracao_ms": 16354.1
+      }
+    ],
+    "custo_referencia_usd": 0.0068168,
+    "custo_tokens_observados_usd": 0.0068168,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "cenario_id": "conflito-descarte",
+  "avaliacao_humana": "PENDENTE"
+}

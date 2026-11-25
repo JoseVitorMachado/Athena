@@ -1,0 +1,339 @@
+{
+  "pergunta": "Quais requisitos podem precisar de revisão por esta alteração?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "4 sugestões de revisão em 4 alvos analisados; decisão humana pendente.",
+    "justificativa": "Cada análise liga o diff ao conteúdo de um alvo e propõe uma verificação. Ausência de sugestão não certifica ausência de impacto.",
+    "fontes_ids": [
+      "E1",
+      "E2",
+      "E3",
+      "E4",
+      "E5",
+      "E6"
+    ],
+    "sugestoes": [
+      {
+        "requisito": "REQ-1",
+        "trecho_alvo": "O sistema deve permitir exportar o documento de requisitos.",
+        "mudanca": "A mudança alterou o título para '[IA-V2-PREVIA] Pré-visualização textual da exportação'.",
+        "efeito": "O título mudou, mas a obrigação de exportar o documento de requisitos continua válida. Pode haver inconsistências se o título não for reconhecido corretamente.",
+        "verificacao": "Testar se o sistema ainda exporta o documento de requisitos conforme o título original.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E3"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "O título mudou, mas a obrigação de exportar o documento de requisitos continua válida. Pode haver inconsistências se o título não for reconhecido corretamente."
+      },
+      {
+        "requisito": "REQ-4",
+        "trecho_alvo": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+        "mudanca": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+        "efeito": "A obrigatoriedade de preservar o código de origem e destino e o tipo da relação pode não ser afetada, mas a preservação do código de cada requisito pode exigir revisão de testes.",
+        "verificacao": "Testar se a preservação do código de cada requisito não afeta a validade das relações.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E5"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "A obrigatoriedade de preservar o código de origem e destino e o tipo da relação pode não ser afetada, mas a preservação do código de cada requisito pode exigir revisão de testes."
+      },
+      {
+        "requisito": "REQ-5",
+        "trecho_alvo": "Somente membros ativos do projeto podem solicitar a exportação de seus requisitos.",
+        "mudanca": "Mudança no título para '[IA-V2-PREVIA] Pré-visualização textual da exportação'",
+        "efeito": "A obrigatoriedade de membros ativos pode ser afetada, mas não está claramente definida no trecho do alvo.",
+        "verificacao": "Testar se membros removidos ainda são negados acesso à exportação após a mudança de título.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E4"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "A obrigatoriedade de membros ativos pode ser afetada, mas não está claramente definida no trecho do alvo."
+      },
+      {
+        "requisito": "REQ-6",
+        "trecho_alvo": "Cada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas.",
+        "mudanca": "Trocar o formato do arquivo não modifica a prévia textual.",
+        "efeito": "O registro de versões pode não incluir todos os campos necessários (usuário solicitante, projeto, horário UTC, formato do arquivo).",
+        "verificacao": "Testar se o registro de exportações inclui todos os campos obrigatórios.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E6"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO",
+        "justificativa": "O registro de versões pode não incluir todos os campos necessários (usuário solicitante, projeto, horário UTC, formato do arquivo)."
+      }
+    ],
+    "analises": [
+      {
+        "requisito": "REQ-1",
+        "trecho_alvo": "O sistema deve permitir exportar o documento de requisitos.",
+        "mudanca": "A mudança alterou o título para '[IA-V2-PREVIA] Pré-visualização textual da exportação'.",
+        "efeito": "O título mudou, mas a obrigação de exportar o documento de requisitos continua válida. Pode haver inconsistências se o título não for reconhecido corretamente.",
+        "verificacao": "Testar se o sistema ainda exporta o documento de requisitos conforme o título original.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E3"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-4",
+        "trecho_alvo": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+        "mudanca": "A exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação.",
+        "efeito": "A obrigatoriedade de preservar o código de origem e destino e o tipo da relação pode não ser afetada, mas a preservação do código de cada requisito pode exigir revisão de testes.",
+        "verificacao": "Testar se a preservação do código de cada requisito não afeta a validade das relações.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E5"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-5",
+        "trecho_alvo": "Somente membros ativos do projeto podem solicitar a exportação de seus requisitos.",
+        "mudanca": "Mudança no título para '[IA-V2-PREVIA] Pré-visualização textual da exportação'",
+        "efeito": "A obrigatoriedade de membros ativos pode ser afetada, mas não está claramente definida no trecho do alvo.",
+        "verificacao": "Testar se membros removidos ainda são negados acesso à exportação após a mudança de título.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E4"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      },
+      {
+        "requisito": "REQ-6",
+        "trecho_alvo": "Cada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas.",
+        "mudanca": "Trocar o formato do arquivo não modifica a prévia textual.",
+        "efeito": "O registro de versões pode não incluir todos os campos necessários (usuário solicitante, projeto, horário UTC, formato do arquivo).",
+        "verificacao": "Testar se o registro de exportações inclui todos os campos obrigatórios.",
+        "classificacao": "REVISAR",
+        "fontes_mudanca_ids": [
+          "E2",
+          "E1"
+        ],
+        "fontes_ids": [
+          "E6"
+        ],
+        "estado_geracao": "ok",
+        "estado_validacao": "PENDENTE_HUMANO"
+      }
+    ],
+    "escopo": "Vizinhos do mapa (até 10) e resultados do MCP; não é uma varredura de todo o projeto."
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-7",
+      "requisito_id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "versao_id": "62e3bf5a-0ec8-4127-8178-b6428e4d5c33",
+      "texto": "{\"titulo\": \"[IA-V2-PREVIA] Prévia textual da exportação\", \"conteudo\": \"Antes da exportação, apresentar uma prévia textual dos requisitos selecionados para conferência. A prévia utiliza o conteúdo das versões e é independente da geração do arquivo e do formato escolhido.\", \"criteriosAceite\": [\"A prévia exibe o texto das versões selecionadas.\", \"Trocar o formato do arquivo não modifica a prévia textual.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/2b66cb6a-0949-4bca-ba8a-bc5564a53081/versoes/62e3bf5a-0ec8-4127-8178-b6428e4d5c33",
+      "origem": "API_PUBLICADA",
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-7",
+      "requisito_id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "versao_id": "e71738a7-09e3-4075-bc4d-2b9b563c0474",
+      "texto": "{\"titulo\": \"[IA-V2-PREVIA] Pré-visualização textual da exportação\", \"conteudo\": \"Antes da exportação, apresentar uma prévia textual dos requisitos selecionados para conferência. A prévia utiliza o conteúdo das versões e é independente da geração do arquivo e do formato escolhido.\", \"criteriosAceite\": [\"A prévia exibe o texto das versões selecionadas.\", \"Trocar o formato do arquivo não modifica a prévia textual.\"], \"estadoVersao\": \"RASCUNHO\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/2b66cb6a-0949-4bca-ba8a-bc5564a53081/versoes/e71738a7-09e3-4075-bc4d-2b9b563c0474",
+      "origem": "API_CANDIDATA",
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-1",
+      "requisito_id": "11111111-1111-4111-8111-111111111111",
+      "versao_id": "33333333-3333-4333-8333-333333333331",
+      "texto": "{\"titulo\": \"Exportar documento de requisitos\", \"conteudo\": \"O sistema deve permitir exportar o documento de requisitos.\", \"criteriosAceite\": [\"Exportação preserva requisitos.\"], \"estadoVersao\": \"PUBLICADA\"}",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/11111111-1111-4111-8111-111111111111/versoes/33333333-3333-4333-8333-333333333331",
+      "origem": "API_RELACIONADO",
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8916,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-4",
+      "requisito_id": "e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "versao_id": "019025bb-5166-4d0d-beae-196f51aea07c",
+      "texto": "REQ-4 [IA-V2-TRACO] Preservar rastreabilidade na exportação\nA exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. A regra vale para qualquer formato de arquivo disponível. Critérios de aceite: Os códigos de origem e destino e o tipo de cada relação são preservados. A contagem de relações exportadas deve coincidir com a seleção de origem.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8846,
+      "id": "E5"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8839,
+      "id": "E6"
+    }
+  ],
+  "contexto_impacto": {
+    "requisito_analisado": "REQ-7",
+    "relacoes": [
+      {
+        "relacaoId": "d4f0a2c9-fd65-4501-8eb7-080528e0a725",
+        "projetoId": "22222222-2222-4222-8222-222222222222",
+        "origemId": "11111111-1111-4111-8111-111111111111",
+        "destinoId": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+        "tipo": "RELACIONADO_A",
+        "justificativa": "A prévia auxilia a conferência, mas seu texto é independente do formato exportado.",
+        "atualizadoEm": "2026-11-25T03:43:40.447538Z"
+      }
+    ],
+    "mudancas": [
+      {
+        "campo": "titulo",
+        "antes": "[IA-V2-PREVIA] Prévia textual da exportação",
+        "depois": "[IA-V2-PREVIA] Pré-visualização textual da exportação"
+      }
+    ],
+    "situacao_mapa": "ATUALIZADO",
+    "mapa_atualizado_em": "2026-11-25T03:45:39.207686Z",
+    "cobertura_limitada": false
+  },
+  "metricas": {
+    "operacao_id": "9e4ef3e8-ad62-46f3-9a17-809686046800",
+    "iniciado_em": "2026-11-25T04:04:44.010793+00:00",
+    "api_ms": 120.5,
+    "mcp_ms": 37.91,
+    "llm_ms": 52484.49,
+    "total_ms": 52653.9,
+    "tokens_entrada": 5756,
+    "tokens_saida": 706,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "etapa": "REQ-1",
+        "tokens_entrada": 1424,
+        "tokens_saida": 164,
+        "carga_modelo_ms": 0.76,
+        "estado": "ok",
+        "duracao_ms": 15134.91
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-4",
+        "tokens_entrada": 1451,
+        "tokens_saida": 215,
+        "carga_modelo_ms": 1.28,
+        "estado": "ok",
+        "duracao_ms": 14607.88
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-5",
+        "tokens_entrada": 1438,
+        "tokens_saida": 164,
+        "carga_modelo_ms": 0.81,
+        "estado": "ok",
+        "duracao_ms": 11775.28
+      },
+      {
+        "numero": 1,
+        "etapa": "REQ-6",
+        "tokens_entrada": 1443,
+        "tokens_saida": 163,
+        "carga_modelo_ms": 0.85,
+        "estado": "ok",
+        "duracao_ms": 10844.25
+      }
+    ],
+    "custo_referencia_usd": 0.003432,
+    "custo_tokens_observados_usd": 0.003432,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "cenario_id": "I2",
+  "esperado": {
+    "id": "I2",
+    "requisito": "PREVIA",
+    "descricao": "Mudar só o título, sem mudar comportamento",
+    "positivos": [],
+    "plausiveis": [],
+    "negativos": [
+      "REQ-1"
+    ],
+    "esperado": "Não inventar alteração de comportamento pela troca de Prévia por Pré-visualização.",
+    "requisito_id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081"
+  },
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "positivos_sugeridos": [],
+    "positivos_nao_sugeridos": [],
+    "negativos_sugeridos": [
+      "REQ-1"
+    ],
+    "negativos_analisados": [
+      "REQ-1"
+    ],
+    "negativos_nao_avaliados": [],
+    "nota": "Confronto com cenários autorados; conclusões semânticas exigem revisão humana. Não contar alvos ausentes como rejeições corretas."
+  }
+}

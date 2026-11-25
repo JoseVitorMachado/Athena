@@ -1,0 +1,24 @@
+agente-ia running healthy
+bff-gestao running healthy
+bff-livro running healthy
+db-impacto-mcp running healthy
+db-integracoes running healthy
+db-projetos-acesso running healthy
+db-rastreabilidade running healthy
+db-requisitos running healthy
+db-revisoes running healthy
+frontend-gestao running healthy
+frontend-livro running healthy
+gateway running healthy
+grafana running 
+impacto-mcp running healthy
+integracoes running healthy
+mailpit running healthy
+modelo-ia exited 
+ollama running healthy
+projetos-acesso running healthy
+prometheus running 
+rabbitmq running healthy
+rastreabilidade running healthy
+requisitos running healthy
+revisoes running healthy

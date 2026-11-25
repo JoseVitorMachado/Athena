@@ -1,0 +1,119 @@
+{
+  "pergunta": "Escolher tema escuro altera os arquivos exportados ou a preferência de outros usuários?",
+  "modo": "com_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "A alteração para o tema escuro não modifica arquivos exportados e não afeta a preferência de outros usuários.",
+    "justificativa": "Este é um critério de aceite especificado em [REQ-10].",
+    "fontes_ids": [
+      "E1"
+    ]
+  },
+  "fontes": [
+    {
+      "codigo": "REQ-10",
+      "requisito_id": "cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "versao_id": "fa467316-ad48-444a-9c95-ae54fd140f14",
+      "texto": "REQ-10 [IA-V2-TEMA] Escolher tema da interface\nO usuário pode escolher tema claro ou escuro para a interface. A preferência é individual e não altera o conteúdo dos requisitos nem a aparência dos arquivos exportados. Critérios de aceite: A preferência do usuário não altera a preferência de outros membros. Trocar o tema não modifica arquivos exportados.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/cbcca34c-4088-42f1-9c0b-04f7a42e60ba",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.9182,
+      "id": "E1"
+    },
+    {
+      "codigo": "REQ-5",
+      "requisito_id": "187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "versao_id": "7790336a-648c-4f7b-82e3-6e388eef011c",
+      "texto": "REQ-5 [IA-V2-ACESSO] Autorizar exportação por projeto\nSomente membros ativos do projeto podem solicitar a exportação de seus requisitos. A autorização deve ser verificada na solicitação e no download do arquivo. Um usuário removido do projeto não pode obter um arquivo anteriormente gerado. Critérios de aceite: Solicitação sem vínculo ativo é negada. Download após remoção do membro é negado.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/187d2c73-b5f9-43c4-bd89-dde5cd323884",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8611,
+      "id": "E2"
+    },
+    {
+      "codigo": "REQ-6",
+      "requisito_id": "32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "versao_id": "e3805ec6-9529-4864-a80a-5aee33dd02eb",
+      "texto": "REQ-6 [IA-V2-AUDITORIA] Auditar exportações de documentos\nCada exportação concluída deve registrar usuário solicitante, projeto, horário UTC, formato do arquivo e identificadores das versões exportadas. Uma tentativa malsucedida deve registrar o motivo da falha sem armazenar senhas ou tokens. Critérios de aceite: O registro identifica usuário, projeto, horário UTC, formato e versões. Falhas são diferenciadas de exportações concluídas.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/32a751ba-8574-4400-a0e8-c19d46ce2b15",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8591,
+      "id": "E3"
+    },
+    {
+      "codigo": "REQ-7",
+      "requisito_id": "2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "versao_id": "62e3bf5a-0ec8-4127-8178-b6428e4d5c33",
+      "texto": "REQ-7 [IA-V2-PREVIA] Prévia textual da exportação\nAntes da exportação, apresentar uma prévia textual dos requisitos selecionados para conferência. A prévia utiliza o conteúdo das versões e é independente da geração do arquivo e do formato escolhido. Critérios de aceite: A prévia exibe o texto das versões selecionadas. Trocar o formato do arquivo não modifica a prévia textual.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/2b66cb6a-0949-4bca-ba8a-bc5564a53081",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8455,
+      "id": "E4"
+    },
+    {
+      "codigo": "REQ-4",
+      "requisito_id": "e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "versao_id": "019025bb-5166-4d0d-beae-196f51aea07c",
+      "texto": "REQ-4 [IA-V2-TRACO] Preservar rastreabilidade na exportação\nA exportação de documentos deve preservar o código de cada requisito e, para cada relação oficial, o código de origem, o código de destino e o tipo da relação. A regra vale para qualquer formato de arquivo disponível. Critérios de aceite: Os códigos de origem e destino e o tipo de cada relação são preservados. A contagem de relações exportadas deve coincidir com a seleção de origem.",
+      "rota": "/api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222/requisitos/e59ebe44-9506-4527-9ba0-601a9b28d146",
+      "origem": "MCP_PUBLICADO",
+      "similaridade": 0.8486,
+      "id": "E5"
+    }
+  ],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "41203a49-5d46-451f-957e-4bd8422470ee",
+    "iniciado_em": "2026-11-25T04:08:05.547389+00:00",
+    "api_ms": 17.42,
+    "mcp_ms": 27.71,
+    "llm_ms": 9768.61,
+    "total_ms": 9819.06,
+    "tokens_entrada": 1026,
+    "tokens_saida": 71,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 1026,
+        "tokens_saida": 71,
+        "carga_modelo_ms": 0.81,
+        "estado": "ok",
+        "duracao_ms": 9727.02
+      }
+    ],
+    "custo_referencia_usd": 0.000524,
+    "custo_tokens_observados_usd": 0.000524,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P10",
+  "esperado": "Não. A preferência é individual e afeta apenas a interface, não os arquivos.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-10"
+    ],
+    "fontes_esperadas_recuperadas": [
+      "REQ-10"
+    ],
+    "cobertura_recuperacao": 1.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "pergunta": "Escolher tema escuro altera os arquivos exportados ou a preferência de outros usuários?",
+  "modo": "sem_rag",
+  "estado": "ok",
+  "modelo": "qwen2.5:3b-instruct-q4_K_M",
+  "modelo_digest_configurado": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "configuracao": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "timeout_s": 20.0,
+    "max_tentativas": 2
+  },
+  "projeto_id": "22222222-2222-4222-8222-222222222222",
+  "resultado": {
+    "resposta": "Não há informação suficiente nas evidências fornecidas para responder a essa pergunta.",
+    "justificativa": "As evidências contidas não fornecem informações sobre como o ATHENA altera arquivos exportados ou a preferência de outros usuários quando o tema escuro é escolhido.",
+    "fontes_ids": []
+  },
+  "fontes": [],
+  "contexto_impacto": {},
+  "metricas": {
+    "operacao_id": "602a6974-ceaa-4cc1-93a2-717988105cfd",
+    "iniciado_em": "2026-11-25T04:08:15.367270+00:00",
+    "api_ms": 0,
+    "mcp_ms": 0,
+    "llm_ms": 4583.36,
+    "total_ms": 4587.18,
+    "tokens_entrada": 443,
+    "tokens_saida": 80,
+    "consumo_completo": true,
+    "tentativas": [
+      {
+        "numero": 1,
+        "tokens_entrada": 443,
+        "tokens_saida": 80,
+        "carga_modelo_ms": 0.59,
+        "estado": "ok",
+        "duracao_ms": 4553.59
+      }
+    ],
+    "custo_referencia_usd": 0.0003052,
+    "custo_tokens_observados_usd": 0.0003052,
+    "referencia_custo": {
+      "modelo": "gpt-4.1-mini (referência histórica; não invocado)",
+      "entrada_usd_milhao": 0.4,
+      "saida_usd_milhao": 1.6,
+      "nota": "Simulação com tokens do Ollama; tokenizadores diferem. Não inclui energia/hardware."
+    }
+  },
+  "pergunta_id": "P10",
+  "esperado": "Não. A preferência é individual e afeta apenas a interface, não os arquivos.",
+  "avaliacao_humana": "PENDENTE",
+  "verificacoes_automaticas": {
+    "citacoes_resolvem": true,
+    "fontes_esperadas": [
+      "REQ-10"
+    ],
+    "fontes_esperadas_recuperadas": [],
+    "cobertura_recuperacao": 0.0,
+    "nota": "Verificação de identidade e recuperação; não avalia correção semântica ou apoio de cada afirmação."
+  }
+}

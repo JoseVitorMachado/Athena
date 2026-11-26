@@ -152,11 +152,18 @@ export interface NovoRequisito {
   criteriosAceite: string[];
 }
 
+export interface FonteAssistente { id: string; codigo: string; requisito_id: string; versao_id: string; texto: string; similaridade: number | null; }
+export interface RespostaAssistente { estado: string; resposta: string; fontes: FonteAssistente[]; metricas: { tempo_total_ms: number }; }
+
 @Injectable({ providedIn: 'root' })
 export class GestaoApi {
   private readonly http = inject(HttpClient);
   private readonly sessao = inject(SessaoService);
   private accessToken: string | null = null;
+
+  perguntarAssistente(projetoId: string, pergunta: string): Observable<RespostaAssistente> {
+    return this.http.post<RespostaAssistente>(`${BASE}/projetos/${projetoId}/assistente/perguntas`, { pergunta }, this.opcoesAutenticadas());
+  }
 
   cadastrar(nome: string, email: string, senha: string): Observable<Usuario> {
     return this.http.post<Usuario>(`${AUTH_BASE}/cadastro`, { nome, email, senha });

@@ -1,0 +1,28 @@
+<button class="assistente-abrir" type="button" (click)="aberto.set(true)" aria-label="Abrir assistente">Assistente</button>
+@if (aberto()) {
+  <aside class="assistente-painel" aria-label="Assistente" role="region">
+    <header><div><strong>Assistente</strong><p>Cada pergunta é independente.</p></div><button type="button" (click)="aberto.set(false)" aria-label="Fechar assistente">×</button></header>
+    <div class="assistente-historico" aria-live="polite">
+      @if (!mensagens().length) { <p>Faça uma pergunta sobre os requisitos publicados deste projeto.</p> }
+      @for (mensagem of mensagens(); track $index) {
+        <article><p class="pergunta">{{ mensagem.pergunta }}</p>
+          @if (mensagem.resultado; as resultado) {
+            @if (resultado.estado === 'degradado') { <p class="aviso">Geração indisponível. Consulte as evidências recuperadas para revisão manual.</p> }
+            <p class="resposta">{{ resultado.resposta }}</p>
+            @if (resultado.fontes.length) { <strong>Fontes</strong>
+              @for (fonte of resultado.fontes; track fonte.id) {
+                <details><summary>{{ fonte.codigo }} · {{ fonte.id }}</summary><p class="resposta">{{ fonte.texto }}</p>
+                  @if (temRequisito(fonte.requisito_id)) { <button type="button" class="button outline" (click)="abrirFonte(fonte.requisito_id)">Abrir requisito</button> }
+                </details>
+              }
+            }
+          }
+          @if (mensagem.erro) { <p class="aviso" role="alert">{{ mensagem.erro }}</p> }
+        </article>
+      }
+      @if (carregando()) { <p role="status">Consultando evidências e gerando resposta… {{ segundos() }} s</p> }
+    </div>
+    <form (ngSubmit)="enviar()"><label for="pergunta-assistente">Sua pergunta</label><textarea id="pergunta-assistente" name="pergunta" [ngModel]="pergunta()" (ngModelChange)="pergunta.set($event)" (keydown)="tecla($event)" maxlength="8000" rows="3" placeholder="Pergunte sobre os requisitos"></textarea><button type="submit" [disabled]="carregando() || !pergunta().trim()">Enviar</button><small>Enter envia · Shift+Enter adiciona uma linha</small></form>
+    <p class="assistente-nota">Sugestões de IA devem ser revisadas por uma pessoa.</p>
+  </aside>
+}

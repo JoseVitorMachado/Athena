@@ -4,6 +4,7 @@ Gerada por `npm run matriz` a partir de x-papel-minimo, x-escopo-mcp e x-interno
 
 | Contrato | Método | Rota | operationId | Papel mínimo | Escopo MCP | Exclusivo interno | Política |
 |---|---|---|---|---|---|---|---|
+| bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/assistente/perguntas | gestaoPerguntarAssistente | Leitor | athena:read | Não | Definida |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos | gestaoListarRequisitos | Leitor | athena:read | Não | Pendente |
 | bff-gestao.yaml | POST | /api/v1/gestao/projetos/{projetoId}/requisitos | gestaoCriarRequisito | Editor | athena:write | Não | Pendente |
 | bff-gestao.yaml | GET | /api/v1/gestao/projetos/{projetoId}/requisitos/{requisitoId} | gestaoObterRequisito | Leitor | athena:read | Não | Definida |

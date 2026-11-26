@@ -78,9 +78,70 @@ tags:
     description: Repasse de requisitos
   - name: epicos
     description: Repasse de requisitos
+  - name: assistente
+    description: Perguntas com RAG sobre os requisitos publicados
   - name: comentarios
     description: Repasse de requisitos
 paths:
+  /api/v1/gestao/projetos/{projetoId}/assistente/perguntas:
+    post:
+      operationId: gestaoPerguntarAssistente
+      summary: Consultar o assistente do projeto
+      description: Leitura permitida a partir de Leitor, inclusive em projeto arquivado. Cada pergunta é independente e a resposta requer revisão humana.
+      tags:
+        - assistente
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: ./_shared/components.yaml#/components/parameters/ProjetoId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pergunta]
+              properties:
+                pergunta: { type: string, minLength: 1, maxLength: 8000 }
+      responses:
+        '200':
+          description: Resposta ou fallback com evidências
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [estado, resposta, fontes, metricas]
+                properties:
+                  estado: { type: string, enum: [ok, degradado] }
+                  resposta: { type: string }
+                  fontes:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, codigo, requisito_id, versao_id, texto, similaridade]
+                      properties:
+                        id: { type: string }
+                        codigo: { type: string }
+                        requisito_id: { type: string, format: uuid }
+                        versao_id: { type: string, format: uuid }
+                        texto: { type: string }
+                        similaridade: { type: [number, 'null'] }
+                  metricas:
+                    type: object
+                    properties:
+                      tempo_total_ms: { type: number }
+        '400':
+          $ref: ./_shared/components.yaml#/components/responses/Erro400
+        '401':
+          $ref: ./_shared/components.yaml#/components/responses/Erro401
+        '403':
+          $ref: ./_shared/components.yaml#/components/responses/Erro403
+        '429':
+          $ref: ./_shared/components.yaml#/components/responses/Erro429
+        '503':
+          $ref: ./_shared/components.yaml#/components/responses/Erro503
+
   /api/v1/gestao/projetos/{projetoId}/requisitos:
     get:
       operationId: gestaoListarRequisitos

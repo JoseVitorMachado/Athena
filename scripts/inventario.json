@@ -2184,5 +2184,15 @@
       200
     ],
     "cabecalhos": []
+  },
+  {
+    "arquivo": "bff-gestao.yaml",
+    "metodo": "post",
+    "caminho": "/api/v1/gestao/projetos/{projetoId}/assistente/perguntas",
+    "operationId": "gestaoPerguntarAssistente",
+    "sucesso": [
+      200
+    ],
+    "cabecalhos": []
   }
 ]

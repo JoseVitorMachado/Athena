@@ -3,6 +3,16 @@
   "operacoes": [
     {
       "contrato": "bff-gestao.yaml",
+      "metodo": "POST",
+      "rota": "/api/v1/gestao/projetos/{projetoId}/assistente/perguntas",
+      "operacaoDominio": "gestaoPerguntarAssistente",
+      "papelMinimo": "Leitor",
+      "escopo": "athena:read",
+      "interno": "Não",
+      "politica": "Definida"
+    },
+    {
+      "contrato": "bff-gestao.yaml",
       "metodo": "GET",
       "rota": "/api/v1/gestao/projetos/{projetoId}/requisitos",
       "operacaoDominio": "gestaoListarRequisitos",

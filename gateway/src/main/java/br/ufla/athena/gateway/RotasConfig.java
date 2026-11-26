@@ -39,6 +39,8 @@ public class RotasConfig {
     public RouteLocator rotas(RouteLocatorBuilder rotas, RotasProperties destinos) {
         return rotas.routes()
                 .route("identidade", rota -> rota.path("/api/v1/autenticacao/**", "/api/v1/usuarios/**", "/oauth2/jwks").uri(destinos.projetosAcesso()))
+                .route("assistente-gestao", rota -> rota.path("/api/v1/gestao/projetos/*/assistente/perguntas")
+                        .metadata("response-timeout", 105000).uri(destinos.bffGestao()))
                 .route("bff-gestao", rota -> rota.path("/api/v1/gestao/**").uri(destinos.bffGestao()))
                 .route("bff-livro", rota -> rota.path("/api/v1/livro/**").uri(destinos.bffLivro()))
                 .route("impacto-mcp", rota -> rota.path("/mcp", "/mcp/**").uri(destinos.impactoMcp()))

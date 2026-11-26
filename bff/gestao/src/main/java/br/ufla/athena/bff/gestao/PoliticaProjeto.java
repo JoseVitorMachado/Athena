@@ -17,10 +17,12 @@ public final class PoliticaProjeto {
 
     public static boolean permiteArquivado(String metodo, String caminho) {
         return "GET".equals(metodo)
+                || ("POST".equals(metodo) && caminho.matches(BASE + "/assistente/perguntas"))
                 || ("POST".equals(metodo) && (caminho.matches(BASE + "/restauracoes") || caminho.matches(BASE + "/exclusoes")));
     }
 
     public static Papel papelMinimo(String metodo, String caminho) {
+        if ("POST".equals(metodo) && caminho.matches(BASE + "/assistente/perguntas")) return Papel.LEITOR;
         if ("GET".equals(metodo) && caminho.matches(BASE + "/convites")) {
             return Papel.MANTENEDOR;
         }

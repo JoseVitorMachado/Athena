@@ -15,11 +15,12 @@ class ErroAthena(RuntimeError):
 
 
 class ClienteAthena:
-    def __init__(self, config: Config, transport=None):
+    def __init__(self, config: Config, transport=None, token_usuario=None):
         self.config = config
         self.http = httpx.AsyncClient(base_url=config.athena_url.rstrip("/"), timeout=config.api_timeout,
                                       transport=transport, follow_redirects=False)
-        self.token = ""
+        self.token = token_usuario or ""
+        self.token_usuario = token_usuario is not None
         self.csrf = ""
         self.expira = datetime.min.replace(tzinfo=timezone.utc)
         self.lock = asyncio.Lock()
@@ -35,13 +36,17 @@ class ClienteAthena:
     def verificar(resposta):
         if resposta.status_code >= 400:
             # Nunca incluir headers, corpo da requisição ou credenciais no erro/log.
-            raise ErroAthena(f"ATHENA retornou HTTP {resposta.status_code} em {resposta.request.url.path}.")
+            erro = ErroAthena(f"ATHENA retornou HTTP {resposta.status_code} em {resposta.request.url.path}.")
+            erro.status = resposta.status_code
+            raise erro
         try:
             return resposta.json()
         except ValueError as exc:
             raise ErroAthena("ATHENA retornou JSON inválido.") from exc
 
     async def autenticar(self, token_rejeitado=None, forcar_renovacao=False):
+        if self.token_usuario:
+            return
         async with self.lock:
             if token_rejeitado is not None and self.token and self.token != token_rejeitado:
                 return
@@ -68,7 +73,7 @@ class ClienteAthena:
         token_usado = self.token
         headers = {**kwargs.pop("headers", {}), "Authorization": f"Bearer {token_usado}"}
         resposta = await self.http.request(method, path, headers=headers, **kwargs)
-        if resposta.status_code == 401:
+        if resposta.status_code == 401 and not self.token_usuario:
             await self.autenticar(token_rejeitado=token_usado)
             headers["Authorization"] = f"Bearer {self.token}"
             resposta = await self.http.request(method, path, headers=headers, **kwargs)
@@ -98,6 +103,7 @@ class ClienteAthena:
         r = await self.http.post("/mcp", json={"jsonrpc": "2.0", "method": "notifications/initialized"},
                                  headers={"Authorization": f"Bearer {self.token}", "Accept": "application/json, text/event-stream"})
         if r.status_code != 202:
+            self.verificar(r)
             raise ErroAthena("Falha ao inicializar a sessão MCP.")
 
     async def buscar_contexto(self, q):

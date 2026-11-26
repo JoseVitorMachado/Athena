@@ -129,7 +129,7 @@ services:
       LLM_MODELO: ${LLM_MODELO:-qwen2.5:3b-instruct-q4_K_M}
       LLM_MODELO_DIGEST: ${LLM_MODELO_DIGEST:-357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b}
       LLM_CHAVE: ${LLM_CHAVE:-}
-      LLM_TIMEOUT: ${LLM_TIMEOUT:-20}
+      LLM_TIMEOUT: ${LLM_TIMEOUT:-45}
       LLM_TENTATIVAS: ${LLM_TENTATIVAS:-2}
       LLM_BACKOFF: ${LLM_BACKOFF:-2}
       LLM_MAX_TOKENS: ${LLM_MAX_TOKENS:-512}
@@ -161,6 +161,7 @@ services:
     networks:
       - edge
       - ia
+      - assistente-interno
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/health', timeout=3)"]
       interval: 10s
@@ -250,11 +251,13 @@ services:
       REQUISITOS_URL: http://requisitos:8080
       REVISOES_URL: http://revisoes:8080
       RASTREABILIDADE_URL: http://rastreabilidade:8080
+      AGENTE_IA_URL: ${AGENTE_IA_URL:-http://agente-ia:8090}
     depends_on:
       requisitos:
         condition: service_healthy
     networks:
       - app
+      - assistente-interno
 
   bff-livro:
     <<: *java
@@ -486,6 +489,8 @@ services:
       - dados-impacto-mcp
 
 networks:
+  assistente-interno:
+    internal: true
   ia:
     internal: true
   edge:

@@ -14,6 +14,7 @@ class PoliticaProjetoTest {
 
     @Test
     void identificaPapelMinimoPorOperacao() {
+        assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("POST", BASE + "/assistente/perguntas"));
         assertEquals(Papel.LEITOR, PoliticaProjeto.papelMinimo("GET", BASE));
         assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("PATCH", BASE));
         assertEquals(Papel.MANTENEDOR, PoliticaProjeto.papelMinimo("POST", BASE + "/arquivamentos"));
@@ -72,6 +73,7 @@ class PoliticaProjetoTest {
 
     @Test
     void projetoArquivadoPermiteLeituraERestauracao() {
+        assertTrue(PoliticaProjeto.permiteArquivado("POST", BASE + "/assistente/perguntas"));
         assertTrue(PoliticaProjeto.permiteArquivado("GET", BASE));
         assertTrue(PoliticaProjeto.permiteArquivado("POST", BASE + "/restauracoes"));
         assertTrue(PoliticaProjeto.permiteArquivado("POST", BASE + "/exclusoes"));

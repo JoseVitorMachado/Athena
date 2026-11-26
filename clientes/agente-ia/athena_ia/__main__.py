@@ -2,7 +2,11 @@ import argparse
 import asyncio
 import json
 import sys
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from dataclasses import replace
+from threading import BoundedSemaphore
+from time import perf_counter
+from uuid import UUID
 from pathlib import Path
 
 import httpx
@@ -42,22 +46,84 @@ def aquecer(config):
                 "carga_ms": dados.get("load_duration", 0) / 1e6}
 
 
+limite_geracoes = BoundedSemaphore(2)
+
+
+async def perguntar_http(config, token, pergunta):
+    async with ClienteAthena(config, token_usuario=token) as cliente:
+        return await Assistente(config, cliente).executar(pergunta)
+
+
+class Handler(BaseHTTPRequestHandler):
+    def responder(self, status, dados):
+        corpo = json.dumps(dados, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(corpo)))
+        self.end_headers()
+        self.wfile.write(corpo)
+
+    def do_GET(self):
+        if self.path == "/health":
+            self.responder(200, {"status": "ok", "cliente": "athena-agente-ia"})
+        else:
+            self.responder(404, {"erro": "Não encontrado."})
+
+    def do_POST(self):
+        if self.path != "/perguntar":
+            self.responder(404, {"erro": "Não encontrado."})
+            return
+        auth = self.headers.get("Authorization", "")
+        partes = auth.split()
+        if len(partes) != 2 or partes[0].lower() != "bearer" or not partes[1]:
+            self.responder(401, {"erro": "Autenticação obrigatória."})
+            return
+        try:
+            tamanho = int(self.headers.get("Content-Length", "0"))
+            if not 0 < tamanho <= 40000:
+                raise ValueError()
+            dados = json.loads(self.rfile.read(tamanho))
+        except (ValueError, UnicodeError):
+            self.responder(400, {"erro": "Entrada inválida."})
+            return
+        try:
+            projeto = str(UUID(dados["projetoId"]))
+            pergunta = dados["pergunta"]
+            if not isinstance(pergunta, str) or not pergunta.strip() or len(pergunta) > 8000:
+                raise ValueError()
+        except (ValueError, KeyError, TypeError, AttributeError):
+            self.responder(400, {"erro": "Entrada inválida."})
+            return
+        if not limite_geracoes.acquire(blocking=False):
+            self.responder(429, {"erro": "Assistente ocupado."})
+            return
+        try:
+            inicio = perf_counter()
+            config = replace(Config.from_env(), projeto_id=projeto)
+            resultado = asyncio.run(perguntar_http(config, partes[1], pergunta))
+            gerada = resultado["resultado"]
+            ids = set(gerada["fontes_ids"])
+            fontes = [{k: f.get(k) for k in ("id", "codigo", "requisito_id", "versao_id", "texto", "similaridade")}
+                      for f in resultado["fontes"] if f["id"] in ids]
+            self.responder(200, {"estado": resultado["estado"], "resposta": gerada["resposta"],
+                                 "fontes": fontes, "metricas": {"tempo_total_ms": round((perf_counter() - inicio) * 1000, 2)}})
+        except ErroAthena as exc:
+            status = getattr(exc, "status", 502)
+            self.responder(status if status in (401, 403) else 502, {"erro": "Falha na consulta ao ATHENA."})
+        except httpx.HTTPError:
+            self.responder(502, {"erro": "Falha na consulta ao ATHENA."})
+        except Exception:
+            self.responder(500, {"erro": "Falha interna."})
+        finally:
+            limite_geracoes.release()
+
+    def log_message(self, *_):
+        pass
+
+
 def servir():
-    class Health(BaseHTTPRequestHandler):
-        def do_GET(self):
-            if self.path != "/health":
-                self.send_error(404)
-                return
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(b'{"status":"ok","cliente":"athena-agente-ia"}')
-
-        def log_message(self, *_):
-            pass
-
     evento("cliente_pronto", comandos="verificar, perguntar, impacto, avaliar")
-    HTTPServer(("0.0.0.0", 8090), Health).serve_forever()
+    ThreadingHTTPServer(("0.0.0.0", 8090), Handler).serve_forever()
 
 
 async def executar(args, config):

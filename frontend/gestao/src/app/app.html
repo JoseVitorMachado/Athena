@@ -553,6 +553,7 @@
       }
     </header>
 
+    <app-assistente [projetoId]="projetoId()" [requisitos]="requisitos()" (abrirRequisito)="abrirFonteAssistente($event)" />
     @if (pagina() === 'editor') {
       <main class="requirement-editor">
         <section class="editor-main" aria-label="Editor de requisito">

@@ -103,7 +103,7 @@ exige um adaptador de modelo, não apenas trocar a URL.
 | `ATHENA_PROJETO_ID` | Projeto de demonstração `22222222-2222-4222-8222-222222222222` |
 | `LLM_URL` | `http://ollama:11434` no Compose |
 | `LLM_MODELO`, `LLM_MODELO_DIGEST` | Tag e SHA-256 aprovados; mudar ambos ao trocar pesos |
-| `LLM_TIMEOUT` | 20 segundos por tentativa, limite total incluindo streaming |
+| `LLM_TIMEOUT` | 45 segundos por tentativa, limite total incluindo streaming |
 | `LLM_TENTATIVAS`, `LLM_BACKOFF` | 2 tentativas totais, espera inicial 2 s; cresce 2, 4, 8… |
 | `LLM_MAX_TOKENS`, `LLM_CONTEXTO` | 512 tokens de saída e contexto de 4096 tokens |
 | `RAG_LIMITE` | 5 trechos, entre 1 e 20 |
@@ -343,3 +343,5 @@ O livro prevê recuperação de rascunhos, mas o backend atual só indexa public
 este cliente respeita esse contrato e lê candidatas pela API autorizada. OAuth
 próprio do agente e o extra de aprovar/publicar com confirmação humana não são
 implementados aqui; o JWT de usuário é o mecanismo atual do backend.
+
+O comando `servir` expõe `POST /perguntar` para a Gestão, com Bearer do usuário e corpo `projetoId` e `pergunta`. Cada pergunta é independente; o serviço consulta as evidências autorizadas e informa quando a geração está degradada.

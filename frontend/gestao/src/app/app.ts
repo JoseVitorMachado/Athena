@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize, forkJoin, switchMap } from 'rxjs';
+import { AssistenteComponent } from './assistente.component';
 import { SessaoService } from './sessao';
 import { caminhoGestao, lerRotaGestao, PaginaProjeto, RotaGestao } from './gestao-rotas';
 import {
@@ -41,7 +42,7 @@ type AcaoRequisito = 'submeter' | 'decidir' | 'publicar' | 'cancelar' | 'reativa
 
 const DOCUMENTO_DEMO = '44444444-4444-4444-8444-444444444444';
 @Component({
-  imports: [DatePipe, NgTemplateOutlet, FormsModule],
+  imports: [DatePipe, NgTemplateOutlet, FormsModule, AssistenteComponent],
   host: {
     '[class.dark-theme]': 'modoEscuro()',
     '(document:click)': 'fecharMenuContaAoClicarFora($event)',
@@ -1091,6 +1092,11 @@ export class App {
 
   protected codigoDo(requisitoId: string): string {
     return this.requisitos().find((requisito) => requisito.requisitoId === requisitoId)?.codigo ?? requisitoId.slice(0, 8);
+  }
+
+  protected abrirFonteAssistente(id: string): void {
+    const requisito = this.requisitos().find(item => item.requisitoId === id);
+    if (requisito) this.abrir(requisito);
   }
 
   protected abrir(requisito: Requisito): void {

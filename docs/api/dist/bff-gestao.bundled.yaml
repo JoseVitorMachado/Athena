@@ -73,9 +73,99 @@ tags:
     description: Repasse de requisitos
   - name: epicos
     description: Repasse de requisitos
+  - name: assistente
+    description: Perguntas com RAG sobre os requisitos publicados
   - name: comentarios
     description: Repasse de requisitos
 paths:
+  /api/v1/gestao/projetos/{projetoId}/assistente/perguntas:
+    post:
+      operationId: gestaoPerguntarAssistente
+      summary: Consultar o assistente do projeto
+      description: Leitura permitida a partir de Leitor, inclusive em projeto arquivado. Cada pergunta é independente e a resposta requer revisão humana.
+      tags:
+        - assistente
+      x-papel-minimo: Leitor
+      x-escopo-mcp: athena:read
+      x-projeto: projetoId
+      parameters:
+        - $ref: '#/components/parameters/ProjetoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pergunta
+              properties:
+                pergunta:
+                  type: string
+                  minLength: 1
+                  maxLength: 8000
+      responses:
+        '200':
+          description: Resposta ou fallback com evidências
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - estado
+                  - resposta
+                  - fontes
+                  - metricas
+                properties:
+                  estado:
+                    type: string
+                    enum:
+                      - ok
+                      - degradado
+                  resposta:
+                    type: string
+                  fontes:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - codigo
+                        - requisito_id
+                        - versao_id
+                        - texto
+                        - similaridade
+                      properties:
+                        id:
+                          type: string
+                        codigo:
+                          type: string
+                        requisito_id:
+                          type: string
+                          format: uuid
+                        versao_id:
+                          type: string
+                          format: uuid
+                        texto:
+                          type: string
+                        similaridade:
+                          type:
+                            - number
+                            - 'null'
+                  metricas:
+                    type: object
+                    properties:
+                      tempo_total_ms:
+                        type: number
+        '400':
+          $ref: '#/components/responses/Erro400'
+        '401':
+          $ref: '#/components/responses/Erro401'
+        '403':
+          $ref: '#/components/responses/Erro403'
+        '429':
+          $ref: '#/components/responses/Erro429'
+        '503':
+          $ref: '#/components/responses/Erro503'
   /api/v1/gestao/projetos/{projetoId}/requisitos:
     get:
       operationId: gestaoListarRequisitos
@@ -4417,6 +4507,52 @@ components:
         _links: {}
         _actions: {}
         avisos: []
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          example: urn:athena:problema:requisicao-invalida
+          format: uri
+          pattern: ^urn:athena:problema:[a-z0-9]+(?:-[a-z0-9]+)*$
+        title:
+          type: string
+          example: Requisição inválida
+        status:
+          type: integer
+          example: 400
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          example: Verifique os campos enviados.
+        instance:
+          type: string
+          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+          format: uri-reference
+        codigo:
+          type: string
+          example: REQUISICAO_INVALIDA
+        traceId:
+          type: string
+          example: a3d9b24f670c48bca701d5f893ed45af
+      additionalProperties: false
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+        - codigo
+        - traceId
+      example:
+        type: urn:athena:problema:requisicao-invalida
+        title: Requisição inválida
+        status: 400
+        detail: Verifique os campos enviados.
+        instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+        codigo: REQUISICAO_INVALIDA
+        traceId: a3d9b24f670c48bca701d5f893ed45af
     SituacaoRequisito:
       type: string
       example: ATIVO
@@ -4621,52 +4757,6 @@ components:
         totalElements: 0
         totalPages: 0
         _links: {}
-    ProblemDetails:
-      type: object
-      properties:
-        type:
-          type: string
-          example: urn:athena:problema:requisicao-invalida
-          format: uri
-          pattern: ^urn:athena:problema:[a-z0-9]+(?:-[a-z0-9]+)*$
-        title:
-          type: string
-          example: Requisição inválida
-        status:
-          type: integer
-          example: 400
-          minimum: 400
-          maximum: 599
-        detail:
-          type: string
-          example: Verifique os campos enviados.
-        instance:
-          type: string
-          example: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
-          format: uri-reference
-        codigo:
-          type: string
-          example: REQUISICAO_INVALIDA
-        traceId:
-          type: string
-          example: a3d9b24f670c48bca701d5f893ed45af
-      additionalProperties: false
-      required:
-        - type
-        - title
-        - status
-        - detail
-        - instance
-        - codigo
-        - traceId
-      example:
-        type: urn:athena:problema:requisicao-invalida
-        title: Requisição inválida
-        status: 400
-        detail: Verifique os campos enviados.
-        instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
-        codigo: REQUISICAO_INVALIDA
-        traceId: a3d9b24f670c48bca701d5f893ed45af
     RequisitoEntrada:
       type: object
       properties:
@@ -7964,34 +8054,6 @@ components:
             instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
             codigo: ACESSO_NEGADO
             traceId: a3d9b24f670c48bca701d5f893ed45af
-    Erro404:
-      description: Recurso não encontrado (§6.1–6.3 e §7).
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/ProblemDetails'
-          example:
-            type: urn:athena:problema:nao-encontrado
-            title: Recurso não encontrado
-            status: 404
-            detail: Recurso não encontrado.
-            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
-            codigo: NAO_ENCONTRADO
-            traceId: a3d9b24f670c48bca701d5f893ed45af
-    Erro409:
-      description: Conflito com estado atual (§6.1–6.3 e §7).
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/ProblemDetails'
-          example:
-            type: urn:athena:problema:conflito
-            title: Conflito com estado atual
-            status: 409
-            detail: Conflito com estado atual.
-            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
-            codigo: CONFLITO
-            traceId: a3d9b24f670c48bca701d5f893ed45af
     Erro429:
       description: Limite de requisições excedido (§6.1–6.3 e §7).
       content:
@@ -8026,6 +8088,34 @@ components:
       headers:
         Retry-After:
           $ref: '#/components/headers/RetryAfter'
+    Erro404:
+      description: Recurso não encontrado (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:nao-encontrado
+            title: Recurso não encontrado
+            status: 404
+            detail: Recurso não encontrado.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: NAO_ENCONTRADO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
+    Erro409:
+      description: Conflito com estado atual (§6.1–6.3 e §7).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: urn:athena:problema:conflito
+            title: Conflito com estado atual
+            status: 409
+            detail: Conflito com estado atual.
+            instance: /api/v1/gestao/projetos/22222222-2222-4222-8222-222222222222
+            codigo: CONFLITO
+            traceId: a3d9b24f670c48bca701d5f893ed45af
     Erro412:
       description: ETag desatualizada (§6.1–6.3 e §7).
       content:

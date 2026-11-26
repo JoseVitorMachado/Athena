@@ -47,6 +47,7 @@
 | Contratos para leitura no navegador | [docs/api/apresentacao.html](docs/api/apresentacao.html) (baixe e abra com dois cliques) |
 | Matriz de autorização e catálogo MCP | [matriz-autorizacao.md](docs/api/matriz-autorizacao.md) · [mcp-ferramentas.md](docs/api/mcp-ferramentas.md) |
 | Entregas de Empreendedorismo | [docs/empreendedorismo/](docs/empreendedorismo/) |
+| Protótipo navegável das telas (design) | [docs/design/prototipo-telas/](docs/design/prototipo-telas/) · [demo online](https://clararochag.github.io/athena-prototype/) |
 
 ## Como executar
 

@@ -17,10 +17,16 @@ docs/
 │   ├── PROPOSTAS.md                   decisões ainda em aberto
 │   └── VALIDACAO.md                   evidências da validação automática
 ├── seguranca/                         mapeamento de endpoints e tools para papéis e escopos (gerado)
+├── design/
+│   └── prototipo-telas/               protótipo navegável de alta fidelidade (US01–US18)
 └── empreendedorismo/                  entregas da disciplina de Empreendedorismo
 ```
 
 Os arquivos marcados como gerados são recriados por `npm run validar` e `npm run apresentacao`, na raiz do repositório. O ferramental de validação (`package.json`, `scripts/`, `redocly.yaml`, `.spectral.yaml`) também fica na raiz.
+
+## Protótipo de telas (design de alta fidelidade)
+
+O protótipo navegável em [design/prototipo-telas/](design/prototipo-telas/) demonstra a experiência completa planejada para os clientes: autenticação (US01–US03), workspaces e projetos (US04–US06), troca de projeto (US24) e, dentro do projeto, a organização por épicos, o mapa de rastreabilidade e o editor de requisitos (US07–US18). Abra `index.html` no navegador ou use a [demo online](https://clararochag.github.io/athena-prototype/). O mapeamento tela a tela das user stories está no [README do protótipo](design/prototipo-telas/README.md) e o roteiro de demonstração em [DEMO.md](design/prototipo-telas/DEMO.md).
 
 ## Onde está cada item da Parte 2 — Arquitetura
 

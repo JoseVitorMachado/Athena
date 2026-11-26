@@ -456,9 +456,13 @@ As sugestões produzidas pela IA não serão aplicadas automaticamente. A decis�
 - Prometheus;
 - Grafana.
 
----
+## Demonstrações em vídeo
 
-link do Video: https://youtu.be/Dv1k_tkIz-U?si=jLkPJ-GIG6OohDBa
+### conteinerização 
+[![Vídeo da conteinerização](https://img.youtube.com/vi/Dv1k_tkIz-U/0.jpg)](https://youtu.be/Dv1k_tkIz-U)
+
+### Entrega Final
+[![Vídeo da Entrega Final](https://img.youtube.com/vi/YEUYkTwUxIU/0.jpg)](https://youtu.be/YEUYkTwUxIU)
 
 ## Concepção do sistema
 
